@@ -262,7 +262,7 @@ Add appropriate TypeScript interfaces and placeholder components with basic stru
 **Note**: Advanced migration scripts (rollbacks, multi-environment deployments, CI database hooks) are planned for later sprints once core functionality is established.
 ```
 
-### Step 5: Create Shared Directory Structure
+### Step 4: Create Shared Directory Structure
 
 **Prompt for Cursor:**
 ```
@@ -298,7 +298,7 @@ shared/
 Add basic TypeScript interfaces and SQL table definitions as placeholders.
 ```
 
-### Step 6: Create Documentation Structure
+### Step 5: Create Documentation Structure
 
 **Prompt for Cursor:**
 ```
@@ -340,7 +340,7 @@ Add placeholder content in each markdown file describing what should be document
 - **Architecture Decision Records** (`docs/architecture/adr/`): Maintain ADRs to capture why key choices (Chainlit vs Streamlit, Supabase vs Firebase, etc.) were made for future reference and onboarding
 ```
 
-### Step 7: Create Scripts and Configuration
+### Step 6: Create Scripts and Configuration
 
 **Prompt for Cursor:**
 ```
