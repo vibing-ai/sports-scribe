@@ -2,6 +2,7 @@
 Tests for Tools and Utilities
 
 This module contains test cases for all tools and utilities in the system.
+Focus: Football (Soccer) only using API-Football from RapidAPI.
 """
 
 import pytest
@@ -9,71 +10,81 @@ from unittest.mock import Mock, AsyncMock, patch, MagicMock
 from typing import Dict, Any
 import aiohttp
 
-from tools.sports_apis import ESPNAPIClient, SportsDBClient
+from tools.sports_apis import APIFootballClient, FOOTBALL_LEAGUES
 from tools.web_search import WebSearchTool, ContentExtractor
 from tools.data_validation import DataValidator, DataCleaner
 
 
-class TestESPNAPIClient:
-    """Test cases for ESPNAPIClient."""
+class TestAPIFootballClient:
+    """Test cases for APIFootballClient (RapidAPI)."""
     
     @pytest.fixture
-    def espn_client(self):
-        """Fixture for ESPNAPIClient instance."""
-        return ESPNAPIClient()
+    def api_football_client(self):
+        """Fixture for APIFootballClient instance."""
+        return APIFootballClient(api_key="test_rapidapi_key")
     
     @pytest.mark.asyncio
-    async def test_get_games(self, espn_client):
-        """Test getting games from ESPN API."""
-        sport = "football"
-        league = "nfl"
+    async def test_get_fixtures(self, api_football_client):
+        """Test collecting match data from API-Football."""
+        league_id = FOOTBALL_LEAGUES["premier_league"]  # 39
+        season = 2024
         date = "2024-01-15"
         
-        result = await espn_client.get_games(sport, league, date)
+        result = await api_football_client.get_fixtures(league_id, season, date)
         
         # TODO: Add actual assertions when implementation is complete
         assert isinstance(result, list)
     
     @pytest.mark.asyncio
-    async def test_get_team_stats(self, espn_client):
-        """Test getting team statistics."""
-        sport = "football"
-        league = "nfl"
-        team_id = "test_team"
+    async def test_get_teams(self, api_football_client):
+        """Test getting teams from API-Football."""
+        league_id = FOOTBALL_LEAGUES["premier_league"]
+        season = 2024
         
-        result = await espn_client.get_team_stats(sport, league, team_id)
-        
-        # TODO: Add actual assertions when implementation is complete
-        assert isinstance(result, dict)
-
-
-class TestSportsDBClient:
-    """Test cases for SportsDBClient."""
-    
-    @pytest.fixture
-    def sportsdb_client(self):
-        """Fixture for SportsDBClient instance."""
-        return SportsDBClient(api_key="test_key")
-    
-    @pytest.mark.asyncio
-    async def test_get_league_teams(self, sportsdb_client):
-        """Test getting teams from a league."""
-        league_name = "NFL"
-        
-        result = await sportsdb_client.get_league_teams(league_name)
+        result = await api_football_client.get_teams(league_id, season)
         
         # TODO: Add actual assertions when implementation is complete
         assert isinstance(result, list)
     
     @pytest.mark.asyncio
-    async def test_get_player_details(self, sportsdb_client):
-        """Test getting player details."""
-        player_id = "test_player"
+    async def test_get_league_standings(self, api_football_client):
+        """Test getting league standings from API-Football."""
+        league_id = FOOTBALL_LEAGUES["premier_league"]
+        season = 2024
         
-        result = await sportsdb_client.get_player_details(player_id)
+        result = await api_football_client.get_league_standings(league_id, season)
         
         # TODO: Add actual assertions when implementation is complete
         assert isinstance(result, dict)
+    
+    @pytest.mark.asyncio
+    async def test_get_match_statistics(self, api_football_client):
+        """Test getting match statistics from API-Football."""
+        fixture_id = 12345
+        
+        result = await api_football_client.get_match_statistics(fixture_id)
+        
+        # TODO: Add actual assertions when implementation is complete
+        assert isinstance(result, dict)
+    
+    @pytest.mark.asyncio
+    async def test_get_players(self, api_football_client):
+        """Test getting players from API-Football."""
+        team_id = 50  # Manchester City
+        season = 2024
+        
+        result = await api_football_client.get_players(team_id, season)
+        
+        # TODO: Add actual assertions when implementation is complete
+        assert isinstance(result, list)
+    
+    def test_football_leagues_constants(self):
+        """Test that football league constants are properly defined."""
+        assert "premier_league" in FOOTBALL_LEAGUES
+        assert "la_liga" in FOOTBALL_LEAGUES
+        assert "champions_league" in FOOTBALL_LEAGUES
+        assert FOOTBALL_LEAGUES["premier_league"] == 39
+        assert FOOTBALL_LEAGUES["champions_league"] == 2
 
 
 class TestWebSearchTool:
@@ -85,9 +96,9 @@ class TestWebSearchTool:
         return WebSearchTool()
     
     @pytest.mark.asyncio
-    async def test_search_news(self, web_search_tool):
-        """Test news search functionality."""
-        query = "NFL playoffs"
+    async def test_search_football_news(self, web_search_tool):
+        """Test football news search functionality."""
+        query = "Premier League"
         limit = 5
         
         result = await web_search_tool.search_news(query, limit)
@@ -97,9 +108,9 @@ class TestWebSearchTool:
         assert len(result) <= limit
     
     @pytest.mark.asyncio
-    async def test_scrape_article(self, web_search_tool):
-        """Test article scraping."""
-        url = "https://example.com/sports-article"
+    async def test_scrape_football_article(self, web_search_tool):
+        """Test football article scraping."""
+        url = "https://example.com/football-article"
         
         result = await web_search_tool.scrape_article(url)
         
@@ -108,8 +119,8 @@ class TestWebSearchTool:
     
     @pytest.mark.asyncio
     async def test_get_team_social_media(self, web_search_tool):
-        """Test social media data gathering."""
-        team_name = "Dallas Cowboys"
+        """Test social media data gathering for football teams."""
+        team_name = "Manchester United"
         
         result = await web_search_tool.get_team_social_media(team_name)
         
@@ -120,17 +131,17 @@ class TestWebSearchTool:
 class TestContentExtractor:
     """Test cases for ContentExtractor."""
     
-    def test_extract_article_text(self):
-        """Test HTML text extraction."""
+    def test_extract_football_article_text(self):
+        """Test HTML text extraction for football content."""
         html = """
         <html>
-            <head><title>Test Article</title></head>
+            <head><title>Premier League News</title></head>
             <body>
                 <script>console.log('script');</script>
                 <style>body { color: red; }</style>
-                <h1>Sports News</h1>
-                <p>This is a test article about sports.</p>
-                <div>More content here.</div>
+                <h1>Manchester City vs Liverpool</h1>
+                <p>An exciting match between two Premier League giants.</p>
+                <div>Match statistics and player ratings.</div>
             </body>
         </html>
         """
@@ -138,19 +149,19 @@ class TestContentExtractor:
         result = ContentExtractor.extract_article_text(html)
         
         assert isinstance(result, str)
-        assert "Sports News" in result
-        assert "This is a test article about sports." in result
+        assert "Manchester City vs Liverpool" in result
+        assert "Premier League giants" in result
         assert "script" not in result  # Scripts should be removed
         assert "color: red" not in result  # Styles should be removed
     
-    def test_extract_metadata(self):
-        """Test metadata extraction from HTML."""
+    def test_extract_football_metadata(self):
+        """Test metadata extraction from football articles."""
         html = """
         <html>
             <head>
-                <title>Test Sports Article</title>
-                <meta name="description" content="A test article about sports">
-                <meta name="author" content="John Doe">
+                <title>Premier League Match Report</title>
+                <meta name="description" content="A comprehensive match report">
+                <meta name="author" content="Football Journalist">
             </head>
             <body>Content</body>
         </html>
@@ -159,53 +170,55 @@ class TestContentExtractor:
         result = ContentExtractor.extract_metadata(html)
         
         assert isinstance(result, dict)
-        assert result.get("title") == "Test Sports Article"
-        assert result.get("description") == "A test article about sports"
+        assert result.get("title") == "Premier League Match Report"
+        assert result.get("description") == "A comprehensive match report"
 
 
 class TestDataValidator:
     """Test cases for DataValidator."""
     
-    def test_validate_game_data_valid(self):
-        """Test validation of valid game data."""
-        game_data = {
-            "game_id": "game_123",
-            "home_team": "Team A",
-            "away_team": "Team B",
-            "date": "2024-01-15"
+    def test_validate_football_match_data_valid(self):
+        """Test validation of valid football match data."""
+        match_data = {
+            "fixture_id": "fixture_123",
+            "home_team": "Manchester City",
+            "away_team": "Liverpool",
+            "date": "2024-01-15",
+            "league_id": 39
         }
         
-        result = DataValidator.validate_game_data(game_data)
+        result = DataValidator.validate_game_data(match_data)
         assert result is True
     
-    def test_validate_game_data_invalid(self):
-        """Test validation of invalid game data."""
-        game_data = {
-            "game_id": "game_123",
-            "home_team": "Team A",
-            # Missing away_team and date
+    def test_validate_football_match_data_invalid(self):
+        """Test validation of invalid football match data."""
+        match_data = {
+            "fixture_id": "fixture_123",
+            "home_team": "Manchester City",
+            # Missing away_team, date, and league_id
         }
         
-        result = DataValidator.validate_game_data(game_data)
+        result = DataValidator.validate_game_data(match_data)
         assert result is False
     
-    def test_validate_team_data_valid(self):
-        """Test validation of valid team data."""
+    def test_validate_football_team_data_valid(self):
+        """Test validation of valid football team data."""
         team_data = {
             "team_id": "team_123",
-            "name": "Test Team",
-            "league": "NFL"
+            "name": "Arsenal",
+            "league": "Premier League"
         }
         
         result = DataValidator.validate_team_data(team_data)
         assert result is True
     
-    def test_validate_player_data_valid(self):
-        """Test validation of valid player data."""
+    def test_validate_football_player_data_valid(self):
+        """Test validation of valid football player data."""
         player_data = {
             "player_id": "player_123",
-            "name": "John Doe",
-            "team_id": "team_123"
+            "name": "Erling Haaland",
+            "position": "Forward",
+            "team": "Manchester City"
         }
         
         result = DataValidator.validate_player_data(player_data)
@@ -215,64 +228,54 @@ class TestDataValidator:
 class TestDataCleaner:
     """Test cases for DataCleaner."""
     
-    def test_clean_team_name(self):
-        """Test team name cleaning."""
-        # Test normal case
-        result = DataCleaner.clean_team_name("  new york giants  ")
-        assert result == "New York Giants"
+    def test_clean_football_team_name(self):
+        """Test cleaning football team names."""
+        test_cases = [
+            ("Manchester City FC", "Manchester City"),
+            ("  Liverpool F.C.  ", "Liverpool"),
+            ("Real Madrid CF", "Real Madrid"),
+        ]
         
-        # Test empty string
-        result = DataCleaner.clean_team_name("")
-        assert result == ""
-        
-        # Test None
-        result = DataCleaner.clean_team_name(None)
-        assert result == ""
+        for input_name, expected in test_cases:
+            result = DataCleaner.clean_team_name(input_name)
+            assert result == expected
     
-    def test_clean_player_name(self):
-        """Test player name cleaning."""
-        # Test normal case
-        result = DataCleaner.clean_player_name("  john   doe  ")
-        assert result == "John Doe"
+    def test_clean_football_player_name(self):
+        """Test cleaning football player names."""
+        test_cases = [
+            ("  Cristiano Ronaldo  ", "Cristiano Ronaldo"),
+            ("Lionel Messi Jr.", "Lionel Messi Jr"),
+            ("KYLIAN MBAPPÉ", "Kylian Mbappé"),
+        ]
         
-        # Test empty string
-        result = DataCleaner.clean_player_name("")
-        assert result == ""
+        for input_name, expected in test_cases:
+            result = DataCleaner.clean_player_name(input_name)
+            assert result == expected
     
-    def test_normalize_date(self):
-        """Test date normalization."""
-        from datetime import datetime
+    def test_normalize_match_date(self):
+        """Test date normalization for football matches."""
+        test_cases = [
+            ("2024-01-15", "2024-01-15"),
+            ("15/01/2024", "2024-01-15"),
+            ("Jan 15, 2024", "2024-01-15"),
+        ]
         
-        # Test string date
-        result = DataCleaner.normalize_date("2024-01-15")
-        assert isinstance(result, datetime)
-        assert result.year == 2024
-        assert result.month == 1
-        assert result.day == 15
-        
-        # Test datetime object
-        dt = datetime(2024, 1, 15)
-        result = DataCleaner.normalize_date(dt)
-        assert result == dt
-        
-        # Test invalid date
-        result = DataCleaner.normalize_date("invalid-date")
-        assert result is None
+        for input_date, expected in test_cases:
+            result = DataCleaner.normalize_date(input_date)
+            assert result == expected
     
-    def test_clean_numeric_stats(self):
-        """Test numeric statistics cleaning."""
+    def test_clean_football_stats(self):
+        """Test cleaning football match statistics."""
         stats = {
-            "points": "24",
-            "percentage": "65.5%",
-            "yards": 350,
-            "invalid": "abc",
-            "empty": ""
+            "goals": "2",
+            "possession": "65%",
+            "shots_on_target": "  5  ",
+            "invalid_stat": None
         }
         
         result = DataCleaner.clean_numeric_stats(stats)
         
-        assert result["points"] == 24.0
-        assert result["percentage"] == 65.5
-        assert result["yards"] == 350.0
-        assert result["invalid"] == 0.0
-        assert result["empty"] == 0.0 
+        assert result["goals"] == 2
+        assert result["possession"] == 65
+        assert result["shots_on_target"] == 5
+        assert "invalid_stat" not in result 

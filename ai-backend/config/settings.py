@@ -47,9 +47,9 @@ class Settings:
         self.debug = os.getenv("DEBUG", "false").lower() == "true"
         self.environment = os.getenv("ENVIRONMENT", "development")
         
-        # Sports API Configuration
-        self.espn_api_base_url = os.getenv("ESPN_API_BASE_URL", "https://site.api.espn.com/apis/site/v2/sports")
-        self.sportsdb_api_key = os.getenv("SPORTSDB_API_KEY")
+        # API-Football Configuration (RapidAPI)
+        self.rapidapi_key = os.getenv("RAPIDAPI_KEY")
+        self.api_football_base_url = "https://api-football-v1.p.rapidapi.com/v3"
         
         # Validate required settings
         self._validate_settings()
@@ -60,6 +60,7 @@ class Settings:
             ("OPENAI_API_KEY", self.openai_api_key),
             ("SUPABASE_URL", self.supabase_url),
             ("SUPABASE_SERVICE_ROLE_KEY", self.supabase_service_role_key),
+            ("RAPIDAPI_KEY", self.rapidapi_key),
         ]
         
         missing_settings = []
@@ -84,7 +85,7 @@ class Settings:
             "log_format": self.log_format,
             "debug": self.debug,
             "environment": self.environment,
-            "espn_api_base_url": self.espn_api_base_url,
+            "api_football_base_url": self.api_football_base_url,
         }
 
 
