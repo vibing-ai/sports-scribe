@@ -1,0 +1,217 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Game Validation Schema",
+  "type": "object",
+  "required": ["sport", "league", "season", "home_team_id", "away_team_id", "scheduled_at", "venue_id"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for the game"
+    },
+    "sport": {
+      "type": "string",
+      "enum": ["football", "basketball", "baseball", "soccer", "hockey", "tennis", "golf", "boxing", "mma", "motorsports"],
+      "description": "Sport category"
+    },
+    "league": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 100,
+      "pattern": "^[a-zA-Z0-9\\s-]+$",
+      "description": "League name"
+    },
+    "season": {
+      "type": "string",
+      "pattern": "^\\d{4}(-\\d{4})?$",
+      "description": "Season year (e.g., '2024' or '2023-2024')"
+    },
+    "week": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 52,
+      "description": "Week number in the season (1-52)"
+    },
+    "home_team_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Home team identifier"
+    },
+    "away_team_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Away team identifier"
+    },
+    "home_score": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 999,
+      "default": 0,
+      "description": "Home team score"
+    },
+    "away_score": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 999,
+      "default": 0,
+      "description": "Away team score"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["scheduled", "pregame", "in_progress", "halftime", "overtime", "final", "postponed", "cancelled"],
+      "default": "scheduled",
+      "description": "Game status"
+    },
+    "scheduled_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Scheduled start time (ISO 8601 format)"
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Actual start time (ISO 8601 format)"
+    },
+    "finished_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Game completion time (ISO 8601 format)"
+    },
+    "venue_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Venue identifier"
+    },
+    "attendance": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 200000,
+      "description": "Game attendance"
+    },
+    "weather": {
+      "type": "object",
+      "properties": {
+        "temperature": {
+          "type": "integer",
+          "minimum": -40,
+          "maximum": 130,
+          "description": "Temperature in Fahrenheit"
+        },
+        "humidity": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Humidity percentage"
+        },
+        "wind_speed": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 200,
+          "description": "Wind speed in mph"
+        },
+        "wind_direction": {
+          "type": "string",
+          "enum": ["N", "NE", "E", "SE", "S", "SW", "W", "NW"],
+          "description": "Wind direction"
+        },
+        "precipitation": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 20,
+          "description": "Precipitation in inches"
+        },
+        "conditions": {
+          "type": "string",
+          "enum": ["clear", "cloudy", "overcast", "rain", "snow", "fog", "windy"],
+          "description": "Weather conditions"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Weather conditions during the game"
+    },
+    "broadcast_info": {
+      "type": "object",
+      "properties": {
+        "tv_network": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "Television broadcast network"
+        },
+        "radio_station": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "Radio broadcast station"
+        },
+        "streaming_platform": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "Streaming platform"
+        },
+        "announcers": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "maxItems": 10,
+          "description": "List of announcers"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Broadcast information"
+    }
+  },
+  "additionalProperties": false,
+  "not": {
+    "properties": {
+      "home_team_id": { "type": "string" },
+      "away_team_id": { "type": "string" }
+    },
+    "required": ["home_team_id", "away_team_id"],
+    "additionalProperties": true,
+    "if": {
+      "properties": {
+        "home_team_id": { "type": "string" },
+        "away_team_id": { "type": "string" }
+      }
+    },
+    "then": {
+      "properties": {
+        "home_team_id": {
+          "not": { "enum": [{ "$data": "1/away_team_id" }] }
+        }
+      }
+    }
+  },
+  "if": {
+    "properties": { "status": { "enum": ["final", "postponed", "cancelled"] } }
+  },
+  "then": {
+    "anyOf": [
+      { "required": ["finished_at"] },
+      { "properties": { "status": { "enum": ["postponed", "cancelled"] } } }
+    ]
+  },
+  "errorMessage": {
+    "required": {
+      "sport": "Sport category is required",
+      "league": "League is required",
+      "season": "Season is required",
+      "home_team_id": "Home team ID is required",
+      "away_team_id": "Away team ID is required",
+      "scheduled_at": "Scheduled start time is required",
+      "venue_id": "Venue ID is required"
+    },
+    "properties": {
+      "sport": "Sport must be one of the supported categories",
+      "league": "League name must be 2-100 characters with alphanumeric characters, spaces, and hyphens only",
+      "season": "Season must be in format 'YYYY' or 'YYYY-YYYY'",
+      "week": "Week must be between 1 and 52",
+      "home_score": "Home score must be between 0 and 999",
+      "away_score": "Away score must be between 0 and 999",
+      "status": "Status must be one of: scheduled, pregame, in_progress, halftime, overtime, final, postponed, cancelled",
+      "attendance": "Attendance must be between 0 and 200,000"
+    },
+    "not": "Home team and away team cannot be the same"
+  }
+} 

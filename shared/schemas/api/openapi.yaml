@@ -1,0 +1,716 @@
+openapi: 3.0.3
+info:
+  title: Sport Scribe API
+  description: |
+    Sport Scribe is an AI-powered sports content platform that automatically generates 
+    high-quality articles using multi-agent AI systems. This API provides access to 
+    articles, games, players, teams, and AI agent management.
+  version: 1.0.0
+  contact:
+    name: Sport Scribe Team
+    email: support@sportscribe.ai
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.sportscribe.ai/v1
+    description: Production server
+  - url: https://staging-api.sportscribe.ai/v1
+    description: Staging server
+  - url: http://localhost:3000/api/v1
+    description: Local development server
+
+security:
+  - BearerAuth: []
+  - ApiKeyAuth: []
+
+paths:
+  # Article Endpoints
+  /articles:
+    get:
+      summary: List articles
+      description: Retrieve a paginated list of articles with optional filtering
+      tags: [Articles]
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/SportFilter'
+        - $ref: '#/components/parameters/StatusFilter'
+        - $ref: '#/components/parameters/SearchQuery'
+        - $ref: '#/components/parameters/SortBy'
+        - $ref: '#/components/parameters/DateRange'
+      responses:
+        '200':
+          description: Successfully retrieved articles
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArticleListResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      summary: Create article
+      description: Create a new article manually or request AI generation
+      tags: [Articles]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateArticleRequest'
+      responses:
+        '201':
+          description: Article created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArticleResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /articles/{id}:
+    get:
+      summary: Get article by ID
+      description: Retrieve a specific article by its unique identifier
+      tags: [Articles]
+      parameters:
+        - $ref: '#/components/parameters/ArticleId'
+      responses:
+        '200':
+          description: Successfully retrieved article
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArticleResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    put:
+      summary: Update article
+      description: Update an existing article
+      tags: [Articles]
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ArticleId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateArticleRequest'
+      responses:
+        '200':
+          description: Article updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArticleResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    delete:
+      summary: Delete article
+      description: Delete an article (soft delete - marks as deleted)
+      tags: [Articles]
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ArticleId'
+      responses:
+        '204':
+          description: Article deleted successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # Game Endpoints
+  /games:
+    get:
+      summary: List games
+      description: Retrieve a paginated list of games with optional filtering
+      tags: [Games]
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/SportFilter'
+        - $ref: '#/components/parameters/LeagueFilter'
+        - $ref: '#/components/parameters/SeasonFilter'
+        - $ref: '#/components/parameters/DateRange'
+      responses:
+        '200':
+          description: Successfully retrieved games
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameListResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /games/{id}:
+    get:
+      summary: Get game by ID
+      description: Retrieve a specific game by its unique identifier
+      tags: [Games]
+      parameters:
+        - $ref: '#/components/parameters/GameId'
+      responses:
+        '200':
+          description: Successfully retrieved game
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # Webhook Endpoints
+  /webhooks/article-generated:
+    post:
+      summary: Article generation webhook
+      description: Webhook endpoint for AI agents to submit generated articles
+      tags: [Webhooks]
+      security:
+        - WebhookSignature: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArticleGeneratedWebhook'
+      responses:
+        '200':
+          description: Webhook processed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    WebhookSignature:
+      type: apiKey
+      in: header
+      name: X-Webhook-Signature
+
+  parameters:
+    Page:
+      name: page
+      in: query
+      description: Page number for pagination
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    
+    Limit:
+      name: limit
+      in: query
+      description: Number of items per page
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+    
+    SportFilter:
+      name: sport
+      in: query
+      description: Filter by sport
+      schema:
+        type: string
+        enum: [football, basketball, baseball, soccer, hockey, tennis, golf, mma, boxing, olympics]
+    
+    StatusFilter:
+      name: status
+      in: query
+      description: Filter by article status
+      schema:
+        type: string
+        enum: [draft, pending_review, published, archived]
+    
+    SearchQuery:
+      name: q
+      in: query
+      description: Search query for article content
+      schema:
+        type: string
+        maxLength: 100
+    
+    SortBy:
+      name: sort_by
+      in: query
+      description: Sort articles by field
+      schema:
+        type: string
+        enum: [created_at, published_at, title, reading_time, view_count]
+        default: created_at
+    
+    DateRange:
+      name: date_range
+      in: query
+      description: Date range filter (last_7_days, last_30_days, last_year)
+      schema:
+        type: string
+        enum: [last_7_days, last_30_days, last_year, custom]
+    
+    LeagueFilter:
+      name: league
+      in: query
+      description: Filter by league
+      schema:
+        type: string
+    
+    SeasonFilter:
+      name: season
+      in: query
+      description: Filter by season (e.g., 2024)
+      schema:
+        type: string
+        pattern: '^(\d{4}|\d{4}-\d{4})$'
+    
+    ArticleId:
+      name: id
+      in: path
+      required: true
+      description: Article unique identifier
+      schema:
+        type: string
+        format: uuid
+    
+    GameId:
+      name: id
+      in: path
+      required: true
+      description: Game unique identifier
+      schema:
+        type: string
+        format: uuid
+
+  schemas:
+    # Article Schemas
+    Article:
+      type: object
+      required: [id, title, content, sport, status, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique article identifier
+        title:
+          type: string
+          minLength: 10
+          maxLength: 500
+          description: Article title
+        content:
+          type: string
+          minLength: 100
+          maxLength: 50000
+          description: Article content in markdown format
+        summary:
+          type: string
+          maxLength: 1000
+          description: Brief article summary
+        sport:
+          type: string
+          enum: [football, basketball, baseball, soccer, hockey, tennis, golf, mma, boxing, olympics]
+          description: Primary sport category
+        status:
+          type: string
+          enum: [draft, pending_review, published, archived]
+          description: Article publication status
+        tags:
+          type: array
+          items:
+            type: string
+            minLength: 2
+            maxLength: 50
+          maxItems: 20
+          description: Article tags for categorization
+        reading_time:
+          type: integer
+          minimum: 1
+          maximum: 120
+          description: Estimated reading time in minutes
+        view_count:
+          type: integer
+          minimum: 0
+          description: Number of article views
+        created_at:
+          type: string
+          format: date-time
+          description: Article creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+        published_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Publication timestamp
+
+    ArticleListResponse:
+      type: object
+      required: [data, pagination]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Article'
+        pagination:
+          $ref: '#/components/schemas/PaginationMetadata'
+
+    ArticleResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/Article'
+
+    CreateArticleRequest:
+      type: object
+      required: [title, content, sport]
+      properties:
+        title:
+          type: string
+          minLength: 10
+          maxLength: 500
+        content:
+          type: string
+          minLength: 100
+          maxLength: 50000
+        summary:
+          type: string
+          maxLength: 1000
+        sport:
+          type: string
+          enum: [football, basketball, baseball, soccer, hockey, tennis, golf, mma, boxing, olympics]
+        tags:
+          type: array
+          items:
+            type: string
+            minLength: 2
+            maxLength: 50
+          maxItems: 20
+        generate_ai:
+          type: boolean
+          default: false
+          description: Whether to use AI generation for this article
+
+    UpdateArticleRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 10
+          maxLength: 500
+        content:
+          type: string
+          minLength: 100
+          maxLength: 50000
+        summary:
+          type: string
+          maxLength: 1000
+        sport:
+          type: string
+          enum: [football, basketball, baseball, soccer, hockey, tennis, golf, mma, boxing, olympics]
+        status:
+          type: string
+          enum: [draft, pending_review, published, archived]
+        tags:
+          type: array
+          items:
+            type: string
+            minLength: 2
+            maxLength: 50
+          maxItems: 20
+
+    # Game Schemas
+    Game:
+      type: object
+      required: [id, home_team, away_team, sport, league, season, status]
+      properties:
+        id:
+          type: string
+          format: uuid
+        home_team:
+          type: string
+          description: Home team identifier
+        away_team:
+          type: string
+          description: Away team identifier
+        sport:
+          type: string
+          enum: [football, basketball, baseball, soccer, hockey, tennis, golf, mma, boxing, olympics]
+        league:
+          type: string
+          description: League identifier
+        season:
+          type: string
+          pattern: '^(\d{4}|\d{4}-\d{4})$'
+          description: Season (e.g., 2024 or 2023-2024)
+        status:
+          type: string
+          enum: [scheduled, in_progress, finished, postponed, cancelled]
+        home_score:
+          type: integer
+          minimum: 0
+          nullable: true
+        away_score:
+          type: integer
+          minimum: 0
+          nullable: true
+        start_time:
+          type: string
+          format: date-time
+        end_time:
+          type: string
+          format: date-time
+          nullable: true
+
+    GameListResponse:
+      type: object
+      required: [data, pagination]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Game'
+        pagination:
+          $ref: '#/components/schemas/PaginationMetadata'
+
+    GameResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/Game'
+
+    # Webhook Schemas
+    ArticleGeneratedWebhook:
+      type: object
+      required: [event, data, agent_id, task_id]
+      properties:
+        event:
+          type: string
+          enum: [article.generated]
+        data:
+          $ref: '#/components/schemas/Article'
+        agent_id:
+          type: string
+          format: uuid
+          description: ID of the agent that generated the article
+        task_id:
+          type: string
+          format: uuid
+          description: ID of the generation task
+        generation_metadata:
+          type: object
+          properties:
+            sources_used:
+              type: array
+              items:
+                type: string
+            generation_time_ms:
+              type: integer
+              minimum: 0
+            confidence_score:
+              type: number
+              minimum: 0
+              maximum: 1
+
+    WebhookResponse:
+      type: object
+      required: [received, status]
+      properties:
+        received:
+          type: boolean
+        status:
+          type: string
+          enum: [processed, queued, rejected]
+        message:
+          type: string
+          description: Optional status message
+
+    # Common Schemas
+    PaginationMetadata:
+      type: object
+      required: [page, limit, total, pages]
+      properties:
+        page:
+          type: integer
+          minimum: 1
+          description: Current page number
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 100
+          description: Items per page
+        total:
+          type: integer
+          minimum: 0
+          description: Total number of items
+        pages:
+          type: integer
+          minimum: 0
+          description: Total number of pages
+        has_next:
+          type: boolean
+          description: Whether there is a next page
+        has_prev:
+          type: boolean
+          description: Whether there is a previous page
+
+    Error:
+      type: object
+      required: [error, message]
+      properties:
+        error:
+          type: string
+          description: Error code
+        message:
+          type: string
+          description: Human-readable error message
+        details:
+          type: object
+          description: Additional error details
+        timestamp:
+          type: string
+          format: date-time
+          description: Error timestamp
+
+    ValidationError:
+      type: object
+      required: [error, message, validation_errors]
+      properties:
+        error:
+          type: string
+          enum: [validation_error]
+        message:
+          type: string
+        validation_errors:
+          type: array
+          items:
+            type: object
+            required: [field, message]
+            properties:
+              field:
+                type: string
+                description: Field that failed validation
+              message:
+                type: string
+                description: Validation error message
+              code:
+                type: string
+                description: Validation error code
+
+  responses:
+    BadRequest:
+      description: Bad request - invalid parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    Unauthorized:
+      description: Unauthorized - invalid or missing authentication
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    Forbidden:
+      description: Forbidden - insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    ValidationError:
+      description: Validation error - invalid request data
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationError'
+    
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+tags:
+  - name: Articles
+    description: Article management and generation
+  - name: Games
+    description: Game data and statistics
+  - name: Players
+    description: Player profiles and statistics
+  - name: Teams
+    description: Team information and rosters
+  - name: Webhooks
+    description: Webhook endpoints for AI agents
+  - name: Analytics
+    description: Platform analytics and metrics
+  - name: Admin
+    description: Administrative operations 

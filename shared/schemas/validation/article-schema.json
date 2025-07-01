@@ -1,0 +1,142 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Article Validation Schema",
+  "type": "object",
+  "required": ["title", "content", "sport", "league", "author"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for the article"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 500,
+      "pattern": "^[\\s\\S]*\\S[\\s\\S]*$",
+      "description": "Article title (must be 10-500 characters and not just whitespace)"
+    },
+    "content": {
+      "type": "string",
+      "minLength": 100,
+      "maxLength": 50000,
+      "description": "Article content in markdown format (100-50000 characters)"
+    },
+    "summary": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Brief summary of the article (max 1000 characters)"
+    },
+    "author": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 255,
+      "pattern": "^[a-zA-Z\\s'-]+$",
+      "description": "Author name (letters, spaces, hyphens, and apostrophes only)"
+    },
+    "sport": {
+      "type": "string",
+      "enum": ["football", "basketball", "baseball", "soccer", "hockey", "tennis", "golf", "boxing", "mma", "motorsports"],
+      "description": "Sport category"
+    },
+    "league": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 100,
+      "pattern": "^[a-zA-Z0-9\\s-]+$",
+      "description": "League name (alphanumeric, spaces, and hyphens only)"
+    },
+    "game_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "ID of the related game (if applicable)"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "published", "archived", "scheduled"],
+      "default": "draft",
+      "description": "Article publication status"
+    },
+    "published_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Publication timestamp (ISO 8601 format)"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 2,
+        "maxLength": 50,
+        "pattern": "^[a-zA-Z0-9\\s-]+$"
+      },
+      "maxItems": 20,
+      "uniqueItems": true,
+      "description": "Article tags (max 20, each 2-50 characters)"
+    },
+    "featured_image_url": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https?://.*\\.(jpg|jpeg|png|webp|gif)$",
+      "description": "URL to featured image (must be valid HTTP/HTTPS URL to image file)"
+    },
+    "reading_time_minutes": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 120,
+      "description": "Estimated reading time in minutes (1-120)"
+    },
+    "seo_keywords": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 2,
+        "maxLength": 100
+      },
+      "maxItems": 10,
+      "uniqueItems": true,
+      "description": "SEO keywords (max 10, each 2-100 characters)"
+    },
+    "byline": {
+      "type": "string",
+      "maxLength": 500,
+      "description": "Author byline or bio (max 500 characters)"
+    }
+  },
+  "additionalProperties": false,
+  "if": {
+    "properties": { "status": { "const": "scheduled" } }
+  },
+  "then": {
+    "required": ["published_at"],
+    "properties": {
+      "published_at": {
+        "type": "string",
+        "format": "date-time",
+        "formatMinimum": "1970-01-01T00:00:00Z"
+      }
+    }
+  },
+  "errorMessage": {
+    "required": {
+      "title": "Article title is required",
+      "content": "Article content is required",
+      "sport": "Sport category is required",
+      "league": "League is required",
+      "author": "Author name is required"
+    },
+    "properties": {
+      "title": "Title must be 10-500 characters and not just whitespace",
+      "content": "Content must be 100-50000 characters",
+      "summary": "Summary cannot exceed 1000 characters",
+      "author": "Author name must be 2-255 characters with only letters, spaces, hyphens, and apostrophes",
+      "sport": "Sport must be one of the supported categories",
+      "league": "League name must be 2-100 characters with alphanumeric characters, spaces, and hyphens only",
+      "status": "Status must be draft, published, archived, or scheduled",
+      "tags": "Tags must be unique, max 20 items, each 2-50 characters",
+      "featured_image_url": "Featured image must be a valid HTTP/HTTPS URL to an image file",
+      "reading_time_minutes": "Reading time must be between 1 and 120 minutes",
+      "seo_keywords": "SEO keywords must be unique, max 10 items, each 2-100 characters"
+    }
+  }
+} 

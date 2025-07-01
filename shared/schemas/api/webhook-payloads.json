@@ -1,0 +1,135 @@
+{
+  "webhook_events": {
+    "article.created": {
+      "description": "Triggered when a new article is created",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "event": { "type": "string", "enum": ["article.created"] },
+          "timestamp": { "type": "string", "format": "date-time" },
+          "source": { "type": "string", "example": "sport-scribe-api" },
+          "version": { "type": "string", "example": "1.0" },
+          "data": {
+            "type": "object",
+            "properties": {
+              "article": { "$ref": "#/components/schemas/Article" },
+              "created_by": { "type": "string", "format": "uuid" },
+              "created_by_type": { "type": "string", "enum": ["user", "agent"] }
+            }
+          }
+        }
+      }
+    },
+    "article.published": {
+      "description": "Triggered when an article is published",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "event": { "type": "string", "enum": ["article.published"] },
+          "timestamp": { "type": "string", "format": "date-time" },
+          "source": { "type": "string", "example": "sport-scribe-api" },
+          "version": { "type": "string", "example": "1.0" },
+          "data": {
+            "type": "object",
+            "properties": {
+              "article": { "$ref": "#/components/schemas/Article" },
+              "published_by": { "type": "string", "format": "uuid" },
+              "previous_status": { "type": "string" },
+              "auto_published": { "type": "boolean" }
+            }
+          }
+        }
+      }
+    },
+    "game.finished": {
+      "description": "Triggered when a game is completed",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "event": { "type": "string", "enum": ["game.finished"] },
+          "timestamp": { "type": "string", "format": "date-time" },
+          "source": { "type": "string", "example": "sport-scribe-data-collector" },
+          "version": { "type": "string", "example": "1.0" },
+          "data": {
+            "type": "object",
+            "properties": {
+              "game": { "$ref": "#/components/schemas/Game" },
+              "final_score": {
+                "type": "object",
+                "properties": {
+                  "home": { "type": "integer" },
+                  "away": { "type": "integer" }
+                }
+              },
+              "winner": { "type": "string", "enum": ["home", "away", "tie"] },
+              "duration_minutes": { "type": "integer" },
+              "key_stats": { "type": "object" }
+            }
+          }
+        }
+      }
+    },
+    "agent.task_completed": {
+      "description": "Triggered when an AI agent completes a task",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "event": { "type": "string", "enum": ["agent.task_completed"] },
+          "timestamp": { "type": "string", "format": "date-time" },
+          "source": { "type": "string", "example": "sport-scribe-agents" },
+          "version": { "type": "string", "example": "1.0" },
+          "data": {
+            "type": "object",
+            "properties": {
+              "task_id": { "type": "string", "format": "uuid" },
+              "agent_type": { "type": "string" },
+              "task_type": { "type": "string" },
+              "status": { "type": "string", "enum": ["completed", "failed"] },
+              "duration_seconds": { "type": "number" },
+              "output": { "type": "object" },
+              "error_message": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Article": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "title": { "type": "string" },
+          "content": { "type": "string" },
+          "summary": { "type": "string" },
+          "author": { "type": "string" },
+          "sport": { "type": "string" },
+          "league": { "type": "string" },
+          "status": { "type": "string" },
+          "published_at": { "type": "string", "format": "date-time" },
+          "created_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Game": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "sport": { "type": "string" },
+          "league": { "type": "string" },
+          "home_team_id": { "type": "string", "format": "uuid" },
+          "away_team_id": { "type": "string", "format": "uuid" },
+          "home_score": { "type": "integer" },
+          "away_score": { "type": "integer" },
+          "status": { "type": "string" },
+          "scheduled_at": { "type": "string", "format": "date-time" },
+          "finished_at": { "type": "string", "format": "date-time" }
+        }
+      }
+    }
+  }
+} 
