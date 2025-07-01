@@ -45,20 +45,31 @@ pip install -r requirements-dev.txt
 # Set up environment variables
 cp env.example .env
 # Edit .env with your API keys and configuration
+# See env.example for all required variables
 ```
 
 ### Environment Variables
 
-Create a `.env` file with the following variables:
+Create a `.env` file from the provided template:
+
+```bash
+cp env.example .env
+```
+
+The template includes all required variables:
 
 ```bash
 # OpenAI Configuration
 OPENAI_API_KEY=your_openai_api_key_here
 OPENAI_MODEL=gpt-4
 
-# Supabase Configuration
+# Supabase Configuration (for AI agents to publish articles)
 SUPABASE_URL=your_supabase_project_url_here
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
+
+# API-Football Configuration (RapidAPI)
+RAPIDAPI_KEY=your_rapidapi_key_here
+API_FOOTBALL_BASE_URL=https://api-football-v1.p.rapidapi.com/v3
 
 # FastAPI Configuration
 FASTAPI_HOST=0.0.0.0
@@ -72,6 +83,10 @@ LOG_FORMAT=json
 # Development
 DEBUG=true
 ENVIRONMENT=development
+
+# Football Settings
+DEFAULT_SEASON=2024
+DEFAULT_LEAGUES=premier_league,la_liga,serie_a,bundesliga,ligue_1
 ```
 
 ## Running the Application
