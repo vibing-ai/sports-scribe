@@ -5,7 +5,7 @@
 **Tech Stack:**
 - ✅ **Backend**: Supabase (PostgreSQL, Auth, Real-time, Storage)
 - ✅ **Frontend**: Next.js 14 + TypeScript + Hero UI + Tailwind CSS
-- ✅ **AI System**: OpenAI Agent SDK (Python) + Chainlit (LLM chat/demo UI)
+- ✅ **AI System**: OpenAI SDK (Python) + Chainlit (LLM chat/demo UI)
 - ✅ **Integration**: Real-time webhooks from AI agents to Supabase
 
 ## Directory Structure Overview
@@ -95,7 +95,7 @@ Add appropriate placeholder comments in each Python file indicating its purpose.
 
 **Critical**: requirements.txt must include:
 ```
-openai-agents>=0.1.0
+openai>=1.0.0
 pydantic>=2.0.0
 python-dotenv>=1.0.0
 requests>=2.28.0
@@ -507,7 +507,7 @@ CMD ["npm", "run", "dev"]
 Sport Scribe is an intelligent sports journalism platform that uses multi-agent AI to generate real-time sports articles.
 
 ## Project Structure
-- `ai-backend/` - Python-based AI agent system using OpenAI Agent SDK
+- `ai-backend/` - Python-based AI agent system using OpenAI SDK
 - `web/` - Next.js web platform for publishing and managing articles
 - `shared/` - Shared types, schemas, and constants
 - `docs/` - Project documentation
@@ -543,7 +543,7 @@ Please read our development guidelines in `docs/development/`.
 # AI Backend - Sport Scribe
 
 ## Overview
-Multi-agent AI system for generating sports articles using OpenAI Agent SDK.
+Multi-agent AI system for generating sports articles using OpenAI SDK.
 
 ## Architecture
 - **Data Collector Agent**: Gathers game data from sports APIs
@@ -729,7 +729,7 @@ After Cursor creates the structure, you'll need to manually add:
 4. **Layout wrapping**: Wrap `app/layout.tsx` with providers
 
 ## ✅ **Key Technical Requirements**
-This setup provides enterprise-grade foundations including: OpenAI Agent SDK integration, Supabase real-time backend, Hero UI components, strict TypeScript configuration, containerized development environment, and comprehensive CI/CD workflows.
+This setup provides enterprise-grade foundations including: OpenAI SDK integration, Supabase real-time backend, Hero UI components, strict TypeScript configuration, containerized development environment, and comprehensive CI/CD workflows.
 
 ### ⚠️ Post-Setup Requirements
 1. **Supabase project setup**: Create project at supabase.com
@@ -791,7 +791,7 @@ echo 'module.exports = {extends: ["@commitlint/config-conventional"]};' > commit
 - **Lint-staged**: Only lint files that are being committed for faster feedback
 - **Multi-language Support**: Handles both TypeScript and Python codebases in the monorepo
 
-### Step 3: AI Backend Setup (OpenAI Agent SDK + FastAPI)
+### Step 3: AI Backend Setup (OpenAI SDK + FastAPI)
 ```bash
 cd ai-backend
 
@@ -800,7 +800,7 @@ python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 # Install production dependencies
-pip install openai-agents pydantic python-dotenv requests supabase fastapi chainlit uvicorn structlog
+pip install openai pydantic python-dotenv requests supabase fastapi chainlit uvicorn structlog
 
 # Install development dependencies
 pip install -r requirements-dev.txt

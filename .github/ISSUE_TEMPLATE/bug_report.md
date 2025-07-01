@@ -31,7 +31,7 @@ If applicable, add screenshots to help explain your problem.
 
 **AI Backend:**
 - Python version: [e.g. 3.11]
-- OpenAI Agent SDK version: [e.g. 0.1.0]
+- OpenAI SDK version: [e.g. 1.0.0]
 - OS: [e.g. Ubuntu 20.04]
 
 **Web Platform:**

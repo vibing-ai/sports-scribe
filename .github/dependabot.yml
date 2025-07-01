@@ -21,7 +21,7 @@ updates:
       - dependency-type: "indirect"
     ignore:
       # Ignore major version updates for stable packages
-      - dependency-name: "openai-agents"
+      - dependency-name: "openai"
         update-types: ["version-update:semver-major"]
 
   # Node.js dependencies (Web Platform)

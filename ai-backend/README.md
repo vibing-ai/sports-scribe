@@ -1,7 +1,7 @@
 # AI Backend - Sport Scribe
 
 ## Overview
-Multi-agent AI system for generating sports articles using OpenAI Agent SDK.
+Multi-agent AI system for generating sports articles using OpenAI SDK.
 
 ## Architecture
 - **Data Collector Agent**: Gathers game data from sports APIs
@@ -12,7 +12,7 @@ Multi-agent AI system for generating sports articles using OpenAI Agent SDK.
 ## Tech Stack
 - **Python 3.11+**: Modern Python with type hints
 - **FastAPI**: High-performance web framework for APIs
-- **OpenAI Agent SDK**: Multi-agent AI coordination
+- **OpenAI SDK**: OpenAI API integration for AI models
 - **Supabase**: Real-time database and storage
 - **Chainlit**: Interactive AI chat interface
 - **Structlog**: Structured logging for production
