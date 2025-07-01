@@ -42,10 +42,13 @@ pip install -r requirements.txt
 # Install development dependencies (optional)
 pip install -r requirements-dev.txt
 
-# Set up environment variables
+# Set up environment variables (option 1: manual)
 cp env.example .env
 # Edit .env with your API keys and configuration
-# See env.example for all required variables
+
+# Set up environment variables (option 2: using helper script)
+./setup-env.sh
+# Follow the prompts to configure your API keys
 ```
 
 ### Environment Variables
