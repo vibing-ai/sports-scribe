@@ -1,65 +1,30 @@
-export interface ArticleData {
-  title: string
-  content: string
-  sport: string
-  author: string
-  tags?: string[]
-  metadata?: Record<string, any>
+interface ArticleContent {
+  excerpt?: string;
+  content: string;
 }
 
-export class ArticleProcessor {
-  static validateArticle(data: ArticleData): boolean {
-    return !!(
-      data.title &&
-      data.content &&
-      data.sport &&
-      data.author &&
-      data.title.length > 10 &&
-      data.content.length > 100
-    )
-  }
+export function processArticleContent({ excerpt, content }: ArticleContent): string {
+  // If excerpt is not provided, use the first 150 characters of content
+  const safeExcerpt = excerpt || content.slice(0, 150);
+  
+  // Add ellipsis if the content is longer than the excerpt
+  const shouldAddEllipsis = content.length > safeExcerpt.length;
+  
+  return shouldAddEllipsis 
+    ? `${safeExcerpt.trim()}...` 
+    : safeExcerpt.trim();
+}
 
-  static extractExcerpt(content: string, maxLength: number = 150): string {
-    const sentences = content.split('.')
-    let excerpt = sentences[0]
-    
-    for (let i = 1; i < sentences.length; i++) {
-      const next = excerpt + '.' + sentences[i]
-      if (next.length > maxLength) break
-      excerpt = next
-    }
-    
-    return excerpt.trim() + (excerpt.length < content.length ? '...' : '')
-  }
+export function formatArticleDate(date: Date | string): string {
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  }).format(dateObj);
+}
 
-  static categorizeByKeywords(content: string): string[] {
-    const keywords = {
-      breaking: ['breaking', 'urgent', 'just in', 'developing'],
-      analysis: ['analysis', 'breakdown', 'insight', 'perspective'],
-      stats: ['statistics', 'numbers', 'data', 'metrics'],
-      injury: ['injury', 'injured', 'hurt', 'medical'],
-      trade: ['trade', 'traded', 'deal', 'transaction'],
-      playoff: ['playoff', 'championship', 'finals', 'postseason'],
-    }
-
-    const categories: string[] = []
-    const contentLower = content.toLowerCase()
-
-    for (const [category, terms] of Object.entries(keywords)) {
-      if (terms.some(term => contentLower.includes(term))) {
-        categories.push(category)
-      }
-    }
-
-    return categories
-  }
-
-  static formatForDisplay(data: ArticleData) {
-    return {
-      ...data,
-      excerpt: this.extractExcerpt(data.content),
-      categories: this.categorizeByKeywords(data.content),
-      readTime: Math.ceil(data.content.split(' ').length / 200), // Assuming 200 WPM
-    }
-  }
-} 
+export function getReadingTime(content: string, wordsPerMinute = 200): number {
+  const wordCount = content.trim().split(/\s+/).length;
+  return Math.ceil(wordCount / wordsPerMinute);
+}

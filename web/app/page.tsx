@@ -1,7 +1,7 @@
-import { Button } from '@heroui/react'
+import React from 'react'
 import Link from 'next/link'
 
-export default function HomePage() {
+export default function HomePage(): JSX.Element {
   return (
     <main className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <div className="container mx-auto px-4 py-16">
@@ -14,12 +14,18 @@ export default function HomePage() {
             using intelligent multi-agent systems.
           </p>
           <div className="flex gap-4 justify-center">
-            <Button as={Link} href="/articles" color="primary" size="lg">
+            <Link 
+              href="/articles" 
+              className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+            >
               View Articles
-            </Button>
-            <Button as={Link} href="/sports" variant="bordered" size="lg">
+            </Link>
+            <Link 
+              href="/sports" 
+              className="px-6 py-3 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            >
               Browse Sports
-            </Button>
+            </Link>
           </div>
         </div>
       </div>

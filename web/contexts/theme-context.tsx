@@ -18,29 +18,37 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // Get initial theme from localStorage
-    const savedTheme = localStorage.getItem('theme') as Theme
-    if (savedTheme) {
-      setTheme(savedTheme)
+    try {
+      const savedTheme = localStorage.getItem('theme') as Theme | null
+      if (savedTheme) {
+        setTheme(savedTheme)
+      }
+    } catch (error) {
+      console.error('Error accessing localStorage:', error)
     }
   }, [])
 
   useEffect(() => {
     const updateActualTheme = () => {
+      if (typeof window === 'undefined') return;
+      
       if (theme === 'system') {
-        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-        setActualTheme(systemTheme)
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        setActualTheme(systemTheme);
       } else {
-        setActualTheme(theme)
+        setActualTheme(theme);
       }
-    }
+    };
 
-    updateActualTheme()
+    updateActualTheme();
 
-    if (theme === 'system') {
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-      mediaQuery.addEventListener('change', updateActualTheme)
-      return () => mediaQuery.removeEventListener('change', updateActualTheme)
+    if (theme === 'system' && typeof window !== 'undefined') {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      mediaQuery.addEventListener('change', updateActualTheme);
+      return () => mediaQuery.removeEventListener('change', updateActualTheme);
     }
+    
+    return undefined;
   }, [theme])
 
   useEffect(() => {

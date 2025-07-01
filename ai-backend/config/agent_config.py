@@ -4,7 +4,8 @@ Agent Configuration
 Configuration settings for AI agents focused on football (soccer) journalism.
 """
 
-from typing import Dict, Any
+from typing import Dict, Any, Optional
+from pydantic import BaseModel, Field
 
 
 # Agent configurations for football journalism
@@ -45,6 +46,33 @@ AGENT_CONFIGS = {
         "system_prompt": "You are a football article editor. Review articles for accuracy, clarity, grammar, and journalistic quality. Ensure facts are correct and style is consistent."
     }
 }
+
+
+class AgentConfiguration(BaseModel):
+    """Configuration for a single agent."""
+    name: str
+    description: str
+    model: str
+    temperature: float
+    max_tokens: int
+    system_prompt: str
+
+
+class AgentConfigurations:
+    """Manages configurations for all agents."""
+    
+    @classmethod
+    def get_config(cls, agent_name: str) -> AgentConfiguration:
+        """Get configuration for a specific agent."""
+        config = AGENT_CONFIGS.get(agent_name)
+        if not config:
+            raise ValueError(f"No configuration found for agent: {agent_name}")
+        return AgentConfiguration(**config)
+    
+    @classmethod
+    def get_all_configs(cls) -> Dict[str, AgentConfiguration]:
+        """Get configurations for all agents."""
+        return {name: AgentConfiguration(**config) for name, config in AGENT_CONFIGS.items()}
 
 
 # Default workflow configuration

@@ -66,11 +66,11 @@ class AgentOrchestrator:
         # Get agent configurations
         configs = AgentConfigurations.get_all_configs()
         
-        # Initialize agents
-        self.data_collector = DataCollectorAgent(configs["data_collector"].parameters)
-        self.researcher = ResearchAgent(configs["researcher"].parameters)
-        self.writer = WritingAgent(configs["writer"].parameters)
-        self.editor = EditorAgent(configs["editor"].parameters)
+        # Initialize agents with the configuration objects directly
+        self.data_collector = DataCollectorAgent(configs["data_collector"])
+        self.researcher = ResearchAgent(configs["researcher"])
+        self.writer = WritingAgent(configs["writer"])
+        self.editor = EditorAgent(configs["editor"])
         
         logger.info("All agents initialized successfully")
     
