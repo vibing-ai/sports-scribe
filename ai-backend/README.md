@@ -64,7 +64,7 @@ The template includes all required variables:
 ```bash
 # OpenAI Configuration
 OPENAI_API_KEY=your_openai_api_key_here
-OPENAI_MODEL=gpt-4
+OPENAI_MODEL=gpt-4.1-nano
 
 # Supabase Configuration (for AI agents to publish articles)
 SUPABASE_URL=your_supabase_project_url_here

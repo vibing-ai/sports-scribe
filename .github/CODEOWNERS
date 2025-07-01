@@ -1,0 +1,42 @@
+# Sport Scribe Code Owners
+# 
+# Global owners for fallback
+* @vibing-ai
+
+# AI Backend
+/ai-backend/ @vibing-ai
+/ai-backend/agents/ @vibing-ai
+/ai-backend/tools/ @vibing-ai
+/ai-backend/config/ @vibing-ai
+
+# Web Platform
+/web/ @vibing-ai
+/web/app/ @vibing-ai
+/web/components/ @vibing-ai
+/web/lib/ @vibing-ai
+
+# Shared code
+/shared/ @vibing-ai
+/shared/types/ @vibing-ai
+/shared/schemas/ @vibing-ai
+
+# Documentation
+/docs/ @vibing-ai
+*.md @vibing-ai
+
+# CI/CD and DevOps
+/.github/ @vibing-ai
+/scripts/ @vibing-ai
+docker-compose*.yml @vibing-ai
+Dockerfile @vibing-ai
+
+# Configuration files
+.env.example @vibing-ai
+requirements*.txt @vibing-ai
+package*.json @vibing-ai
+tsconfig.json @vibing-ai
+tailwind.config.js @vibing-ai
+
+# Security and compliance
+.pre-commit-config.yaml @vibing-ai
+/.github/workflows/security-audit.yml @vibing-ai 

@@ -24,7 +24,7 @@ class Settings:
     def __init__(self):
         # OpenAI Configuration
         self.openai_api_key = os.getenv("OPENAI_API_KEY")
-        self.openai_model = os.getenv("OPENAI_MODEL", "gpt-4")
+        self.openai_model = os.getenv("OPENAI_MODEL", "gpt-4.1-nano")
         
         # Supabase Configuration
         self.supabase_url = os.getenv("SUPABASE_URL")

@@ -333,7 +333,7 @@ docs/
 │       └── README.md
 └── README.md
 
-Add placeholder content in each markdown file describing what should be documented there.
+Add placeholder content in each markdown file with this just this "TBD" 
 
 **Key Documentation Requirements:**
 - **Getting Started Guide** (`docs/development/getting-started.md`): Walk through cloning, `.env.example` setup, running DB migrations, launching web & agent demos, and submitting a PR
