@@ -7,6 +7,8 @@ It collects real-time and historical sports data to feed into the content genera
 import logging
 from typing import Any
 
+from utils.security import sanitize_log_input
+
 logger = logging.getLogger(__name__)
 
 
@@ -28,7 +30,7 @@ class DataCollectorAgent:
             Dictionary containing game data
         """
         # TODO: Implement actual data collection logic
-        logger.info("Collecting data for game: %s", game_id)
+        logger.info("Collecting data for game: %s", sanitize_log_input(game_id))
         return {}
 
     async def collect_team_data(self, team_id: str) -> dict[str, Any]:
@@ -41,7 +43,7 @@ class DataCollectorAgent:
             Dictionary containing team data
         """
         # TODO: Implement team data collection
-        logger.info("Collecting data for team: %s", team_id)
+        logger.info("Collecting data for team: %s", sanitize_log_input(team_id))
         return {}
 
     async def collect_player_data(self, player_id: str) -> dict[str, Any]:
@@ -54,5 +56,5 @@ class DataCollectorAgent:
             Dictionary containing player data
         """
         # TODO: Implement player data collection
-        logger.info("Collecting data for player: %s", player_id)
+        logger.info("Collecting data for player: %s", sanitize_log_input(player_id))
         return {}

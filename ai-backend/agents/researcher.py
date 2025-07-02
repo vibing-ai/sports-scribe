@@ -8,6 +8,8 @@ to enrich the content generation process.
 import logging
 from typing import Any
 
+from utils.security import sanitize_log_input, sanitize_multiple_log_inputs
+
 logger = logging.getLogger(__name__)
 
 
@@ -32,7 +34,8 @@ class ResearchAgent:
             Dictionary containing historical context
         """
         # TODO: Implement team history research
-        logger.info("Researching history between teams: %s vs %s", team_id, opponent_id)
+        team_safe, opponent_safe = sanitize_multiple_log_inputs(team_id, opponent_id)
+        logger.info("Researching history between teams: %s vs %s", team_safe, opponent_safe)
         return {}
 
     async def research_player_performance(
@@ -48,7 +51,7 @@ class ResearchAgent:
             Dictionary containing player analysis
         """
         # TODO: Implement player performance research
-        logger.info("Researching player performance: %s", player_id)
+        logger.info("Researching player performance: %s", sanitize_log_input(player_id))
         return {}
 
     async def research_season_trends(self, league: str, season: str) -> dict[str, Any]:
@@ -62,5 +65,6 @@ class ResearchAgent:
             Dictionary containing season trends
         """
         # TODO: Implement season trends research
-        logger.info("Researching season trends for %s - %s", league, season)
+        league_safe, season_safe = sanitize_multiple_log_inputs(league, season)
+        logger.info("Researching season trends for %s - %s", league_safe, season_safe)
         return {}

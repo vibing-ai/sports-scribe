@@ -11,6 +11,8 @@ from typing import Any
 
 import aiohttp
 
+from utils.security import sanitize_log_input, sanitize_multiple_log_inputs
+
 logger = logging.getLogger(__name__)
 
 
@@ -62,7 +64,8 @@ class APIFootballClient:
             List of fixture data dictionaries
         """
         # TODO: Implement API-Football fixtures endpoint
-        logger.info("Fetching fixtures for league %s, season %s", league_id, season)
+        league_safe, season_safe = sanitize_multiple_log_inputs(league_id, season)
+        logger.info("Fetching fixtures for league %s, season %s", league_safe, season_safe)
         return []
 
     async def get_teams(self, league_id: int, season: int) -> list[dict[str, Any]]:
@@ -77,7 +80,8 @@ class APIFootballClient:
             List of team data dictionaries
         """
         # TODO: Implement API-Football teams endpoint
-        logger.info("Fetching teams for league %s, season %s", league_id, season)
+        league_safe, season_safe = sanitize_multiple_log_inputs(league_id, season)
+        logger.info("Fetching teams for league %s, season %s", league_safe, season_safe)
         return []
 
     async def get_league_standings(self, league_id: int, season: int) -> dict[str, Any]:
@@ -92,7 +96,8 @@ class APIFootballClient:
             Dictionary containing league standings
         """
         # TODO: Implement API-Football standings endpoint
-        logger.info("Fetching standings for league %s, season %s", league_id, season)
+        league_safe, season_safe = sanitize_multiple_log_inputs(league_id, season)
+        logger.info("Fetching standings for league %s, season %s", league_safe, season_safe)
         return {}
 
     async def get_match_statistics(self, fixture_id: int) -> dict[str, Any]:
@@ -106,7 +111,7 @@ class APIFootballClient:
             Dictionary containing match statistics
         """
         # TODO: Implement API-Football match statistics endpoint
-        logger.info("Fetching match statistics for fixture %s", fixture_id)
+        logger.info("Fetching match statistics for fixture %s", sanitize_log_input(fixture_id))
         return {}
 
     async def get_players(self, team_id: int, season: int) -> list[dict[str, Any]]:
@@ -121,7 +126,8 @@ class APIFootballClient:
             List of player data dictionaries
         """
         # TODO: Implement API-Football players endpoint
-        logger.info("Fetching players for team %s, season %s", team_id, season)
+        team_safe, season_safe = sanitize_multiple_log_inputs(team_id, season)
+        logger.info("Fetching players for team %s, season %s", team_safe, season_safe)
         return []
 
 

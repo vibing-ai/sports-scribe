@@ -11,6 +11,8 @@ from typing import Any
 import aiohttp
 from bs4 import BeautifulSoup
 
+from utils.security import sanitize_log_input
+
 logger = logging.getLogger(__name__)
 
 
@@ -49,7 +51,7 @@ class WebSearchTool:
             List of news article data
         """
         # TODO: Implement news search functionality
-        logger.info("Searching news for query: %s", query)
+        logger.info("Searching news for query: %s", sanitize_log_input(query))
         return []
 
     async def scrape_article(self, url: str) -> dict[str, Any]:
@@ -63,7 +65,7 @@ class WebSearchTool:
             Dictionary containing article content and metadata
         """
         # TODO: Implement article scraping
-        logger.info("Scraping article: %s", url)
+        logger.info("Scraping article: %s", sanitize_log_input(url))
         return {}
 
     async def get_team_social_media(self, team_name: str) -> dict[str, list[str]]:
@@ -77,7 +79,7 @@ class WebSearchTool:
             Dictionary with social media platform as key and posts as values
         """
         # TODO: Implement social media scraping
-        logger.info("Getting social media for team: %s", team_name)
+        logger.info("Getting social media for team: %s", sanitize_log_input(team_name))
         return {}
 
 
