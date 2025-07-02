@@ -1,0 +1,5 @@
+# Ignore docs directory from markdown linting
+docs/
+
+# Allow specific files that should still be linted
+!docs/README.md

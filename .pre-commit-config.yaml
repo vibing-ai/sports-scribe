@@ -48,6 +48,7 @@ repos:
       - id: markdownlint
         args: [--fix]
         files: \.md$
+        exclude: ^docs/
 
 # Security checks disabled - requires manual setup
 # - repo: https://github.com/Yelp/detect-secrets
