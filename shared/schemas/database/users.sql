@@ -15,8 +15,8 @@ CREATE TABLE user_profiles (
     theme VARCHAR(20) DEFAULT 'system',
     sports_interests TEXT [] DEFAULT '{}',
     teams_following UUID [] DEFAULT '{}',
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
 
     CONSTRAINT user_profiles_role_check CHECK (
         role IN ('admin', 'editor', 'writer', 'viewer', 'api_user')
@@ -28,13 +28,13 @@ CREATE TABLE user_profiles (
 
 -- User permissions table
 CREATE TABLE user_permissions (
-    id UUID PRIMARY KEY DEFAULT UUID_GENERATE_V4(),
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES user_profiles (id) ON DELETE CASCADE,
     resource VARCHAR(100) NOT NULL,
     actions TEXT [] NOT NULL DEFAULT '{}',
     conditions JSONB DEFAULT '{}',
     granted_by UUID REFERENCES user_profiles (id),
-    granted_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    granted_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
     expires_at TIMESTAMP WITH TIME ZONE,
     is_active BOOLEAN DEFAULT true,
 
@@ -43,7 +43,7 @@ CREATE TABLE user_permissions (
 
 -- User sessions table (for tracking login sessions)
 CREATE TABLE user_sessions (
-    id UUID PRIMARY KEY DEFAULT UUID_GENERATE_V4(),
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES user_profiles (id) ON DELETE CASCADE,
     session_token VARCHAR(255) NOT NULL,
     ip_address INET,
@@ -51,8 +51,8 @@ CREATE TABLE user_sessions (
     location_country VARCHAR(100),
     location_city VARCHAR(100),
     is_active BOOLEAN DEFAULT true,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    last_activity TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+    last_activity TIMESTAMP WITH TIME ZONE DEFAULT now(),
     expires_at TIMESTAMP WITH TIME ZONE,
 
     UNIQUE (session_token)
@@ -60,7 +60,7 @@ CREATE TABLE user_sessions (
 
 -- User activity log
 CREATE TABLE user_activity_log (
-    id UUID PRIMARY KEY DEFAULT UUID_GENERATE_V4(),
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID REFERENCES user_profiles (id) ON DELETE SET NULL,
     action VARCHAR(100) NOT NULL,
     resource_type VARCHAR(100),
@@ -68,12 +68,12 @@ CREATE TABLE user_activity_log (
     details JSONB DEFAULT '{}',
     ip_address INET,
     user_agent TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
 
 -- User API keys table
 CREATE TABLE user_api_keys (
-    id UUID PRIMARY KEY DEFAULT UUID_GENERATE_V4(),
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES user_profiles (id) ON DELETE CASCADE,
     name VARCHAR(255) NOT NULL,
     key_hash VARCHAR(255) NOT NULL UNIQUE,
@@ -82,13 +82,13 @@ CREATE TABLE user_api_keys (
     rate_limit_per_minute INTEGER DEFAULT 60,
     is_active BOOLEAN DEFAULT true,
     last_used_at TIMESTAMP WITH TIME ZONE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
     expires_at TIMESTAMP WITH TIME ZONE
 );
 
 -- User notifications table
 CREATE TABLE user_notifications (
-    id UUID PRIMARY KEY DEFAULT UUID_GENERATE_V4(),
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES user_profiles (id) ON DELETE CASCADE,
     type VARCHAR(50) NOT NULL,
     title VARCHAR(255) NOT NULL,
@@ -97,7 +97,7 @@ CREATE TABLE user_notifications (
     is_read BOOLEAN DEFAULT false,
     is_sent BOOLEAN DEFAULT false,
     sent_at TIMESTAMP WITH TIME ZONE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
 
     CONSTRAINT notification_type_check CHECK (
         type IN (
@@ -112,7 +112,7 @@ CREATE TABLE user_notifications (
 
 -- User preferences table
 CREATE TABLE user_notification_preferences (
-    id UUID PRIMARY KEY DEFAULT UUID_GENERATE_V4(),
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES user_profiles (id) ON DELETE CASCADE,
     notification_type VARCHAR(50) NOT NULL,
     email_enabled BOOLEAN DEFAULT true,
@@ -258,7 +258,7 @@ CREATE OR REPLACE FUNCTION update_user_last_activity()
 RETURNS TRIGGER AS $$
 BEGIN
     UPDATE user_sessions
-    SET last_activity = NOW()
+    SET last_activity = now()
     WHERE user_id = NEW.user_id AND is_active = true;
     RETURN NEW;
 END;
@@ -280,10 +280,10 @@ RETURNS VOID AS $$
 BEGIN
     UPDATE user_sessions
     SET is_active = false
-    WHERE expires_at < NOW() AND is_active = true;
+    WHERE expires_at < now() AND is_active = true;
 
     DELETE FROM user_sessions
-    WHERE expires_at < NOW() - INTERVAL '30 days';
+    WHERE expires_at < now() - INTERVAL '30 days';
 END;
 $$ LANGUAGE plpgsql;
 
@@ -296,6 +296,6 @@ BEGIN
     FROM user_permissions up
     WHERE up.user_id = user_uuid
     AND up.is_active = true
-    AND (up.expires_at IS NULL OR up.expires_at > NOW());
+    AND (up.expires_at IS NULL OR up.expires_at > now());
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
