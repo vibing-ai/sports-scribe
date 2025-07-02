@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Sport Scribe - Web Platform Deployment
 set -e
@@ -7,7 +7,6 @@ echo "🌐 Deploying Web Platform..."
 
 # Configuration
 PROJECT_NAME="sport-scribe-web"
-VERCEL_ORG="${VERCEL_ORG_ID}"
 
 # Install Vercel CLI if not present
 check_vercel_cli() {

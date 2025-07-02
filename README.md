@@ -127,9 +127,17 @@ Sport Scribe uses a multi-agent architecture where specialized AI agents collabo
 
 ### Code Quality
 
+Sport Scribe uses comprehensive quality tools to ensure code excellence:
+
 ```bash
-# Run linting and formatting
-./scripts/lint-fix.sh
+# Install quality tools (one-time setup)
+./scripts/setup-ci-tools.sh
+
+# Run comprehensive quality checks
+./scripts/lint-all.sh
+
+# Auto-fix linting issues
+./scripts/lint-fix.sh [ai|web|sql|all]
 
 # Type checking
 ./scripts/type-check.sh
@@ -137,6 +145,20 @@ Sport Scribe uses a multi-agent architecture where specialized AI agents collabo
 # Run tests
 ./scripts/run-tests.sh
 ```
+
+#### Quality Tools
+
+- **shellcheck**: Shell script linting
+- **yamllint**: YAML file validation
+- **hadolint**: Dockerfile linting
+- **ajv-cli**: JSON schema validation
+- **sqlfluff**: SQL linting and formatting
+- **ruff**: Python linting (fast)
+- **mypy**: Python type checking
+- **bandit**: Python security analysis
+- **safety**: Python vulnerability scanning
+- **ESLint**: TypeScript/JavaScript linting
+- **Prettier**: Code formatting
 
 ### Database Management
 

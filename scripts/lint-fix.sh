@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Sport Scribe - Lint Auto-fix
 set -e
@@ -46,6 +46,23 @@ fix_web_platform() {
     echo "✅ Web Platform linting fixed"
 }
 
+# Fix SQL files
+fix_sql_files() {
+    echo "🗃️  Fixing SQL files..."
+    
+    if ! command -v sqlfluff &> /dev/null; then
+        echo "⚠️  sqlfluff not installed, skipping..."
+        return 0
+    fi
+    
+    if find . -name "*.sql" -type f | grep -q .; then
+        sqlfluff fix shared/schemas/database/ --force
+        echo "✅ SQL files fixed"
+    else
+        echo "⚠️  No SQL files found, skipping..."
+    fi
+}
+
 # Main fix process
 main() {
     case "${1:-all}" in
@@ -55,12 +72,16 @@ main() {
         "web")
             fix_web_platform
             ;;
+        "sql")
+            fix_sql_files
+            ;;
         "all")
             fix_ai_backend
             fix_web_platform
+            fix_sql_files
             ;;
         *)
-            echo "Usage: $0 [ai|web|all]"
+            echo "Usage: $0 [ai|web|sql|all]"
             exit 1
             ;;
     esac
@@ -68,6 +89,7 @@ main() {
     echo ""
     echo "🎉 Linting fixes complete!"
     echo "💡 Don't forget to review the changes before committing"
+    echo "💡 Run 'scripts/lint-all.sh' for comprehensive quality checks"
 }
 
 main "$@" 

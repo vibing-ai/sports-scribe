@@ -1,0 +1,94 @@
+name: Quality Checks
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  quality-checks:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: Install CI tools
+      run: |
+        # Install shellcheck
+        sudo apt-get update && sudo apt-get install -y shellcheck
+        
+        # Install yamllint
+        pip3 install yamllint
+        
+        # Install hadolint
+        sudo wget -O /usr/local/bin/hadolint https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-x86_64
+        sudo chmod +x /usr/local/bin/hadolint
+        
+        # Install ajv-cli
+        npm install -g ajv-cli
+        
+        # Install sqlfluff
+        pip3 install sqlfluff
+        
+    - name: Install Python dependencies
+      run: |
+        cd ai-backend
+        pip install -r requirements.txt
+        pip install -r requirements-dev.txt
+        
+    - name: Install Node.js dependencies
+      run: |
+        cd web
+        npm ci
+        
+    - name: Run shell script linting
+      run: |
+        find scripts/ -name "*.sh" -exec shellcheck {} \;
+        
+    - name: Run YAML linting
+      run: |
+        yamllint .
+        
+    - name: Run Docker linting
+      run: |
+        find . -name "Dockerfile*" -exec hadolint {} \;
+        
+    - name: Run JSON schema validation
+      run: |
+        find shared/schemas -name "*.json" -exec ajv compile -s {} \; 2>/dev/null || true
+        
+    - name: Run SQL linting
+      run: |
+        if find . -name "*.sql" -type f | grep -q .; then
+          sqlfluff lint shared/schemas/database/
+        fi
+        
+    - name: Run Python linting
+      run: |
+        cd ai-backend
+        ruff check .
+        mypy . --ignore-missing-imports
+        bandit -r . --severity-level medium
+        safety check
+        
+    - name: Run TypeScript linting
+      run: |
+        cd web
+        npm run lint
+        npx tsc --noEmit
+        
+    - name: Run comprehensive quality checks
+      run: |
+        ./scripts/lint-all.sh 
