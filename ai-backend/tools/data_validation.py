@@ -29,7 +29,7 @@ class DataValidator:
         Returns:
             True if data is valid, False otherwise
         """
-        required_fields = ["game_id", "home_team", "away_team", "date"]
+        required_fields = ["fixture_id", "home_team", "away_team", "date"]
 
         # Check required fields
         for field in required_fields:
@@ -72,7 +72,7 @@ class DataValidator:
         Returns:
             True if data is valid, False otherwise
         """
-        required_fields = ["player_id", "name", "team_id"]
+        required_fields = ["player_id", "name", "position", "team"]
 
         for field in required_fields:
             if field not in player_data:
@@ -104,7 +104,15 @@ class DataCleaner:
 
         # Remove extra whitespace and normalize case
         cleaned = re.sub(r"\s+", " ", team_name.strip())
-        return cleaned.title()
+        
+        # Remove common football suffixes
+        suffixes = [" FC", " F.C.", " CF", " C.F."]
+        for suffix in suffixes:
+            if cleaned.endswith(suffix):
+                cleaned = cleaned[:-len(suffix)]
+                break
+        
+        return cleaned
 
     @staticmethod
     def clean_player_name(player_name: str) -> str:
@@ -122,21 +130,26 @@ class DataCleaner:
 
         # Remove extra whitespace and normalize case
         cleaned = re.sub(r"\s+", " ", player_name.strip())
+        
+        # Remove trailing periods from Jr., Sr., etc.
+        if cleaned.endswith('.'):
+            cleaned = cleaned[:-1]
+        
         return cleaned.title()
 
     @staticmethod
-    def normalize_date(date_value: str | datetime) -> datetime | None:
+    def normalize_date(date_value: str | datetime) -> str:
         """
-        Normalize date values to datetime objects.
+        Normalize date values to string format.
 
         Args:
             date_value: Date as string or datetime object
 
         Returns:
-            Normalized datetime object or None if invalid
+            Normalized date string in YYYY-MM-DD format
         """
         if isinstance(date_value, datetime):
-            return date_value
+            return date_value.strftime("%Y-%m-%d")
 
         if isinstance(date_value, str):
             # Try common date formats
@@ -145,16 +158,18 @@ class DataCleaner:
                 "%Y-%m-%d %H:%M:%S",
                 "%m/%d/%Y",
                 "%d/%m/%Y",
+                "%b %d, %Y",
             ]
 
             for fmt in formats:
                 try:
-                    return datetime.strptime(date_value, fmt)
+                    dt = datetime.strptime(date_value, fmt)
+                    return dt.strftime("%Y-%m-%d")
                 except ValueError:
                     continue
 
         logger.warning(f"Could not parse date: {date_value}")
-        return None
+        return date_value
 
     @staticmethod
     def clean_numeric_stats(stats: dict[str, Any]) -> dict[str, Any]:
@@ -165,11 +180,15 @@ class DataCleaner:
             stats: Dictionary containing numeric statistics
 
         Returns:
-            Dictionary with cleaned numeric values
+            Dictionary with cleaned numeric values, excluding invalid stats
         """
         cleaned_stats = {}
 
         for key, value in stats.items():
+            # Skip None values
+            if value is None:
+                continue
+                
             try:
                 # Try to convert to float
                 if isinstance(value, str):
@@ -177,14 +196,10 @@ class DataCleaner:
                     cleaned_value = re.sub(r"[^\d.-]", "", value)
                     if cleaned_value:
                         cleaned_stats[key] = float(cleaned_value)
-                    else:
-                        cleaned_stats[key] = 0.0
                 elif isinstance(value, int | float):
                     cleaned_stats[key] = float(value)
-                else:
-                    cleaned_stats[key] = 0.0
             except (ValueError, TypeError):
                 logger.warning(f"Could not clean numeric value for {key}: {value}")
-                cleaned_stats[key] = 0.0
+                # Skip invalid values instead of setting to 0.0
 
         return cleaned_stats
