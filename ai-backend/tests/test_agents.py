@@ -9,7 +9,7 @@ import pytest
 from agents.data_collector import DataCollectorAgent
 from agents.editor import EditorAgent
 from agents.researcher import ResearchAgent
-from agents.writer import WriterAgent
+from agents.writer import WritingAgent
 
 
 class TestDataCollectorAgent:
@@ -17,7 +17,7 @@ class TestDataCollectorAgent:
 
     @pytest.fixture
     def agent(self):
-        return DataCollectorAgent()
+        return DataCollectorAgent({})
 
     @pytest.mark.asyncio
     async def test_collect_match_data(self, agent):
@@ -37,7 +37,7 @@ class TestResearchAgent:
 
     @pytest.fixture
     def agent(self):
-        return ResearchAgent()
+        return ResearchAgent({})
 
     @pytest.mark.asyncio
     async def test_research_team_background(self, agent):
@@ -57,7 +57,7 @@ class TestWriterAgent:
 
     @pytest.fixture
     def agent(self):
-        return WriterAgent()
+        return WritingAgent({})
 
     @pytest.mark.asyncio
     async def test_generate_match_report(self, agent):
@@ -77,7 +77,7 @@ class TestEditorAgent:
 
     @pytest.fixture
     def agent(self):
-        return EditorAgent()
+        return EditorAgent({})
 
     @pytest.mark.asyncio
     async def test_review_article_quality(self, agent):

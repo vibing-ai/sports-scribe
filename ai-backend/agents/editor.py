@@ -1,4 +1,4 @@
-"""Editor Agent
+"""Editor Agent.
 
 This agent reviews and refines article quality before publication.
 It checks for accuracy, readability, and adherence to style guidelines.

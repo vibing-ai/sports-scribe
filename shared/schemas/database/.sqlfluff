@@ -1,0 +1,25 @@
+[sqlfluff]
+dialect = postgres
+templater = raw
+
+[sqlfluff:rules:references.special_chars]
+# Disable special character warnings for PostgreSQL policy names
+# These are perfectly valid in PostgreSQL
+quoted_identifiers_policy = none
+
+[sqlfluff:rules:layout.long_lines]
+# Allow longer lines for complex SQL statements
+ignore_comment_lines = True
+ignore_comment_clauses = True
+
+[sqlfluff:rules:capitalisation.identifiers]
+# PostgreSQL commonly uses lowercase identifiers
+extended_capitalisation_policy = lower
+
+[sqlfluff:rules:capitalisation.functions]
+# PostgreSQL functions are commonly lowercase
+extended_capitalisation_policy = lower
+
+[sqlfluff:rules:capitalisation.keywords]
+# Allow mixed case keywords
+extended_capitalisation_policy = consistent 

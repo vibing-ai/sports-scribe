@@ -1,4 +1,4 @@
-"""Helper Utilities
+"""Helper Utilities.
 
 Common helper functions for football data processing and article generation.
 """

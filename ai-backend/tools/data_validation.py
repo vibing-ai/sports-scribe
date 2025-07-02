@@ -179,7 +179,7 @@ class DataCleaner:
                         cleaned_stats[key] = float(cleaned_value)
                     else:
                         cleaned_stats[key] = 0.0
-                elif isinstance(value, (int, float)):
+                elif isinstance(value, int | float):
                     cleaned_stats[key] = float(value)
                 else:
                     cleaned_stats[key] = 0.0

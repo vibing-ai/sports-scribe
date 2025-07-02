@@ -1,4 +1,4 @@
-"""Data Collector Agent
+"""Data Collector Agent.
 
 This agent is responsible for gathering game data from various sports APIs.
 It collects real-time and historical sports data to feed into the content generation pipeline.

@@ -35,12 +35,20 @@ class APIFootballClient:
         self.session = aiohttp.ClientSession()
         return self
 
-    async def __aexit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: Any) -> None:
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: Any,
+    ) -> None:
         if self.session:
             await self.session.close()
 
     async def get_fixtures(
-        self, league_id: int | None = None, season: int | None = None, date: str | None = None
+        self,
+        league_id: int | None = None,
+        season: int | None = None,
+        date: str | None = None,
     ) -> list[dict[str, Any]]:
         """
         Get football fixtures/matches.

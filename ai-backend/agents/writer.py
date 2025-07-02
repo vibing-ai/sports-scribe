@@ -1,4 +1,4 @@
-"""Writing Agent
+"""Writing Agent.
 
 This agent generates engaging sports articles based on collected data and research.
 It uses AI to create compelling narratives from raw sports data and context.

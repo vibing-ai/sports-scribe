@@ -1,4 +1,4 @@
-"""Application Settings
+"""Application Settings.
 
 This module contains application-wide settings and configuration
 loaded from environment variables and config files.

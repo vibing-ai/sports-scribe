@@ -6,7 +6,7 @@
   "properties": {
     "id": {
       "type": "string",
-      "format": "uuid",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
       "description": "Unique identifier for the game"
     },
     "sport": {
@@ -34,12 +34,12 @@
     },
     "home_team_id": {
       "type": "string",
-      "format": "uuid",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
       "description": "Home team identifier"
     },
     "away_team_id": {
       "type": "string",
-      "format": "uuid",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
       "description": "Away team identifier"
     },
     "home_score": {
@@ -79,7 +79,7 @@
     },
     "venue_id": {
       "type": "string",
-      "format": "uuid",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
       "description": "Venue identifier"
     },
     "attendance": {
@@ -161,35 +161,5 @@
       "description": "Broadcast information"
     }
   },
-  "additionalProperties": false,
-  "not": {
-    "properties": {
-      "home_team_id": { "type": "string" },
-      "away_team_id": { "type": "string" }
-    },
-    "required": ["home_team_id", "away_team_id"],
-    "additionalProperties": true,
-    "if": {
-      "properties": {
-        "home_team_id": { "type": "string" },
-        "away_team_id": { "type": "string" }
-      }
-    },
-    "then": {
-      "properties": {
-        "home_team_id": {
-          "not": { "enum": [{ "$data": "1/away_team_id" }] }
-        }
-      }
-    }
-  },
-  "if": {
-    "properties": { "status": { "enum": ["final", "postponed", "cancelled"] } }
-  },
-  "then": {
-    "anyOf": [
-      { "required": ["finished_at"] },
-      { "properties": { "status": { "enum": ["postponed", "cancelled"] } } }
-    ]
-  }
+  "additionalProperties": false
 } 

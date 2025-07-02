@@ -1,4 +1,4 @@
-"""Research Agent
+"""Research Agent.
 
 This agent provides contextual background and analysis for sports articles.
 It researches historical data, team/player statistics, and relevant context

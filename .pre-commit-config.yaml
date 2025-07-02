@@ -24,13 +24,15 @@ repos:
     hooks:
       - id: black
         files: ^ai-backend/.*\.py$
+        language_version: python3.13
 
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.7.1
     hooks:
       - id: mypy
         files: ^ai-backend/.*\.py$
-        additional_dependencies: [types-requests]
+        language_version: python3.13
+        additional_dependencies: [types-requests, types-PyYAML]
 
   # TypeScript/JavaScript linting and formatting
   - repo: https://github.com/pre-commit/mirrors-prettier

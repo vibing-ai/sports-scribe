@@ -28,7 +28,12 @@ class WebSearchTool:
         self.session = aiohttp.ClientSession(headers=headers)
         return self
 
-    async def __aexit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: Any) -> None:
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: Any,
+    ) -> None:
         if self.session:
             await self.session.close()
 

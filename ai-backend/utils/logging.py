@@ -1,4 +1,4 @@
-"""Logging Utilities
+"""Logging Utilities.
 
 This module provides logging configuration and utilities for the AI backend.
 """
@@ -8,6 +8,7 @@ import logging
 import logging.config
 import sys
 from datetime import datetime
+from typing import Any, ClassVar
 
 import structlog
 
@@ -74,7 +75,7 @@ class ColoredFormatter(logging.Formatter):
     """Colored formatter for console output in development."""
 
     # Color codes
-    COLORS = {
+    COLORS: ClassVar[dict[str, str]] = {
         "DEBUG": "\033[36m",  # Cyan
         "INFO": "\033[32m",  # Green
         "WARNING": "\033[33m",  # Yellow
@@ -109,7 +110,9 @@ class ColoredFormatter(logging.Formatter):
 
 
 def setup_logging(
-    level: str | None = None, format_type: str | None = None, enable_structlog: bool = True
+    level: str | None = None,
+    format_type: str | None = None,
+    enable_structlog: bool = True,
 ) -> None:
     """Set up logging configuration.
 
@@ -135,11 +138,9 @@ def setup_logging(
     console_handler.setLevel(getattr(logging, level))
 
     # Set formatter based on format type
-    formatter: logging.Formatter
-    if format_type.lower() == "json":
-        formatter = JSONFormatter()
-    else:
-        formatter = ColoredFormatter()
+    formatter: logging.Formatter = (
+        JSONFormatter() if format_type.lower() == "json" else ColoredFormatter()
+    )
 
     console_handler.setFormatter(formatter)
     root_logger.addHandler(console_handler)
@@ -181,7 +182,7 @@ def setup_structlog() -> None:
     )
 
 
-def get_logger(name: str) -> structlog.BoundLogger:
+def get_logger(name: str) -> Any:
     """Get a structured logger instance.
 
     Args:
@@ -197,7 +198,7 @@ class LoggerMixin:
     """Mixin class to add logging capabilities to other classes."""
 
     @property
-    def logger(self) -> structlog.BoundLogger:
+    def logger(self) -> Any:
         """Get logger for this class."""
         return get_logger(self.__class__.__name__)
 

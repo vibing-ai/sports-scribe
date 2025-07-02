@@ -1,10 +1,59 @@
-"""Agent Configuration
+"""Agent Configuration.
 
 Configuration settings for AI agents focused on football (soccer) journalism.
 """
 
+from typing import Any
+
+
+class AgentConfig:
+    """Configuration for a single agent."""
+
+    def __init__(
+        self,
+        name: str,
+        description: str,
+        model: str,
+        temperature: float,
+        max_tokens: int,
+        system_prompt: str,
+    ):
+        self.name = name
+        self.description = description
+        self.model = model
+        self.temperature = temperature
+        self.max_tokens = max_tokens
+        self.system_prompt = system_prompt
+
+    @property
+    def parameters(self) -> dict[str, Any]:
+        """Get agent parameters as a dictionary."""
+        return {
+            "name": self.name,
+            "description": self.description,
+            "model": self.model,
+            "temperature": self.temperature,
+            "max_tokens": self.max_tokens,
+            "system_prompt": self.system_prompt,
+        }
+
+
+class AgentConfigurations:
+    """Manages configurations for all agents."""
+
+    @staticmethod
+    def get_all_configs() -> dict[str, AgentConfig]:
+        """Get all agent configurations."""
+        return {
+            "data_collector": AgentConfig(**AGENT_CONFIGS["data_collector"]),
+            "researcher": AgentConfig(**AGENT_CONFIGS["researcher"]),
+            "writer": AgentConfig(**AGENT_CONFIGS["writer"]),
+            "editor": AgentConfig(**AGENT_CONFIGS["editor"]),
+        }
+
+
 # Agent configurations for football journalism
-AGENT_CONFIGS = {
+AGENT_CONFIGS: dict[str, dict[str, Any]] = {
     "data_collector": {
         "name": "Football Data Collector",
         "description": "Collects football match data, standings, and statistics from API-Football",

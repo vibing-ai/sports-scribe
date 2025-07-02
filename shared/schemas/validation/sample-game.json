@@ -1,0 +1,31 @@
+{
+  "id": "123e4567-e89b-12d3-a456-426614174000",
+  "sport": "soccer",
+  "league": "Premier League",
+  "season": "2023-2024",
+  "week": 15,
+  "home_team_id": "456e7890-e89b-12d3-a456-426614174001",
+  "away_team_id": "789e0123-e89b-12d3-a456-426614174002",
+  "home_score": 3,
+  "away_score": 1,
+  "status": "final",
+  "scheduled_at": "2024-01-15T14:00:00Z",
+  "started_at": "2024-01-15T14:05:00Z",
+  "finished_at": "2024-01-15T15:55:00Z",
+  "venue_id": "abc12345-e89b-12d3-a456-426614174003",
+  "attendance": 54000,
+  "weather": {
+    "temperature": 45,
+    "humidity": 65,
+    "wind_speed": 8,
+    "wind_direction": "SW",
+    "precipitation": 0,
+    "conditions": "cloudy"
+  },
+  "broadcast_info": {
+    "tv_network": "Sky Sports",
+    "radio_station": "BBC Radio 5 Live",
+    "streaming_platform": "Peacock",
+    "announcers": ["Martin Tyler", "Gary Neville"]
+  }
+} 

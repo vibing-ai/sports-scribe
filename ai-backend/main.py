@@ -1,9 +1,10 @@
-"""Sport Scribe AI Backend - Main Application
+"""Sport Scribe AI Backend - Main Application.
 
 This is the main entry point for the AI backend system that orchestrates
 the multi-agent sports journalism workflow.
 """
 
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from typing import Any
 
@@ -57,7 +58,7 @@ class HealthResponse(BaseModel):
 class AgentOrchestrator:
     """Orchestrates the multi-agent workflow for sports article generation."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the agent orchestrator with all agents."""
         logger.info("Initializing Agent Orchestrator")
 
@@ -158,7 +159,7 @@ class AgentOrchestrator:
             logger.error(f"Article generation failed: {e!s}")
             raise HTTPException(
                 status_code=500, detail=f"Article generation failed: {e!s}"
-            )
+            ) from e
 
 
 # Global orchestrator instance
@@ -166,7 +167,7 @@ orchestrator = None
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan management."""
     global orchestrator
 
@@ -198,7 +199,7 @@ app.add_middleware(
 
 
 @app.get("/health", response_model=HealthResponse)
-async def health_check():
+async def health_check() -> HealthResponse:
     """Health check endpoint."""
     return HealthResponse(
         status="healthy",
@@ -213,7 +214,9 @@ async def health_check():
 
 
 @app.post("/generate-article", response_model=ArticleResponse)
-async def generate_article(request: ArticleRequest, background_tasks: BackgroundTasks):
+async def generate_article(
+    request: ArticleRequest, background_tasks: BackgroundTasks
+) -> ArticleResponse:
     """Generate a sports article using the multi-agent system."""
     if not orchestrator:
         raise HTTPException(status_code=503, detail="Service not ready")
@@ -222,7 +225,7 @@ async def generate_article(request: ArticleRequest, background_tasks: Background
 
 
 @app.get("/")
-async def root():
+async def root() -> dict[str, str]:
     """Root endpoint."""
     return {
         "message": "Sport Scribe AI Backend",
