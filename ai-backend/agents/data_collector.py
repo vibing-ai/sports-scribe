@@ -28,7 +28,7 @@ class DataCollectorAgent:
             Dictionary containing game data
         """
         # TODO: Implement actual data collection logic
-        logger.info(f"Collecting data for game: {game_id}")
+        logger.info("Collecting data for game: %s", game_id)
         return {}
 
     async def collect_team_data(self, team_id: str) -> dict[str, Any]:
@@ -41,7 +41,7 @@ class DataCollectorAgent:
             Dictionary containing team data
         """
         # TODO: Implement team data collection
-        logger.info(f"Collecting data for team: {team_id}")
+        logger.info("Collecting data for team: %s", team_id)
         return {}
 
     async def collect_player_data(self, player_id: str) -> dict[str, Any]:
@@ -54,5 +54,5 @@ class DataCollectorAgent:
             Dictionary containing player data
         """
         # TODO: Implement player data collection
-        logger.info(f"Collecting data for player: {player_id}")
+        logger.info("Collecting data for player: %s", player_id)
         return {}

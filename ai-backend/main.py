@@ -82,11 +82,12 @@ class AgentOrchestrator:
             if not request.game_id:
                 raise HTTPException(status_code=400, detail="Game ID is required")
 
-            # Initialize agents
-            data_collector = DataCollectorAgent()
-            researcher = ResearchAgent()
-            writer = WritingAgent()
-            editor = EditorAgent()
+            # Initialize agents with default configurations
+            configs = AgentConfigurations.get_all_configs()
+            data_collector = DataCollectorAgent(configs["data_collector"].parameters)
+            researcher = ResearchAgent(configs["researcher"].parameters)
+            writer = WritingAgent(configs["writer"].parameters)
+            editor = EditorAgent(configs["editor"].parameters)
 
             # Collect game data
             game_data = await self._collect_game_data(data_collector, request.game_id)

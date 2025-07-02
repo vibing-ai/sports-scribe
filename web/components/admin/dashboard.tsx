@@ -1,34 +1,34 @@
-import { Card, CardHeader, CardBody, Progress, Chip } from '@heroui/react'
-import { 
-  BarChart3, 
-  Users, 
-  FileText, 
+import { Card, CardHeader, CardBody } from "@heroui/react";
+import {
+  BarChart3,
+  Users,
+  FileText,
   TrendingUp,
   Activity,
   Calendar,
   Eye,
-  MessageCircle
+  MessageCircle,
 } from "lucide-react";
 
 export interface DashboardStats {
-  totalArticles: number
-  totalViews: number
-  articlesThisWeek: number
-  publishedArticles: number
-  totalUsers: number
-  activeUsers: number
-  viewsThisWeek: number
-  totalComments: number
+  totalArticles: number;
+  totalViews: number;
+  articlesThisWeek: number;
+  publishedArticles: number;
+  totalUsers: number;
+  activeUsers: number;
+  viewsThisWeek: number;
+  totalComments: number;
   aiAgentStatus: {
-    dataCollector: string
-    researcher: string
-    writer: string
-    editor: string
-  }
+    dataCollector: string;
+    researcher: string;
+    writer: string;
+    editor: string;
+  };
 }
 
 export interface DashboardProps {
-  stats: DashboardStats
+  stats: DashboardStats;
 }
 
 interface StatCardProps {
@@ -39,7 +39,13 @@ interface StatCardProps {
   color?: "primary" | "secondary" | "success" | "warning" | "danger";
 }
 
-function StatCard({ title, value, icon, trend, color = "primary" }: StatCardProps) {
+function StatCard({
+  title,
+  value,
+  icon,
+  trend,
+  color = "primary",
+}: StatCardProps) {
   return (
     <Card className="w-full">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -48,9 +54,7 @@ function StatCard({ title, value, icon, trend, color = "primary" }: StatCardProp
       </CardHeader>
       <CardBody>
         <div className="text-2xl font-bold">{value.toLocaleString()}</div>
-        {trend && (
-          <p className="text-xs text-muted-foreground">{trend}</p>
-        )}
+        {trend && <p className="text-xs text-muted-foreground">{trend}</p>}
       </CardBody>
     </Card>
   );
@@ -90,7 +94,7 @@ export function Dashboard({ stats }: DashboardProps) {
       color: "primary" as const,
     },
     {
-      title: "Published Articles", 
+      title: "Published Articles",
       value: stats.publishedArticles,
       icon: <BarChart3 className="h-4 w-4" />,
       color: "success" as const,
@@ -129,7 +133,7 @@ export function Dashboard({ stats }: DashboardProps) {
           <StatCard key={index} {...card} />
         ))}
       </div>
-      
+
       <div className="grid gap-4 md:grid-cols-2">
         <QuickActions />
         <RecentActivity />
@@ -162,4 +166,4 @@ function RecentActivity() {
       </CardBody>
     </Card>
   );
-} 
+}
