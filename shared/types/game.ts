@@ -59,10 +59,10 @@ export interface PlayerGameStats {
   team_id: string;
   position?: string;
   minutes_played?: number;
-  
+
   // Universal stats
   points: number;
-  
+
   // Football specific
   passing_yards: number;
   passing_touchdowns: number;
@@ -78,7 +78,7 @@ export interface PlayerGameStats {
   interceptions_caught: number;
   fumbles_forced: number;
   fumbles_recovered: number;
-  
+
   // Basketball specific
   assists: number;
   rebounds: number;
@@ -87,7 +87,7 @@ export interface PlayerGameStats {
   field_goal_percentage?: number;
   three_point_percentage?: number;
   free_throw_percentage?: number;
-  
+
   // Baseball specific
   batting_average?: number;
   home_runs: number;
@@ -96,7 +96,7 @@ export interface PlayerGameStats {
   wins: number;
   saves: number;
   strikeouts: number;
-  
+
   created_at: Date;
 }
 
@@ -159,27 +159,27 @@ export interface TeamSeasonStats {
   points_for: number;
   points_against: number;
   point_differential: number;
-  
+
   // Football specific
   total_yards_per_game?: number;
   passing_yards_per_game?: number;
   rushing_yards_per_game?: number;
   turnovers: number;
   turnover_differential: number;
-  
+
   // Basketball specific
   field_goal_percentage?: number;
   three_point_percentage?: number;
   free_throw_percentage?: number;
   rebounds_per_game?: number;
   assists_per_game?: number;
-  
+
   // Baseball specific
   era?: number;
   batting_average?: number;
   home_runs: number;
   errors: number;
-  
+
   created_at: Date;
   updated_at: Date;
 }

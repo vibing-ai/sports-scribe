@@ -230,7 +230,7 @@ CREATE POLICY "Users can manage own notification preferences" ON user_notificati
 FOR ALL USING (user_id = auth.uid());
 
 -- Functions for user management
-CREATE OR REPLACE FUNCTION HANDLE_NEW_USER()
+CREATE OR REPLACE FUNCTION handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
     INSERT INTO user_profiles (id, first_name, last_name, display_name)
@@ -251,13 +251,13 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- Trigger to automatically create user profile when user signs up
 CREATE TRIGGER on_auth_user_created
 AFTER INSERT ON auth.users
-FOR EACH ROW EXECUTE FUNCTION HANDLE_NEW_USER();
+FOR EACH ROW EXECUTE FUNCTION handle_new_user();
 
 -- Function to update last activity
-CREATE OR REPLACE FUNCTION UPDATE_USER_LAST_ACTIVITY()
+CREATE OR REPLACE FUNCTION update_user_last_activity()
 RETURNS TRIGGER AS $$
 BEGIN
-    UPDATE user_sessions 
+    UPDATE user_sessions
     SET last_activity = NOW()
     WHERE user_id = NEW.user_id AND is_active = true;
     RETURN NEW;
@@ -267,35 +267,35 @@ $$ LANGUAGE plpgsql;
 -- Trigger for activity logging
 CREATE TRIGGER log_user_activity
 AFTER INSERT ON user_activity_log
-FOR EACH ROW EXECUTE FUNCTION UPDATE_USER_LAST_ACTIVITY();
+FOR EACH ROW EXECUTE FUNCTION update_user_last_activity();
 
 -- Triggers for updated_at timestamps
 CREATE TRIGGER update_user_profiles_updated_at
 BEFORE UPDATE ON user_profiles
-FOR EACH ROW EXECUTE FUNCTION UPDATE_UPDATED_AT_COLUMN();
+FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- Function to clean up expired sessions
-CREATE OR REPLACE FUNCTION CLEANUP_EXPIRED_SESSIONS()
+CREATE OR REPLACE FUNCTION cleanup_expired_sessions()
 RETURNS VOID AS $$
 BEGIN
-    UPDATE user_sessions 
-    SET is_active = false 
+    UPDATE user_sessions
+    SET is_active = false
     WHERE expires_at < NOW() AND is_active = true;
-    
-    DELETE FROM user_sessions 
+
+    DELETE FROM user_sessions
     WHERE expires_at < NOW() - INTERVAL '30 days';
 END;
 $$ LANGUAGE plpgsql;
 
 -- Function to get user permissions
-CREATE OR REPLACE FUNCTION GET_USER_PERMISSIONS(user_uuid UUID)
+CREATE OR REPLACE FUNCTION get_user_permissions(user_uuid UUID)
 RETURNS TABLE (resource VARCHAR, actions TEXT []) AS $$
 BEGIN
     RETURN QUERY
     SELECT up.resource, up.actions
     FROM user_permissions up
-    WHERE up.user_id = user_uuid 
-    AND up.is_active = true 
+    WHERE up.user_id = user_uuid
+    AND up.is_active = true
     AND (up.expires_at IS NULL OR up.expires_at > NOW());
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

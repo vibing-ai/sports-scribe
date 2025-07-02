@@ -178,4 +178,4 @@ export enum MessageType {
   STATUS_UPDATE = 'status_update',
   ERROR_REPORT = 'error_report',
   HEARTBEAT = 'heartbeat'
-} 
+}

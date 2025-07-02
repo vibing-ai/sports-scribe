@@ -35,21 +35,21 @@ export interface TeamStats {
   points_for: number;
   points_against: number;
   point_differential: number;
-  
+
   // Football specific
   total_yards_per_game?: number;
   passing_yards_per_game?: number;
   rushing_yards_per_game?: number;
   turnovers?: number;
   turnover_differential?: number;
-  
+
   // Basketball specific
   field_goal_percentage?: number;
   three_point_percentage?: number;
   free_throw_percentage?: number;
   rebounds_per_game?: number;
   assists_per_game?: number;
-  
+
   // Baseball specific
   era?: number;
   batting_average?: number;
@@ -155,4 +155,4 @@ export interface BroadcastInfo {
   radio_station?: string;
   streaming_platform?: string;
   announcers?: string[];
-} 
+}

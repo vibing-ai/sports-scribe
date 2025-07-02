@@ -34,10 +34,10 @@ export interface PlayerStats {
   games_played: number;
   games_started: number;
   minutes_per_game?: number;
-  
+
   // Universal stats
   points_per_game?: number;
-  
+
   // Football specific
   passing_yards?: number;
   passing_touchdowns?: number;
@@ -53,7 +53,7 @@ export interface PlayerStats {
   interceptions_caught?: number;
   fumbles_forced?: number;
   fumbles_recovered?: number;
-  
+
   // Basketball specific
   assists?: number;
   rebounds?: number;
@@ -62,7 +62,7 @@ export interface PlayerStats {
   field_goal_percentage?: number;
   three_point_percentage?: number;
   free_throw_percentage?: number;
-  
+
   // Baseball specific
   batting_average?: number;
   home_runs?: number;
@@ -128,4 +128,4 @@ export interface PlayerAward {
   year: number;
   league: string;
   description?: string;
-} 
+}
