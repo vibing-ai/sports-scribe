@@ -33,10 +33,34 @@ This document tracks known security vulnerabilities and our mitigation strategie
 ## Security Practices
 
 1. **Regular Audits**: Security scans run on every push and weekly schedule
-2. **Dependency Monitoring**: Automated vulnerability scanning with Safety and Trivy
+2. **Dependency Monitoring**: Manual vulnerability scanning with Safety CLI
 3. **Code Analysis**: Static analysis with Bandit for security issues
 4. **Access Control**: Proper authentication and authorization implemented
 5. **Input Validation**: All user inputs are validated and sanitized
+6. **Log Security**: Log injection prevention with input sanitization
+
+## Security Scanning
+
+We use the following tools for security scanning:
+
+- **Safety**: Scans Python dependencies for known vulnerabilities
+  - Currently disabled in CI due to authentication requirements
+  - Known vulnerabilities are documented above and manually tracked
+- **Bandit**: Static analysis for common security issues in Python code
+- **CodeQL**: Advanced semantic analysis for security vulnerabilities
+
+### Manual Security Verification
+
+Since Safety CLI requires authentication, security checks should be run manually:
+
+```bash
+# Install and authenticate safety CLI locally
+pip install safety
+safety auth login
+
+# Run security scan with suppressions
+safety scan --ignore 73725 --ignore 74427
+```
 
 ## Upgrade Plans
 

@@ -157,7 +157,7 @@ jobs:
           ruff check .
           mypy . --ignore-missing-imports
           bandit -r . --severity-level medium
-          safety scan --ignore 73725 --ignore 74427 --continue-on-error || true
+          echo "Skipping safety scan - requires authentication in CI" || true
 
       - name: Run TypeScript linting
         run: |
