@@ -158,6 +158,10 @@ bandit-report.json
 semgrep-report.json
 npm-audit-report.json
 
+# Codacy
+.codacy-coverage
+codacy-results.json
+
 # Editor temporary files
 *.swp
 *.swo

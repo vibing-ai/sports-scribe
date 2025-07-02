@@ -1,4 +1,5 @@
 import { Card, CardHeader, CardBody } from "@heroui/react";
+import { useRouter } from "next/navigation";
 import {
   BarChart3,
   Users,
@@ -8,6 +9,11 @@ import {
   Calendar,
   Eye,
   MessageCircle,
+  Plus,
+  Settings,
+  Download,
+  CheckCircle,
+  UserPlus,
 } from "lucide-react";
 
 export interface DashboardStats {
@@ -60,25 +66,148 @@ function StatCard({
   );
 }
 
+// Action Button Component
+interface ActionButtonProps {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  onClick: () => void;
+  variant?: "primary" | "secondary" | "danger";
+}
+
+const ActionButton: React.FC<ActionButtonProps> = ({
+  icon,
+  title,
+  description,
+  onClick,
+  variant = "primary",
+}) => (
+  <button
+    onClick={onClick}
+    className={`w-full p-4 rounded-lg border transition-colors text-left ${
+      variant === "primary"
+        ? "border-blue-200 hover:bg-blue-50"
+        : variant === "secondary"
+          ? "border-gray-200 hover:bg-gray-50"
+          : "border-red-200 hover:bg-red-50"
+    }`}
+  >
+    <div className="flex items-center space-x-3">
+      {icon}
+      <div>
+        <h3 className="font-semibold">{title}</h3>
+        <p className="text-sm text-gray-600">{description}</p>
+      </div>
+    </div>
+  </button>
+);
+
+// Action Group Component
+interface ActionGroupProps {
+  title: string;
+  children: React.ReactNode;
+}
+
+const ActionGroup: React.FC<ActionGroupProps> = ({ title, children }) => (
+  <div className="space-y-3">
+    <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+    <div className="grid grid-cols-1 gap-3">{children}</div>
+  </div>
+);
+
+// Custom hook for quick actions
+const useQuickActions = () => {
+  const router = useRouter();
+
+  const createNewArticle = () => router.push("/admin/articles/new");
+  const scheduleGameCoverage = () => router.push("/admin/schedule");
+  const reviewPendingArticles = () =>
+    router.push("/admin/articles?status=pending");
+  const manageUserPermissions = () => router.push("/admin/users");
+  const viewAnalytics = () => router.push("/admin/analytics");
+  const manageSettings = () => router.push("/admin/settings");
+  const exportData = () => {
+    // Export logic will be implemented later
+    console.log("Export data functionality to be implemented");
+  };
+
+  return {
+    createNewArticle,
+    scheduleGameCoverage,
+    reviewPendingArticles,
+    manageUserPermissions,
+    viewAnalytics,
+    manageSettings,
+    exportData,
+  };
+};
+
+// Refactored QuickActions Component
 function QuickActions() {
+  const actions = useQuickActions();
+
   return (
     <Card>
       <CardHeader>
         <h3 className="text-lg font-semibold">Quick Actions</h3>
       </CardHeader>
-      <CardBody className="space-y-2">
-        <button className="w-full text-left p-2 hover:bg-gray-100 rounded">
-          Create New Article
-        </button>
-        <button className="w-full text-left p-2 hover:bg-gray-100 rounded">
-          Schedule Game Coverage
-        </button>
-        <button className="w-full text-left p-2 hover:bg-gray-100 rounded">
-          Review Pending Articles
-        </button>
-        <button className="w-full text-left p-2 hover:bg-gray-100 rounded">
-          Manage User Permissions
-        </button>
+      <CardBody className="space-y-6">
+        <ActionGroup title="Content Management">
+          <ActionButton
+            icon={<Plus className="h-5 w-5 text-blue-600" />}
+            title="Create New Article"
+            description="Start writing a new sports article"
+            onClick={actions.createNewArticle}
+          />
+          <ActionButton
+            icon={<Calendar className="h-5 w-5 text-green-600" />}
+            title="Schedule Game Coverage"
+            description="Plan upcoming game coverage"
+            onClick={actions.scheduleGameCoverage}
+            variant="secondary"
+          />
+        </ActionGroup>
+
+        <ActionGroup title="Review & Management">
+          <ActionButton
+            icon={<CheckCircle className="h-5 w-5 text-orange-600" />}
+            title="Review Pending Articles"
+            description="Check articles awaiting approval"
+            onClick={actions.reviewPendingArticles}
+            variant="secondary"
+          />
+          <ActionButton
+            icon={<UserPlus className="h-5 w-5 text-purple-600" />}
+            title="Manage User Permissions"
+            description="Control user access and roles"
+            onClick={actions.manageUserPermissions}
+            variant="secondary"
+          />
+        </ActionGroup>
+
+        <ActionGroup title="Analytics & System">
+          <ActionButton
+            icon={<BarChart3 className="h-5 w-5 text-blue-600" />}
+            title="View Analytics"
+            description="Check performance metrics"
+            onClick={actions.viewAnalytics}
+            variant="secondary"
+          />
+          <ActionButton
+            icon={<Settings className="h-5 w-5 text-gray-600" />}
+            title="System Settings"
+            description="Configure application settings"
+            onClick={actions.manageSettings}
+            variant="secondary"
+          />
+          <ActionButton
+            icon={<Download className="h-5 w-5 text-gray-600" />}
+            title="Export Data"
+            description="Download articles and analytics"
+            onClick={actions.exportData}
+            variant="secondary"
+          />
+        </ActionGroup>
       </CardBody>
     </Card>
   );

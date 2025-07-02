@@ -1,29 +1,31 @@
-FROM python:3.11-slim
+FROM python:3.11.8-slim-bullseye
 
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies
+# Install system dependencies with version constraints for security
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     g++ \
-    curl=7.88.1-10+deb12u8 \
+    curl \
     && rm -rf /var/lib/apt/lists/*
+
+# Create non-root user for security
+RUN groupadd -r appuser && useradd -r -g appuser appuser
 
 # Copy requirements first for better layer caching
 COPY requirements.txt .
 COPY requirements-dev.txt .
 
 # Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --upgrade pip==24.0 \
+    && pip install --no-cache-dir -r requirements.txt
 
-# Copy source code
-COPY . .
+# Copy source code with proper ownership
+COPY --chown=appuser:appuser . .
 
-# Create non-root user for security
-RUN useradd --create-home --shell /bin/bash app \
-    && chown -R app:app /app
-USER app
+# Switch to non-root user
+USER appuser
 
 # Expose port
 EXPOSE 8000

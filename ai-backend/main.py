@@ -11,6 +11,8 @@ from typing import Any
 
 from fastapi import BackgroundTasks, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from pydantic import BaseModel
 
 from agents.data_collector import DataCollectorAgent
@@ -172,12 +174,26 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     global orchestrator
 
     # Startup
-    logger.info("Starting Sport Scribe AI Backend")
-    orchestrator = AgentOrchestrator()
+    logger.info(
+        "Starting Sport Scribe AI Backend",
+        environment=settings.environment,
+        debug=settings.debug,
+        log_level=settings.log_level,
+        version="1.0.0"
+    )
+
+    try:
+        orchestrator = AgentOrchestrator()
+        logger.info("Agent orchestrator initialized successfully")
+    except Exception as e:
+        logger.error("Failed to initialize agent orchestrator", error=str(e))
+        raise
+
     yield
 
     # Shutdown
     logger.info("Shutting down Sport Scribe AI Backend")
+    orchestrator = None
 
 
 # Create FastAPI application
@@ -187,6 +203,18 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan,
 )
+
+# Add security middleware
+app.add_middleware(GZipMiddleware, minimum_size=1000)
+
+# Add trusted host middleware for security
+allowed_hosts = ["*"] if settings.environment == "development" else [
+    "localhost",
+    "127.0.0.1",
+    "sport-scribe.vercel.app",
+    # Add other trusted hosts as needed
+]
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts)
 
 # Add CORS middleware
 app.add_middleware(

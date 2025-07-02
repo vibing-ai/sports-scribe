@@ -1,0 +1,75 @@
+---
+engines:
+  # Disable engines that conflict with existing tools
+  pylint:
+    enabled: false  # Using Ruff instead
+  pmd:
+    enabled: false  # Not applicable for Python/TypeScript project
+
+  # Keep security and complexity analysis
+  bandit:
+    enabled: true
+  eslint:
+    enabled: true
+  ruff:
+    enabled: true
+
+  # Configure complexity thresholds to match project standards
+  duplication:
+    enabled: true
+    config:
+      languages:
+        - python
+        - typescript
+        - javascript
+
+exclude_paths:
+  # Exclude generated and vendor files
+  - "node_modules/**"
+  - "**/*.min.js"
+  - "**/package-lock.json"
+  - "**/yarn.lock"
+  - "**/.next/**"
+  - "**/build/**"
+  - "**/dist/**"
+  - "**/__pycache__/**"
+  - "**/*.pyc"
+  - ".github/**"
+  - "docs/**/*.md"  # Exclude markdown formatting rules
+
+coverage:
+  excludes:
+    - "node_modules/**"
+    - "**/*.test.ts"
+    - "**/*.test.tsx"
+    - "**/*.spec.py"
+    - "**/tests/**"
+
+# Configure complexity and length limits to match project
+rules:
+  # Python rules (align with Ruff configuration)
+  "C901":  # Complex function
+    threshold: 10  # Match Ruff's complexity limit
+
+  "R0913":  # Too many arguments
+    threshold: 8
+
+  "R0914":  # Too many local variables
+    threshold: 15
+
+  # TypeScript/JavaScript rules
+  complexity:
+    threshold: 10  # Match project standards
+
+  max-lines-per-function:
+    threshold: 50  # Match project standards
+
+  # Disable line length rules (project uses 100 chars, not 80)
+  line-length:
+    enabled: false
+
+  # Disable markdown formatting
+  "MD013":  # Line length in markdown
+    enabled: false
+  "MD033":  # HTML tags in markdown
+    enabled: false

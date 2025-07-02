@@ -5,10 +5,11 @@ loaded from environment variables and config files.
 """
 
 import logging
-import os
 from typing import Any
 
 from dotenv import load_dotenv
+from pydantic import Field, validator
+from pydantic_settings import BaseSettings
 
 # Load environment variables from .env file
 load_dotenv()
@@ -16,63 +17,76 @@ load_dotenv()
 logger = logging.getLogger(__name__)
 
 
-class Settings:
-    """Application settings loaded from environment variables."""
+class Settings(BaseSettings):
+    """Application settings loaded from environment variables with validation."""
 
-    def __init__(self) -> None:
-        # OpenAI Configuration
-        self.openai_api_key = os.getenv("OPENAI_API_KEY")
-        self.openai_model = os.getenv("OPENAI_MODEL", "gpt-4.1-nano")
+    # Required settings
+    openai_api_key: str = Field(..., min_length=20, description="OpenAI API key")
+    supabase_url: str = Field(..., description="Supabase project URL")
+    supabase_service_role_key: str = Field(..., min_length=20, description="Supabase service role key")
+    rapidapi_key: str = Field(..., min_length=10, description="RapidAPI key for API-Football")
 
-        # Supabase Configuration
-        self.supabase_url = os.getenv("SUPABASE_URL")
-        self.supabase_service_role_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+    # OpenAI Configuration
+    openai_model: str = Field(default="gpt-4-turbo", description="OpenAI model to use")
 
-        # FastAPI Configuration
-        self.fastapi_host = os.getenv("FASTAPI_HOST", "127.0.0.1")
-        self.fastapi_port = int(os.getenv("FASTAPI_PORT", "8000"))
-        self.fastapi_reload = os.getenv("FASTAPI_RELOAD", "false").lower() == "true"
+    # FastAPI Configuration
+    fastapi_host: str = Field(default="127.0.0.1", description="FastAPI host")
+    fastapi_port: int = Field(default=8000, ge=1, le=65535, description="FastAPI port")
+    fastapi_reload: bool = Field(default=False, description="FastAPI reload mode")
 
-        # Chainlit Configuration
-        self.chainlit_host = os.getenv("CHAINLIT_HOST", "127.0.0.1")
-        self.chainlit_port = int(os.getenv("CHAINLIT_PORT", "8001"))
+    # Chainlit Configuration
+    chainlit_host: str = Field(default="127.0.0.1", description="Chainlit host")
+    chainlit_port: int = Field(default=8001, ge=1, le=65535, description="Chainlit port")
 
-        # Logging Configuration
-        self.log_level = os.getenv("LOG_LEVEL", "info").upper()
-        self.log_format = os.getenv("LOG_FORMAT", "json")
+    # Environment Configuration
+    environment: str = Field(default="development", description="Environment name")
+    debug: bool = Field(default=False, description="Debug mode")
+    log_level: str = Field(default="INFO", description="Logging level")
+    log_format: str = Field(default="json", description="Log format")
 
-        # Environment
-        self.debug = os.getenv("DEBUG", "false").lower() == "true"
-        self.environment = os.getenv("ENVIRONMENT", "development")
+    # API Configuration
+    api_football_base_url: str = Field(
+        default="https://api-football-v1.p.rapidapi.com/v3",
+        description="API-Football base URL"
+    )
 
-        # API-Football Configuration (RapidAPI)
-        self.rapidapi_key = os.getenv("RAPIDAPI_KEY")
-        self.api_football_base_url = "https://api-football-v1.p.rapidapi.com/v3"
+    @validator('openai_api_key')
+    def validate_openai_key(cls, v):  # noqa: N805
+        if not v or v == "your-openai-api-key" or v == "sk-...":
+            raise ValueError('Valid OpenAI API key is required')
+        if not v.startswith('sk-'):
+            raise ValueError('OpenAI API key must start with "sk-"')
+        return v
 
-        # Validate required settings
-        self._validate_settings()
+    @validator('supabase_url')
+    def validate_supabase_url(cls, v):  # noqa: N805
+        if not v.startswith('https://'):
+            raise ValueError('Supabase URL must be a valid HTTPS URL')
+        if not v.endswith('.supabase.co'):
+            raise ValueError('Supabase URL must end with .supabase.co')
+        return v
 
-    def _validate_settings(self) -> None:
-        """Validate that required settings are present."""
-        required_settings = [
-            ("OPENAI_API_KEY", self.openai_api_key),
-            ("SUPABASE_URL", self.supabase_url),
-            ("SUPABASE_SERVICE_ROLE_KEY", self.supabase_service_role_key),
-            ("RAPIDAPI_KEY", self.rapidapi_key),
-        ]
+    @validator('environment')
+    def validate_environment(cls, v):  # noqa: N805
+        allowed = ['development', 'staging', 'production']
+        if v not in allowed:
+            raise ValueError(f'Environment must be one of: {allowed}')
+        return v
 
-        missing_settings = []
-        for setting_name, setting_value in required_settings:
-            if not setting_value:
-                missing_settings.append(setting_name)
+    @validator('log_level')
+    def validate_log_level(cls, v):  # noqa: N805
+        allowed = ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
+        v_upper = v.upper()
+        if v_upper not in allowed:
+            raise ValueError(f'Log level must be one of: {allowed}')
+        return v_upper
 
-        if missing_settings:
-            logger.error(
-                f"Missing required environment variables: {', '.join(missing_settings)}"
-            )
-            raise ValueError(
-                f"Missing required environment variables: {', '.join(missing_settings)}"
-            )
+    @validator('log_format')
+    def validate_log_format(cls, v):  # noqa: N805
+        allowed = ['json', 'text']
+        if v not in allowed:
+            raise ValueError(f'Log format must be one of: {allowed}')
+        return v
 
     def to_dict(self) -> dict[str, Any]:
         """Convert settings to dictionary (excluding sensitive values)."""
@@ -90,9 +104,22 @@ class Settings:
             "api_football_base_url": self.api_football_base_url,
         }
 
+    class Config:
+        """Pydantic configuration for Settings model."""
+
+        env_file = ".env"
+        case_sensitive = True
+        # Allow extra fields for forward compatibility
+        extra = "ignore"
+
 
 # Global settings instance
-settings = Settings()
+try:
+    settings = Settings()
+    logger.info("Settings loaded successfully")
+except Exception as e:
+    logger.error(f"Failed to load settings: {e}")
+    raise
 
 
 def get_settings() -> Settings:

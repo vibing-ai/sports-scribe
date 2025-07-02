@@ -22,19 +22,18 @@ class TestDataCollectorAgent:
     @pytest.mark.asyncio
     async def test_collect_match_data(self, agent):
         """Test collecting match data from API-Football."""
-        # TODO: Implement test for match data collection
-        pass
+        pytest.skip("DataCollectorAgent.collect_match_data not yet implemented")
 
     @pytest.mark.asyncio
     async def test_collect_team_stats(self, agent):
         """Test collecting team statistics."""
-        # TODO: Implement test for team statistics collection
-        pass
+        pytest.skip("DataCollectorAgent.collect_team_stats not yet implemented")
 
-    def test_placeholder(self):
-        """Placeholder test - implement actual agent tests."""
-        # TODO: Implement actual agent tests
-        assert True
+    def test_agent_initialization(self):
+        """Test that DataCollectorAgent can be initialized with empty config."""
+        agent = DataCollectorAgent({})
+        assert agent is not None
+        assert hasattr(agent, 'collect_game_data')
 
 
 class TestResearchAgent:
@@ -47,19 +46,18 @@ class TestResearchAgent:
     @pytest.mark.asyncio
     async def test_research_team_background(self, agent):
         """Test researching team background information."""
-        # TODO: Implement test for team background research
-        pass
+        pytest.skip("ResearchAgent.research_team_background not yet implemented")
 
     @pytest.mark.asyncio
     async def test_research_historical_context(self, agent):
         """Test researching historical context."""
-        # TODO: Implement test for historical context research
-        pass
+        pytest.skip("ResearchAgent.research_historical_context not yet implemented")
 
-    def test_placeholder(self):
-        """Placeholder test - implement actual research agent tests."""
-        # TODO: Implement actual research agent tests
-        assert True
+    def test_agent_initialization(self):
+        """Test that ResearchAgent can be initialized with empty config."""
+        agent = ResearchAgent({})
+        assert agent is not None
+        assert hasattr(agent, 'research_team_history')
 
 
 class TestWriterAgent:
@@ -72,14 +70,18 @@ class TestWriterAgent:
     @pytest.mark.asyncio
     async def test_generate_match_report(self, agent):
         """Test generating match report article."""
-        # TODO: Implement test for match report generation
-        pass
+        pytest.skip("WritingAgent.generate_match_report not yet implemented")
 
     @pytest.mark.asyncio
     async def test_generate_preview_article(self, agent):
         """Test generating match preview article."""
-        # TODO: Implement test for preview article generation
-        pass
+        pytest.skip("WritingAgent.generate_preview_article not yet implemented")
+
+    def test_agent_initialization(self):
+        """Test that WritingAgent can be initialized with empty config."""
+        agent = WritingAgent({})
+        assert agent is not None
+        assert hasattr(agent, 'generate_game_recap')
 
 
 class TestEditorAgent:
@@ -92,11 +94,15 @@ class TestEditorAgent:
     @pytest.mark.asyncio
     async def test_review_article_quality(self, agent):
         """Test reviewing article quality."""
-        # TODO: Implement test for article quality review
-        pass
+        pytest.skip("EditorAgent.review_article_quality not yet implemented")
 
     @pytest.mark.asyncio
     async def test_fact_check_article(self, agent):
         """Test fact-checking article content."""
-        # TODO: Implement test for fact-checking
-        pass
+        pytest.skip("EditorAgent.fact_check_article not yet implemented")
+
+    def test_agent_initialization(self):
+        """Test that EditorAgent can be initialized with empty config."""
+        agent = EditorAgent({})
+        assert agent is not None
+        assert hasattr(agent, 'review_article')
