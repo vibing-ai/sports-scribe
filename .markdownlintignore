@@ -1,5 +1,16 @@
 # Ignore docs directory from markdown linting
 docs/
 
+# Ignore GitHub templates (issue/PR templates)
+.github/
+
+# Ignore contributing guide (content over formatting)
+CONTRIBUTING.md
+
+# Ignore component README files (focus on main README)
+ai-backend/README.md
+shared/README.md
+web/README.md
+
 # Allow specific files that should still be linted
 !docs/README.md

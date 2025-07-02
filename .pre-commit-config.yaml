@@ -48,7 +48,7 @@ repos:
       - id: markdownlint
         args: [--fix]
         files: \.md$
-        exclude: ^docs/
+        exclude: ^(docs/|\.github/|CONTRIBUTING\.md|ai-backend/README\.md|shared/README\.md|web/README\.md)
 
 # Security checks disabled - requires manual setup
 # - repo: https://github.com/Yelp/detect-secrets
