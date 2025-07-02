@@ -56,6 +56,11 @@ class TestResearchAgent:
         # TODO: Implement test for historical context research
         pass
 
+    def test_placeholder(self):
+        """Placeholder test - implement actual research agent tests."""
+        # TODO: Implement actual research agent tests
+        assert True
+
 
 class TestWriterAgent:
     """Test cases for Writer Agent."""

@@ -43,21 +43,26 @@ GRANT USAGE ON SCHEMA public TO authenticated;
 GRANT USAGE ON SCHEMA agents TO authenticated;
 
 -- Create role-based accounts for better security
-CREATE ROLE IF NOT EXISTS app_read_role;
-CREATE ROLE IF NOT EXISTS app_write_role;
-CREATE ROLE IF NOT EXISTS app_admin_role;
+-- Note: Roles may already exist, so we use DROP IF EXISTS first
+DROP ROLE IF EXISTS app_read_role;
+DROP ROLE IF EXISTS app_write_role;
+DROP ROLE IF EXISTS app_admin_role;
+
+CREATE ROLE app_read_role;
+CREATE ROLE app_write_role;
+CREATE ROLE app_admin_role;
 
 -- Grant specific permissions to roles instead of authenticated directly
 GRANT SELECT ON ALL TABLES IN SCHEMA public TO app_read_role;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA public TO app_write_role;
-GRANT ALL ON ALL TABLES IN SCHEMA public TO app_admin_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO app_admin_role;
 
 GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO app_write_role;
-GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO app_admin_role;
+GRANT USAGE, SELECT, UPDATE ON ALL SEQUENCES IN SCHEMA public TO app_admin_role;
 
 GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO app_read_role;
 GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO app_write_role;
-GRANT ALL ON ALL FUNCTIONS IN SCHEMA public TO app_admin_role;
+GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO app_admin_role;
 
 -- Grant roles to authenticated users based on their role
 -- This will be managed through RLS policies and application logic

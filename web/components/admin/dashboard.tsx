@@ -76,19 +76,6 @@ function QuickActions() {
 }
 
 export function Dashboard({ stats }: DashboardProps) {
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active':
-        return 'success'
-      case 'inactive':
-        return 'danger'
-      case 'warning':
-        return 'warning'
-      default:
-        return 'default'
-    }
-  }
-
   const statCards = [
     {
       title: "Total Articles",
@@ -98,22 +85,35 @@ export function Dashboard({ stats }: DashboardProps) {
       color: "primary" as const,
     },
     {
+      title: "Published Articles", 
+      value: stats.publishedArticles,
+      icon: <BarChart3 className="h-4 w-4" />,
+      color: "success" as const,
+    },
+    {
+      title: "Total Users",
+      value: stats.totalUsers,
+      icon: <Users className="h-4 w-4" />,
+      color: "secondary" as const,
+    },
+    {
+      title: "Active Users",
+      value: stats.activeUsers,
+      icon: <Activity className="h-4 w-4" />,
+      color: "warning" as const,
+    },
+    {
       title: "Total Views",
       value: stats.totalViews,
       icon: <Eye className="h-4 w-4" />,
+      trend: `${stats.viewsThisWeek} this week`,
       color: "primary" as const,
     },
     {
-      title: "This Week",
-      value: stats.articlesThisWeek,
-      icon: <TrendingUp className="h-4 w-4" />,
-      color: "success" as const,
-    },
-    {
-      title: "AI Agent Status",
-      value: 0,
-      icon: <BarChart3 className="h-4 w-4" />,
-      color: "success" as const,
+      title: "Total Comments",
+      value: stats.totalComments,
+      icon: <MessageCircle className="h-4 w-4" />,
+      color: "secondary" as const,
     },
   ];
 
@@ -127,29 +127,34 @@ export function Dashboard({ stats }: DashboardProps) {
       
       <div className="grid gap-4 md:grid-cols-2">
         <QuickActions />
-        
-        <Card>
-          <CardHeader>
-            <h3 className="text-lg font-semibold">Recent Activity</h3>
-          </CardHeader>
-          <CardBody>
-            <div className="space-y-2 text-sm">
-              <div className="flex items-center space-x-2">
-                <Calendar className="h-4 w-4" />
-                <span>5 articles published today</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <TrendingUp className="h-4 w-4" />
-                <span>Traffic up 12% this week</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Users className="h-4 w-4" />
-                <span>3 new users registered</span>
-              </div>
-            </div>
-          </CardBody>
-        </Card>
+        <RecentActivity />
       </div>
     </div>
-  )
+  );
+}
+
+function RecentActivity() {
+  return (
+    <Card>
+      <CardHeader>
+        <h3 className="text-lg font-semibold">Recent Activity</h3>
+      </CardHeader>
+      <CardBody>
+        <div className="space-y-2 text-sm">
+          <div className="flex items-center space-x-2">
+            <Calendar className="h-4 w-4" />
+            <span>5 articles published today</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <TrendingUp className="h-4 w-4" />
+            <span>Traffic up 12% this week</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Users className="h-4 w-4" />
+            <span>3 new users registered</span>
+          </div>
+        </div>
+      </CardBody>
+    </Card>
+  );
 } 

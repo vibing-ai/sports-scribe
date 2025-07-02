@@ -109,7 +109,7 @@ class DataCleaner:
         suffixes = [" FC", " F.C.", " CF", " C.F."]
         for suffix in suffixes:
             if cleaned.endswith(suffix):
-                cleaned = cleaned[:-len(suffix)]
+                cleaned = cleaned[: -len(suffix)]
                 break
 
         return cleaned
@@ -132,7 +132,7 @@ class DataCleaner:
         cleaned = re.sub(r"\s+", " ", player_name.strip())
 
         # Remove trailing periods from Jr., Sr., etc.
-        if cleaned.endswith('.'):
+        if cleaned.endswith("."):
             cleaned = cleaned[:-1]
 
         return cleaned.title()

@@ -7,6 +7,8 @@ the multi-agent sports journalism workflow.
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from typing import Any
+from datetime import datetime
+import uuid
 
 from fastapi import BackgroundTasks, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -74,92 +76,64 @@ class AgentOrchestrator:
         logger.info("All agents initialized successfully")
 
     async def generate_article(self, request: ArticleRequest) -> ArticleResponse:
-        """Generate a sports article using the multi-agent workflow.
-
-        Args:
-            request: Article generation request
-
-        Returns:
-            Generated article response
-        """
-        logger.info(f"Starting article generation for game {request.game_id}")
-
+        """Generate article using AI agents."""
         try:
-            # Step 1: Collect game data
-            logger.info("Step 1: Collecting game data")
-            game_data = await self.data_collector.collect_game_data(request.game_id)
+            # Validate request
+            if not request.game_id:
+                raise HTTPException(status_code=400, detail="Game ID is required")
 
-            # Collect additional data based on game info
-            if "home_team_id" in game_data:
-                home_team_data = await self.data_collector.collect_team_data(
-                    game_data["home_team_id"]
-                )
-                game_data["home_team_data"] = home_team_data
+            # Initialize agents
+            data_collector = DataCollectorAgent()
+            researcher = ResearchAgent()
+            writer = WritingAgent()
+            editor = EditorAgent()
 
-            if "away_team_id" in game_data:
-                away_team_data = await self.data_collector.collect_team_data(
-                    game_data["away_team_id"]
-                )
-                game_data["away_team_data"] = away_team_data
-
-            # Step 2: Research contextual information
-            logger.info("Step 2: Researching contextual information")
-            research_data = {}
-
-            if "home_team_id" in game_data and "away_team_id" in game_data:
-                history = await self.researcher.research_team_history(
-                    game_data["home_team_id"], game_data["away_team_id"]
-                )
-                research_data["team_history"] = history
-
-            # Step 3: Generate article content
-            logger.info("Step 3: Generating article content")
-            if request.article_type == "game_recap":
-                content = await self.writer.generate_game_recap(
-                    game_data, research_data
-                )
-            elif request.article_type == "preview":
-                content = await self.writer.generate_preview_article(
-                    game_data, research_data
-                )
-            else:
-                raise ValueError(f"Unsupported article type: {request.article_type}")
-
-            # Step 4: Edit and review content
-            logger.info("Step 4: Editing and reviewing content")
-            metadata = {
-                "game_id": request.game_id,
-                "article_type": request.article_type,
-                "target_length": request.target_length,
-            }
-
-            final_content, review_feedback = await self.editor.review_article(
-                content, metadata
-            )
-
-            # Generate article ID
-            import uuid
-
-            article_id = str(uuid.uuid4())
-
-            logger.info(f"Article generation completed: {article_id}")
+            # Collect game data
+            game_data = await self._collect_game_data(data_collector, request.game_id)
+            
+            # Research background information
+            research_data = await self._research_background(researcher, game_data)
+            
+            # Generate article content
+            article_content = await self._generate_content(writer, game_data, research_data, request)
+            
+            # Edit and finalize
+            final_article = await self._edit_content(editor, article_content)
 
             return ArticleResponse(
-                article_id=article_id,
+                article_id=str(uuid.uuid4()),
                 status="completed",
-                content=final_content,
-                metadata={
-                    "review_feedback": review_feedback,
-                    "word_count": len(final_content.split()),
-                    "generation_time": "timestamp_here",  # TODO: Add actual timestamp
-                },
+                content=final_article.get("content", ""),
+                metadata=final_article.get("metadata", {})
             )
 
         except Exception as e:
-            logger.error(f"Article generation failed: {e!s}")
-            raise HTTPException(
-                status_code=500, detail=f"Article generation failed: {e!s}"
-            ) from e
+            logger.error(f"Error generating article: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Failed to generate article: {str(e)}")
+
+    async def _collect_game_data(self, collector: DataCollectorAgent, game_id: str) -> dict:
+        """Collect game data using data collector agent."""
+        return await collector.collect_game_data(game_id)
+
+    async def _research_background(self, researcher: ResearchAgent, game_data: dict) -> dict:
+        """Research background information."""
+        return await researcher.research_teams_and_players(
+            game_data.get("home_team", ""),
+            game_data.get("away_team", "")
+        )
+
+    async def _generate_content(self, writer: WritingAgent, game_data: dict, research_data: dict, request: ArticleRequest) -> dict:
+        """Generate article content."""
+        return await writer.write_article(
+            game_data=game_data,
+            research_data=research_data,
+            tone=request.tone,
+            target_length=request.target_length
+        )
+
+    async def _edit_content(self, editor: EditorAgent, content: dict) -> dict:
+        """Edit and finalize content."""
+        return await editor.edit_article(content)
 
 
 # Global orchestrator instance

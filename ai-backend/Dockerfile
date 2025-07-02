@@ -7,7 +7,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     g++ \
-    curl \
+    curl=7.88.1-10+deb12u8 \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first for better layer caching
