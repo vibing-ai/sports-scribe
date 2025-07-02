@@ -2,8 +2,8 @@ openapi: 3.0.3
 info:
   title: Sport Scribe API
   description: |
-    Sport Scribe is an AI-powered sports content platform that automatically generates 
-    high-quality articles using multi-agent AI systems. This API provides access to 
+    Sport Scribe is an AI-powered sports content platform that automatically generates
+    high-quality articles using multi-agent AI systems. This API provides access to
     articles, games, players, teams, and AI agent management.
   version: 1.0.0
   contact:
@@ -253,7 +253,7 @@ components:
         type: integer
         minimum: 1
         default: 1
-    
+
     Limit:
       name: limit
       in: query
@@ -263,7 +263,7 @@ components:
         minimum: 1
         maximum: 100
         default: 20
-    
+
     SportFilter:
       name: sport
       in: query
@@ -271,7 +271,7 @@ components:
       schema:
         type: string
         enum: [football, basketball, baseball, soccer, hockey, tennis, golf, mma, boxing, olympics]
-    
+
     StatusFilter:
       name: status
       in: query
@@ -279,7 +279,7 @@ components:
       schema:
         type: string
         enum: [draft, pending_review, published, archived]
-    
+
     SearchQuery:
       name: q
       in: query
@@ -287,7 +287,7 @@ components:
       schema:
         type: string
         maxLength: 100
-    
+
     SortBy:
       name: sort_by
       in: query
@@ -296,7 +296,7 @@ components:
         type: string
         enum: [created_at, published_at, title, reading_time, view_count]
         default: created_at
-    
+
     DateRange:
       name: date_range
       in: query
@@ -304,14 +304,14 @@ components:
       schema:
         type: string
         enum: [last_7_days, last_30_days, last_year, custom]
-    
+
     LeagueFilter:
       name: league
       in: query
       description: Filter by league
       schema:
         type: string
-    
+
     SeasonFilter:
       name: season
       in: query
@@ -319,7 +319,7 @@ components:
       schema:
         type: string
         pattern: '^(\d{4}|\d{4}-\d{4})$'
-    
+
     ArticleId:
       name: id
       in: path
@@ -328,7 +328,7 @@ components:
       schema:
         type: string
         format: uuid
-    
+
     GameId:
       name: id
       in: path
@@ -663,35 +663,35 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    
+
     Unauthorized:
       description: Unauthorized - invalid or missing authentication
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    
+
     Forbidden:
       description: Forbidden - insufficient permissions
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    
+
     NotFound:
       description: Resource not found
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    
+
     ValidationError:
       description: Validation error - invalid request data
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ValidationError'
-    
+
     InternalServerError:
       description: Internal server error
       content:
@@ -713,4 +713,4 @@ tags:
   - name: Analytics
     description: Platform analytics and metrics
   - name: Admin
-    description: Administrative operations 
+    description: Administrative operations

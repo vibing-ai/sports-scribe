@@ -3,118 +3,92 @@ name: Security Audit
 
 on:
   schedule:
-    # Run daily at 2 AM UTC
-    - cron: '0 2 * * *'
+    # Run every Sunday at 2 AM UTC
+    - cron: '0 2 * * 0'
+  workflow_dispatch:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-  workflow_dispatch:
 
 jobs:
-  python-security:
-    runs-on: ubuntu-latest
-    
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Set up Python 3.11
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
-    
-    - name: Install dependencies
-      working-directory: ai-backend
-      run: |
-        python -m pip install --upgrade pip
-        pip install safety bandit semgrep
-        pip install -r requirements.txt
-    
-    - name: Run Safety check for known vulnerabilities
-      working-directory: ai-backend
-      run: safety check --json --output safety-report.json || true
-    
-    - name: Run Bandit security linter
-      working-directory: ai-backend
-      run: bandit -r agents/ tools/ config/ utils/ -f json -o bandit-report.json || true
-    
-    - name: Run Semgrep security scan
-      working-directory: ai-backend
-      run: semgrep --config=auto --json --output=semgrep-report.json . || true
-    
-    - name: Upload security reports
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: python-security-reports
-        path: |
-          ai-backend/safety-report.json
-          ai-backend/bandit-report.json
-          ai-backend/semgrep-report.json
-
-  node-security:
-    runs-on: ubuntu-latest
-    
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
-        cache-dependency-path: web/package-lock.json
-    
-    - name: Install dependencies
-      working-directory: web
-      run: npm ci
-    
-    - name: Run npm audit
-      working-directory: web
-      run: npm audit --audit-level=moderate --json > npm-audit-report.json || true
-    
-    - name: Upload security reports
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: node-security-reports
-        path: web/npm-audit-report.json
-
   dependency-review:
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-    
-    steps:
-    - name: Dependency Review
-      uses: actions/dependency-review-action@v4
-      with:
-        fail-on-severity: moderate
 
-  codeql:
-    runs-on: ubuntu-latest
-    permissions:
-      security-events: write
-      contents: read
-      actions: read
-    
-    strategy:
-      matrix:
-        language: [ 'python', 'javascript' ]
-    
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-    
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v3
-      with:
-        languages: ${{ matrix.language }}
-        queries: security-extended,security-and-quality
-    
-    - name: Autobuild
-      uses: github/codeql-action/autobuild@v3
-    
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v3
-      with:
-        category: "/language:${{matrix.language}}" 
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Dependency Review
+        uses: actions/dependency-review-action@72eb03d02c7872a771aacd928f3123ac62ad6d3a
+        with:
+          fail-on-severity: moderate
+
+  ai-backend-security:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        working-directory: ai-backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+
+      - name: Run security checks with bandit
+        working-directory: ai-backend
+        run: bandit -r agents/ tools/ config/ utils/ -f json -o bandit-report.json || true
+
+      - name: Upload bandit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: bandit-security-report
+          path: ai-backend/bandit-report.json
+
+  web-security:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install dependencies
+        working-directory: web
+        run: npm ci
+
+      - name: Run npm audit
+        working-directory: web
+        run: npm audit --audit-level=moderate || true
+
+  trivy-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@7c2007bcb556501da015201bcba5aa14069b74e2
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-results
+          path: trivy-results.sarif

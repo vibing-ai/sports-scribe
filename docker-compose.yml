@@ -64,4 +64,4 @@ networks:
 
 volumes:
   ai_backend_data:
-    driver: local 
+    driver: local

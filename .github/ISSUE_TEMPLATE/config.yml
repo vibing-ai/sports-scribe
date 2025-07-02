@@ -8,4 +8,4 @@ contact_links:
     about: Check our documentation for guides and API references
   - name: 🐛 Security Issues
     url: https://github.com/vibing-ai/sport-scribe/security/advisories
-    about: Report security vulnerabilities privately 
+    about: Report security vulnerabilities privately

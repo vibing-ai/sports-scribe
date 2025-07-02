@@ -27,4 +27,4 @@ services:
       - ./web/.env.local
     environment:
       - NODE_ENV=development
-    command: npm run dev 
+    command: npm run dev
