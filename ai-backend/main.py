@@ -179,7 +179,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         environment=settings.environment,
         debug=settings.debug,
         log_level=settings.log_level,
-        version="1.0.0"
+        version="1.0.0",
     )
 
     try:
@@ -208,12 +208,16 @@ app = FastAPI(
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 # Add trusted host middleware for security
-allowed_hosts = ["*"] if settings.environment == "development" else [
-    "localhost",
-    "127.0.0.1",
-    "sport-scribe.vercel.app",
-    # Add other trusted hosts as needed
-]
+allowed_hosts = (
+    ["*"]
+    if settings.environment == "development"
+    else [
+        "localhost",
+        "127.0.0.1",
+        "sport-scribe.vercel.app",
+        # Add other trusted hosts as needed
+    ]
+)
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts)
 
 # Add CORS middleware

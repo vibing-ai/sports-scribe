@@ -33,7 +33,7 @@ class TestDataCollectorAgent:
         """Test that DataCollectorAgent can be initialized with empty config."""
         agent = DataCollectorAgent({})
         assert agent is not None
-        assert hasattr(agent, 'collect_game_data')
+        assert hasattr(agent, "collect_game_data")
 
 
 class TestResearchAgent:
@@ -57,7 +57,7 @@ class TestResearchAgent:
         """Test that ResearchAgent can be initialized with empty config."""
         agent = ResearchAgent({})
         assert agent is not None
-        assert hasattr(agent, 'research_team_history')
+        assert hasattr(agent, "research_team_history")
 
 
 class TestWriterAgent:
@@ -81,7 +81,7 @@ class TestWriterAgent:
         """Test that WritingAgent can be initialized with empty config."""
         agent = WritingAgent({})
         assert agent is not None
-        assert hasattr(agent, 'generate_game_recap')
+        assert hasattr(agent, "generate_game_recap")
 
 
 class TestEditorAgent:
@@ -105,4 +105,4 @@ class TestEditorAgent:
         """Test that EditorAgent can be initialized with empty config."""
         agent = EditorAgent({})
         assert agent is not None
-        assert hasattr(agent, 'review_article')
+        assert hasattr(agent, "review_article")

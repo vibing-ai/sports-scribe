@@ -12,8 +12,6 @@ from typing import Any, ClassVar
 
 import structlog
 
-from config.settings import settings
-
 
 class JSONFormatter(logging.Formatter):
     """Custom JSON formatter for structured logging."""
@@ -122,8 +120,16 @@ def setup_logging(
         enable_structlog: Whether to enable structlog
     """
     # Use settings if not provided
-    level = level or settings.log_level
-    format_type = format_type or settings.log_format
+    from config.settings import get_settings
+
+    try:
+        app_settings = get_settings()
+        level = level or app_settings.log_level
+        format_type = format_type or app_settings.log_format
+    except RuntimeError:
+        # Fallback to defaults if settings not available
+        level = level or "INFO"
+        format_type = format_type or "colored"
 
     # Configure root logger
     root_logger = logging.getLogger()

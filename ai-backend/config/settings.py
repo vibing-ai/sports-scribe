@@ -23,8 +23,12 @@ class Settings(BaseSettings):
     # Required settings
     openai_api_key: str = Field(..., min_length=20, description="OpenAI API key")
     supabase_url: str = Field(..., description="Supabase project URL")
-    supabase_service_role_key: str = Field(..., min_length=20, description="Supabase service role key")
-    rapidapi_key: str = Field(..., min_length=10, description="RapidAPI key for API-Football")
+    supabase_service_role_key: str = Field(
+        ..., min_length=20, description="Supabase service role key"
+    )
+    rapidapi_key: str = Field(
+        ..., min_length=10, description="RapidAPI key for API-Football"
+    )
 
     # OpenAI Configuration
     openai_model: str = Field(default="gpt-4-turbo", description="OpenAI model to use")
@@ -36,7 +40,9 @@ class Settings(BaseSettings):
 
     # Chainlit Configuration
     chainlit_host: str = Field(default="127.0.0.1", description="Chainlit host")
-    chainlit_port: int = Field(default=8001, ge=1, le=65535, description="Chainlit port")
+    chainlit_port: int = Field(
+        default=8001, ge=1, le=65535, description="Chainlit port"
+    )
 
     # Environment Configuration
     environment: str = Field(default="development", description="Environment name")
@@ -47,45 +53,45 @@ class Settings(BaseSettings):
     # API Configuration
     api_football_base_url: str = Field(
         default="https://api-football-v1.p.rapidapi.com/v3",
-        description="API-Football base URL"
+        description="API-Football base URL",
     )
 
-    @validator('openai_api_key')
-    def validate_openai_key(cls, v):  # noqa: N805
+    @validator("openai_api_key")
+    def validate_openai_key(cls, v: str) -> str:  # noqa: N805
         if not v or v == "your-openai-api-key" or v == "sk-...":
-            raise ValueError('Valid OpenAI API key is required')
-        if not v.startswith('sk-'):
+            raise ValueError("Valid OpenAI API key is required")
+        if not v.startswith("sk-"):
             raise ValueError('OpenAI API key must start with "sk-"')
         return v
 
-    @validator('supabase_url')
-    def validate_supabase_url(cls, v):  # noqa: N805
-        if not v.startswith('https://'):
-            raise ValueError('Supabase URL must be a valid HTTPS URL')
-        if not v.endswith('.supabase.co'):
-            raise ValueError('Supabase URL must end with .supabase.co')
+    @validator("supabase_url")
+    def validate_supabase_url(cls, v: str) -> str:  # noqa: N805
+        if not v.startswith("https://"):
+            raise ValueError("Supabase URL must be a valid HTTPS URL")
+        if not v.endswith(".supabase.co"):
+            raise ValueError("Supabase URL must end with .supabase.co")
         return v
 
-    @validator('environment')
-    def validate_environment(cls, v):  # noqa: N805
-        allowed = ['development', 'staging', 'production']
+    @validator("environment")
+    def validate_environment(cls, v: str) -> str:  # noqa: N805
+        allowed = ["development", "staging", "production"]
         if v not in allowed:
-            raise ValueError(f'Environment must be one of: {allowed}')
+            raise ValueError(f"Environment must be one of: {allowed}")
         return v
 
-    @validator('log_level')
-    def validate_log_level(cls, v):  # noqa: N805
-        allowed = ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
+    @validator("log_level")
+    def validate_log_level(cls, v: str) -> str:  # noqa: N805
+        allowed = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
         v_upper = v.upper()
         if v_upper not in allowed:
-            raise ValueError(f'Log level must be one of: {allowed}')
+            raise ValueError(f"Log level must be one of: {allowed}")
         return v_upper
 
-    @validator('log_format')
-    def validate_log_format(cls, v):  # noqa: N805
-        allowed = ['json', 'text']
+    @validator("log_format")
+    def validate_log_format(cls, v: str) -> str:  # noqa: N805
+        allowed = ["json", "text"]
         if v not in allowed:
-            raise ValueError(f'Log format must be one of: {allowed}')
+            raise ValueError(f"Log format must be one of: {allowed}")
         return v
 
     def to_dict(self) -> dict[str, Any]:
@@ -114,14 +120,25 @@ class Settings(BaseSettings):
 
 
 # Global settings instance
+settings: Settings | None = None
+
 try:
-    settings = Settings()
+    settings = Settings()  # type: ignore[call-arg]
     logger.info("Settings loaded successfully")
 except Exception as e:
     logger.error(f"Failed to load settings: {e}")
-    raise
+    # In development, we might not have all environment variables set
+    # This allows the module to be imported for testing
+    if __name__ != "__main__":
+        settings = None
+    else:
+        raise
 
 
 def get_settings() -> Settings:
     """Get the global settings instance."""
+    if settings is None:
+        raise RuntimeError(
+            "Settings not loaded. Please ensure all required environment variables are set."
+        )
     return settings
