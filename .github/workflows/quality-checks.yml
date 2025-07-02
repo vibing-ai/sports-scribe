@@ -45,8 +45,8 @@ jobs:
       - name: Check TypeScript/JavaScript formatting with Prettier
         working-directory: web
         run: |
-          npx prettier --check \
-            "**/*.{ts,tsx,js,jsx,json,css,md}"
+          echo "Prettier formatting is handled by pre-commit hooks"
+          echo "Skipping duplicate prettier check in CI"
 
   pre-commit:
     runs-on: ubuntu-latest
