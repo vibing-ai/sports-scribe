@@ -55,7 +55,7 @@ Add any other context about the problem here.
 
 ## Error Logs
 
-```
+```text
 Paste any relevant error logs here
 ```
 

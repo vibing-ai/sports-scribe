@@ -1,10 +1,13 @@
 # Authentication
 
-This document outlines the authentication methods and security practices for the Sport Scribe API.
+This document outlines the authentication methods and security practices for
+the Sport Scribe API.
 
 ## Overview
 
-Sport Scribe uses a multi-layered authentication system built on Supabase Auth, supporting multiple authentication methods while maintaining high security standards.
+Sport Scribe uses a multi-layered authentication system built on Supabase
+Auth, supporting multiple authentication methods while maintaining high
+security standards.
 
 ## Authentication Methods
 
@@ -14,7 +17,7 @@ The primary authentication method uses JSON Web Tokens (JWT) issued by Supabase 
 
 #### Token Structure
 
-```
+```http
 Authorization: Bearer <jwt_token>
 ```
 
@@ -32,11 +35,11 @@ For service-to-service communication and automated systems.
 
 #### Header Format
 
-```
+```http
 X-API-Key: <api_key>
 ```
 
-#### Example Request
+#### API Key Example
 
 ```bash
 curl -X POST "https://api.sportscribe.com/api/articles/generate" \
@@ -51,7 +54,7 @@ For web application users through cookie-based sessions.
 
 #### Cookie Structure
 
-```
+```http
 sb-access-token=<token>; sb-refresh-token=<refresh_token>
 ```
 

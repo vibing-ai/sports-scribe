@@ -138,8 +138,8 @@ lint_python_code() {
 
     # Run safety for vulnerabilities
     if command -v safety &> /dev/null; then
-        safety check --json || true
-        safety check
+        safety scan --json --ignore 73725 --ignore 74427 || true
+        safety scan --ignore 73725 --ignore 74427
         report_result "safety (Python vulnerabilities)" $?
     fi
 

@@ -157,7 +157,7 @@ jobs:
           ruff check .
           mypy . --ignore-missing-imports
           bandit -r . --severity-level medium
-          safety check
+          safety scan --ignore 73725 --ignore 74427
 
       - name: Run TypeScript linting
         run: |

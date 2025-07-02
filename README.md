@@ -2,14 +2,20 @@
 
 > AI-Powered Sports Journalism Platform
 
-Sport Scribe is an intelligent sports journalism platform that leverages AI agents to automatically generate high-quality sports articles, game recaps, and analysis from live game data and statistics.
+Sport Scribe is an intelligent sports journalism platform that leverages AI
+agents to automatically generate high-quality sports articles, game recaps,
+and analysis from live game data and statistics.
 
 ## 🌟 Features
 
-- **AI-Powered Content Generation**: Multi-agent system that researches, writes, and edits sports content
-- **Real-time Game Integration**: Connects to sports APIs for live game data and statistics
-- **Modern Web Platform**: Next.js frontend with responsive design and real-time updates
-- **Comprehensive Coverage**: Supports football, basketball, baseball, soccer, and hockey
+- **AI-Powered Content Generation**: Multi-agent system that researches,
+  writes, and edits sports content
+- **Real-time Game Integration**: Connects to sports APIs for live game data
+  and statistics
+- **Modern Web Platform**: Next.js frontend with responsive design and
+  real-time updates
+- **Comprehensive Coverage**: Supports football, basketball, baseball, soccer,
+  and hockey
 - **Content Management**: Full editorial workflow with drafts, reviews, and publishing
 - **Analytics Dashboard**: Track article performance and user engagement
 
@@ -84,11 +90,12 @@ Sport Scribe is an intelligent sports journalism platform that leverages AI agen
    - AI Backend API: <http://localhost:8000>
    - API Docs: <http://localhost:8000/docs>
 
-For detailed setup instructions, see [Getting Started Guide](docs/development/getting-started.md).
+For detailed setup instructions, see
+[Getting Started Guide](docs/development/getting-started.md).
 
 ## 📁 Project Structure
 
-```
+```text
 sport-scribe/
 ├── ai-backend/          # Python AI agent system
 │   ├── agents/          # AI agent implementations
@@ -110,7 +117,8 @@ sport-scribe/
 
 ## 🤖 AI Agent System
 
-Sport Scribe uses a multi-agent architecture where specialized AI agents collaborate to produce high-quality sports content:
+Sport Scribe uses a multi-agent architecture where specialized AI agents
+collaborate to produce high-quality sports content:
 
 ### Agent Workflow
 
@@ -192,11 +200,14 @@ See [Contributing Guidelines](CONTRIBUTING.md) for detailed information.
 
 ## 📚 Documentation
 
-- [Getting Started](docs/development/getting-started.md) - Setup and installation
-- [Architecture Overview](docs/architecture/system-overview.md) - System design
+- [Getting Started](docs/development/getting-started.md) - Setup and
+  installation
+- [Architecture Overview](docs/architecture/system-overview.md) - System
+  design
 - [API Documentation](docs/api/endpoints.md) - REST API reference
 - [Deployment Guide](docs/deployment/web-platform.md) - Production deployment
-- [Coding Standards](docs/development/coding-standards.md) - Development guidelines
+- [Coding Standards](docs/development/coding-standards.md) - Development
+  guidelines
 
 ## 🔧 Configuration
 
@@ -273,7 +284,8 @@ npm run test:e2e
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) and [Code of Conduct](CODE_OF_CONDUCT.md).
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md)
+and [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ### Development Team
 
@@ -284,7 +296,8 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE)
+file for details.
 
 ## 🆘 Support
 
@@ -303,4 +316,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Built with ❤️ for sports journalism**
+## Acknowledgments
+
+Built with ❤️ for sports journalism
