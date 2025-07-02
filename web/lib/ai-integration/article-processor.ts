@@ -21,16 +21,16 @@ export class ArticleProcessor {
 
   static extractExcerpt(content: string, maxLength: number = 150): string {
     if (!content) return ''
-    
+
     const sentences = content.split('.')
     let excerpt = sentences[0] || ''
-    
+
     for (let i = 1; i < sentences.length; i++) {
       const next = excerpt + '.' + sentences[i]
       if (next.length > maxLength) break
       excerpt = next
     }
-    
+
     const trimmedExcerpt = excerpt.trim()
     return trimmedExcerpt + (trimmedExcerpt.length < content.length ? '...' : '')
   }
@@ -49,7 +49,7 @@ export class ArticleProcessor {
     const contentLower = content.toLowerCase()
 
     for (const [category, terms] of Object.entries(keywords)) {
-      if (terms.some(term => contentLower.includes(term))) {
+      if (terms.some((term) => contentLower.includes(term))) {
         categories.push(category)
       }
     }
@@ -65,4 +65,4 @@ export class ArticleProcessor {
       readTime: Math.ceil(data.content.split(' ').length / 200), // Assuming 200 WPM
     }
   }
-} 
+}

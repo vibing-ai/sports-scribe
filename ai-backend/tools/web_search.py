@@ -49,7 +49,7 @@ class WebSearchTool:
             List of news article data
         """
         # TODO: Implement news search functionality
-        logger.info(f"Searching news for query: {query}")
+        logger.info("Searching news for query: %s", query)
         return []
 
     async def scrape_article(self, url: str) -> dict[str, Any]:
@@ -63,7 +63,7 @@ class WebSearchTool:
             Dictionary containing article content and metadata
         """
         # TODO: Implement article scraping
-        logger.info(f"Scraping article: {url}")
+        logger.info("Scraping article: %s", url)
         return {}
 
     async def get_team_social_media(self, team_name: str) -> dict[str, list[str]]:
@@ -77,7 +77,7 @@ class WebSearchTool:
             Dictionary with social media platform as key and posts as values
         """
         # TODO: Implement social media scraping
-        logger.info(f"Getting social media for team: {team_name}")
+        logger.info("Getting social media for team: %s", team_name)
         return {}
 
 

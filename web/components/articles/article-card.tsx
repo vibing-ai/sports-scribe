@@ -1,22 +1,29 @@
-import { Card, CardHeader, CardBody, CardFooter, Button, Chip } from '@heroui/react'
-import Link from 'next/link'
+import {
+  Card,
+  CardHeader,
+  CardBody,
+  CardFooter,
+  Button,
+  Chip,
+} from "@heroui/react";
+import Link from "next/link";
 
 export interface ArticleCardProps {
-  id: string
-  title: string
-  excerpt: string
-  sport: string
-  createdAt: string
-  author?: string
+  id: string;
+  title: string;
+  excerpt: string;
+  sport: string;
+  createdAt: string;
+  author?: string;
 }
 
-export function ArticleCard({ 
-  id, 
-  title, 
-  excerpt, 
-  sport, 
-  createdAt, 
-  author = 'AI Sports Writer' 
+export function ArticleCard({
+  id,
+  title,
+  excerpt,
+  sport,
+  createdAt,
+  author = "AI Sports Writer",
 }: ArticleCardProps) {
   return (
     <Card className="w-full">
@@ -36,16 +43,16 @@ export function ArticleCard({
         <small className="text-default-500 mt-2">By {author}</small>
       </CardBody>
       <CardFooter className="pt-0">
-        <Button 
-          as={Link} 
-          href={`/articles/${id}`} 
-          color="primary" 
-          variant="flat" 
+        <Button
+          as={Link}
+          href={`/articles/${id}`}
+          color="primary"
+          variant="flat"
           size="sm"
         >
           Read More
         </Button>
       </CardFooter>
     </Card>
-  )
-} 
+  );
+}

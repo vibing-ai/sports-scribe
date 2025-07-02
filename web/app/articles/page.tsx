@@ -1,4 +1,4 @@
-import { Card, CardBody, CardHeader } from '@heroui/react'
+import { Card, CardBody, CardHeader } from "@heroui/react";
 
 export default function ArticlesPage() {
   return (
@@ -16,5 +16,5 @@ export default function ArticlesPage() {
         </Card>
       </div>
     </div>
-  )
-} 
+  );
+}

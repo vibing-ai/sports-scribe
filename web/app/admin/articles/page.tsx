@@ -1,4 +1,4 @@
-import { Card, CardBody, CardHeader, Button } from '@heroui/react'
+import { Card, CardBody, CardHeader, Button } from "@heroui/react";
 
 export default function AdminArticlesPage() {
   return (
@@ -14,10 +14,11 @@ export default function AdminArticlesPage() {
         <CardBody>
           <p>This is a placeholder for the article management interface.</p>
           <p className="mt-2 text-gray-600">
-            Features will include: article status, editing, publishing controls, and AI agent monitoring.
+            Features will include: article status, editing, publishing controls,
+            and AI agent monitoring.
           </p>
         </CardBody>
       </Card>
     </div>
-  )
-} 
+  );
+}

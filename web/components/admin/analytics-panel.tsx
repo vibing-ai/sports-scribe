@@ -1,17 +1,17 @@
-import { Card, CardHeader, CardBody, Progress } from '@heroui/react'
+import { Card, CardHeader, CardBody, Progress } from "@heroui/react";
 
 export interface AnalyticsData {
-  topSports: Array<{ sport: string; percentage: number }>
-  weeklyGrowth: number
+  topSports: Array<{ sport: string; percentage: number }>;
+  weeklyGrowth: number;
   engagement: {
-    averageTimeOnPage: string
-    bounceRate: number
-    returnVisitors: number
-  }
+    averageTimeOnPage: string;
+    bounceRate: number;
+    returnVisitors: number;
+  };
 }
 
 export interface AnalyticsPanelProps {
-  data: AnalyticsData
+  data: AnalyticsData;
 }
 
 export function AnalyticsPanel({ data }: AnalyticsPanelProps) {
@@ -29,9 +29,15 @@ export function AnalyticsPanel({ data }: AnalyticsPanelProps) {
                   <span className="capitalize">{item.sport}</span>
                   <span>{item.percentage}%</span>
                 </div>
-                <Progress 
-                  value={item.percentage} 
-                  color={index === 0 ? 'primary' : index === 1 ? 'secondary' : 'default'}
+                <Progress
+                  value={item.percentage}
+                  color={
+                    index === 0
+                      ? "primary"
+                      : index === 1
+                        ? "secondary"
+                        : "default"
+                  }
                   size="sm"
                 />
               </div>
@@ -48,15 +54,21 @@ export function AnalyticsPanel({ data }: AnalyticsPanelProps) {
           <div className="space-y-4">
             <div>
               <p className="text-small text-default-500">Weekly Growth</p>
-              <p className="text-2xl font-bold text-success">+{data.weeklyGrowth}%</p>
+              <p className="text-2xl font-bold text-success">
+                +{data.weeklyGrowth}%
+              </p>
             </div>
             <div>
               <p className="text-small text-default-500">Avg. Time on Page</p>
-              <p className="text-lg font-semibold">{data.engagement.averageTimeOnPage}</p>
+              <p className="text-lg font-semibold">
+                {data.engagement.averageTimeOnPage}
+              </p>
             </div>
             <div>
               <p className="text-small text-default-500">Return Visitors</p>
-              <p className="text-lg font-semibold">{data.engagement.returnVisitors}%</p>
+              <p className="text-lg font-semibold">
+                {data.engagement.returnVisitors}%
+              </p>
             </div>
           </div>
         </CardBody>
@@ -70,9 +82,15 @@ export function AnalyticsPanel({ data }: AnalyticsPanelProps) {
           <div className="space-y-4">
             <div>
               <p className="text-small text-default-500 mb-2">Bounce Rate</p>
-              <Progress 
-                value={data.engagement.bounceRate} 
-                color={data.engagement.bounceRate < 40 ? 'success' : data.engagement.bounceRate < 60 ? 'warning' : 'danger'}
+              <Progress
+                value={data.engagement.bounceRate}
+                color={
+                  data.engagement.bounceRate < 40
+                    ? "success"
+                    : data.engagement.bounceRate < 60
+                      ? "warning"
+                      : "danger"
+                }
                 label={`${data.engagement.bounceRate}%`}
                 showValueLabel={true}
               />
@@ -81,5 +99,5 @@ export function AnalyticsPanel({ data }: AnalyticsPanelProps) {
         </CardBody>
       </Card>
     </div>
-  )
-} 
+  );
+}

@@ -1,22 +1,22 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from "react";
 
 interface LoadingWrapperProps {
-  children: React.ReactNode
-  fallback?: React.ReactNode
+  children: React.ReactNode;
+  fallback?: React.ReactNode;
 }
 
 export function LoadingWrapper({ children, fallback }: LoadingWrapperProps) {
-  const [mounted, setMounted] = useState(false)
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
   if (!mounted) {
-    return fallback || null
+    return fallback || null;
   }
 
-  return <>{children}</>
-} 
+  return <>{children}</>;
+}

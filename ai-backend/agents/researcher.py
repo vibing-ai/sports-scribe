@@ -32,7 +32,7 @@ class ResearchAgent:
             Dictionary containing historical context
         """
         # TODO: Implement team history research
-        logger.info(f"Researching history between teams: {team_id} vs {opponent_id}")
+        logger.info("Researching history between teams: %s vs %s", team_id, opponent_id)
         return {}
 
     async def research_player_performance(
@@ -48,7 +48,7 @@ class ResearchAgent:
             Dictionary containing player analysis
         """
         # TODO: Implement player performance research
-        logger.info(f"Researching player performance: {player_id}")
+        logger.info("Researching player performance: %s", player_id)
         return {}
 
     async def research_season_trends(self, league: str, season: str) -> dict[str, Any]:
@@ -62,5 +62,5 @@ class ResearchAgent:
             Dictionary containing season trends
         """
         # TODO: Implement season trends research
-        logger.info(f"Researching season trends for {league} - {season}")
+        logger.info("Researching season trends for %s - %s", league, season)
         return {}

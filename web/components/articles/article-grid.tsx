@@ -1,7 +1,7 @@
-import { ArticleCard, ArticleCardProps } from './article-card'
+import { ArticleCard, ArticleCardProps } from "./article-card";
 
 export interface ArticleGridProps {
-  articles: ArticleCardProps[]
+  articles: ArticleCardProps[];
 }
 
 export function ArticleGrid({ articles }: ArticleGridProps) {
@@ -11,5 +11,5 @@ export function ArticleGrid({ articles }: ArticleGridProps) {
         <ArticleCard key={article.id} {...article} />
       ))}
     </div>
-  )
-} 
+  );
+}

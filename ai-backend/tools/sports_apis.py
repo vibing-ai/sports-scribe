@@ -62,7 +62,7 @@ class APIFootballClient:
             List of fixture data dictionaries
         """
         # TODO: Implement API-Football fixtures endpoint
-        logger.info(f"Fetching fixtures for league {league_id}, season {season}")
+        logger.info("Fetching fixtures for league %s, season %s", league_id, season)
         return []
 
     async def get_teams(self, league_id: int, season: int) -> list[dict[str, Any]]:
@@ -77,7 +77,7 @@ class APIFootballClient:
             List of team data dictionaries
         """
         # TODO: Implement API-Football teams endpoint
-        logger.info(f"Fetching teams for league {league_id}, season {season}")
+        logger.info("Fetching teams for league %s, season %s", league_id, season)
         return []
 
     async def get_league_standings(self, league_id: int, season: int) -> dict[str, Any]:
@@ -92,7 +92,7 @@ class APIFootballClient:
             Dictionary containing league standings
         """
         # TODO: Implement API-Football standings endpoint
-        logger.info(f"Fetching standings for league {league_id}, season {season}")
+        logger.info("Fetching standings for league %s, season %s", league_id, season)
         return {}
 
     async def get_match_statistics(self, fixture_id: int) -> dict[str, Any]:
@@ -106,7 +106,7 @@ class APIFootballClient:
             Dictionary containing match statistics
         """
         # TODO: Implement API-Football match statistics endpoint
-        logger.info(f"Fetching match statistics for fixture {fixture_id}")
+        logger.info("Fetching match statistics for fixture %s", fixture_id)
         return {}
 
     async def get_players(self, team_id: int, season: int) -> list[dict[str, Any]]:
@@ -121,7 +121,7 @@ class APIFootballClient:
             List of player data dictionaries
         """
         # TODO: Implement API-Football players endpoint
-        logger.info(f"Fetching players for team {team_id}, season {season}")
+        logger.info("Fetching players for team %s, season %s", team_id, season)
         return []
 
 

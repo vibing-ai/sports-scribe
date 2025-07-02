@@ -1,10 +1,10 @@
-import { NextResponse } from 'next/server'
+import { NextResponse } from "next/server";
 
 export async function GET() {
   return NextResponse.json({
-    status: 'healthy',
+    status: "healthy",
     timestamp: new Date().toISOString(),
-    service: 'sport-scribe-web',
-    version: '1.0.0'
-  })
-} 
+    service: "sport-scribe-web",
+    version: "1.0.0",
+  });
+}

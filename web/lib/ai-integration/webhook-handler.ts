@@ -13,7 +13,7 @@ export interface WebhookPayload {
 
 export async function handleWebhook(payload: WebhookPayload) {
   const supabase = createServerSupabaseClient()
-  
+
   if (payload.type === 'article.generated') {
     try {
       const { data, error } = await supabase
@@ -44,4 +44,4 @@ export async function handleWebhook(payload: WebhookPayload) {
   }
 
   throw new Error(`Unknown webhook type: ${payload.type}`)
-} 
+}

@@ -230,7 +230,7 @@ async def root() -> dict[str, str]:
 if __name__ == "__main__":
     import uvicorn
 
-    logger.info(f"Starting server on {settings.fastapi_host}:{settings.fastapi_port}")
+    logger.info("Starting server on %s:%s", settings.fastapi_host, settings.fastapi_port)
     uvicorn.run(
         "main:app",
         host=settings.fastapi_host,

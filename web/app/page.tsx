@@ -1,5 +1,5 @@
-import { Button } from '@heroui/react'
-import Link from 'next/link'
+import { Button } from "@heroui/react";
+import Link from "next/link";
 
 export default function HomePage() {
   return (
@@ -10,8 +10,8 @@ export default function HomePage() {
             Sport Scribe
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
-            AI-powered sports journalism platform that generates real-time sports articles
-            using intelligent multi-agent systems.
+            AI-powered sports journalism platform that generates real-time
+            sports articles using intelligent multi-agent systems.
           </p>
           <div className="flex gap-4 justify-center">
             <Button as={Link} href="/articles" color="primary" size="lg">
@@ -24,5 +24,5 @@ export default function HomePage() {
         </div>
       </div>
     </main>
-  )
-} 
+  );
+}

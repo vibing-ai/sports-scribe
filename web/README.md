@@ -1,9 +1,11 @@
 # Web Platform - Sport Scribe
 
 ## Overview
+
 Next.js web platform for publishing and managing AI-generated sports articles.
 
 ## Tech Stack
+
 - Next.js 14 with App Router
 - TypeScript
 - Tailwind CSS + Hero UI
@@ -11,6 +13,7 @@ Next.js web platform for publishing and managing AI-generated sports articles.
 - Framer Motion (for animations)
 
 ## Setup
+
 ```bash
 # Install dependencies
 npm install
@@ -24,13 +27,16 @@ npm run dev
 ```
 
 ## Hero UI Configuration
+
 This project uses Hero UI for components. Key files:
+
 - `app/providers.tsx` - Hero UI provider setup
 - `tailwind.config.js` - Hero UI plugin configuration
 - `.npmrc` - pnpm hoisting configuration (if using pnpm)
 
 ## Features
+
 - Real-time article publishing
 - Admin dashboard
 - Article management
-- Analytics and monitoring 
+- Analytics and monitoring
