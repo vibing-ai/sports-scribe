@@ -18,12 +18,12 @@ echo "🖥️  Detected OS: ${MACHINE}"
 # Install shellcheck
 install_shellcheck() {
     echo "📋 Installing shellcheck..."
-    
+
     if command -v shellcheck &> /dev/null; then
         echo "✅ shellcheck already installed"
         return
     fi
-    
+
     case "${MACHINE}" in
         "Mac")
             if command -v brew &> /dev/null; then
@@ -50,19 +50,19 @@ install_shellcheck() {
             return 1
             ;;
     esac
-    
+
     echo "✅ shellcheck installed"
 }
 
 # Install yamllint
 install_yamllint() {
     echo "📝 Installing yamllint..."
-    
+
     if command -v yamllint &> /dev/null; then
         echo "✅ yamllint already installed"
         return
     fi
-    
+
     pip3 install yamllint
     echo "✅ yamllint installed"
 }
@@ -70,12 +70,12 @@ install_yamllint() {
 # Install hadolint (Docker linter)
 install_hadolint() {
     echo "🐳 Installing hadolint..."
-    
+
     if command -v hadolint &> /dev/null; then
         echo "✅ hadolint already installed"
         return
     fi
-    
+
     case "${MACHINE}" in
         "Mac")
             if command -v brew &> /dev/null; then
@@ -95,19 +95,19 @@ install_hadolint() {
             return 1
             ;;
     esac
-    
+
     echo "✅ hadolint installed"
 }
 
 # Install ajv-cli (JSON schema validator)
 install_ajv_cli() {
     echo "🔍 Installing ajv-cli..."
-    
+
     if command -v ajv &> /dev/null; then
         echo "✅ ajv-cli already installed"
         return
     fi
-    
+
     if command -v npm &> /dev/null; then
         npm install -g ajv-cli
         echo "✅ ajv-cli installed"
@@ -120,12 +120,12 @@ install_ajv_cli() {
 # Install sqlfluff (SQL linter)
 install_sqlfluff() {
     echo "🗃️  Installing sqlfluff..."
-    
+
     if command -v sqlfluff &> /dev/null; then
         echo "✅ sqlfluff already installed"
         return
     fi
-    
+
     pip3 install sqlfluff
     echo "✅ sqlfluff installed"
 }
@@ -133,7 +133,7 @@ install_sqlfluff() {
 # Create yamllint config
 create_yamllint_config() {
     echo "📝 Creating yamllint configuration..."
-    
+
     cat > .yamllint.yml << 'EOF'
 extends: default
 
@@ -144,14 +144,14 @@ rules:
   truthy:
     allowed-values: ['true', 'false', 'on', 'off']
 EOF
-    
+
     echo "✅ yamllint configuration created"
 }
 
 # Create hadolint config
 create_hadolint_config() {
     echo "🐳 Creating hadolint configuration..."
-    
+
     cat > .hadolint.yaml << 'EOF'
 ignored:
   - DL3008  # Pin versions in apt get install (we handle this in Dockerfile)
@@ -168,14 +168,14 @@ allowedRegistries:
   - gcr.io
   - registry.hub.docker.com
 EOF
-    
+
     echo "✅ hadolint configuration created"
 }
 
 # Create sqlfluff config
 create_sqlfluff_config() {
     echo "🗃️  Creating sqlfluff configuration..."
-    
+
     cat > .sqlfluff << 'EOF'
 [sqlfluff]
 dialect = postgres
@@ -201,26 +201,26 @@ capitalisation_policy = lower
 [sqlfluff:rules:capitalisation.functions]
 capitalisation_policy = lower
 EOF
-    
+
     echo "✅ sqlfluff configuration created"
 }
 
 # Main installation process
 main() {
     echo "🚀 Installing CI/CD tools..."
-    
+
     install_shellcheck || echo "⚠️  shellcheck installation failed"
     install_yamllint || echo "⚠️  yamllint installation failed"
     install_hadolint || echo "⚠️  hadolint installation failed"
     install_ajv_cli || echo "⚠️  ajv-cli installation failed"
     install_sqlfluff || echo "⚠️  sqlfluff installation failed"
-    
+
     echo ""
     echo "📝 Creating configuration files..."
     create_yamllint_config
     create_hadolint_config
     create_sqlfluff_config
-    
+
     echo ""
     echo "🎉 CI/CD tools setup complete!"
     echo ""
@@ -234,4 +234,4 @@ main() {
     echo "💡 Run 'scripts/lint-all.sh' to use all linters"
 }
 
-main "$@" 
+main "$@"

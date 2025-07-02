@@ -63,13 +63,13 @@ const ARTICLE_STATUSES = ['draft', 'published', 'archived'] as const;
 // Use functional components with hooks
 export function ArticleCard({ article, onEdit, className }: ArticleProps) {
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const handleEdit = useCallback(() => {
     if (onEdit) {
       onEdit(article.id);
     }
   }, [article.id, onEdit]);
-  
+
   return (
     <div className={cn("article-card", className)}>
       <h2>{article.title}</h2>
@@ -91,7 +91,7 @@ export function ArticleCard({ article, onEdit, className }: ArticleProps) {
 <div className="flex items-center justify-between p-4 bg-white rounded-lg shadow-md">
 
 // Use cn() utility for conditional classes
-<button 
+<button
   className={cn(
     "px-4 py-2 rounded-md font-medium transition-colors",
     variant === 'primary' ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-900",
@@ -152,20 +152,20 @@ class ArticleRequest(BaseModel):
 
 class WriterAgent:
     """AI agent responsible for generating sports articles."""
-    
+
     def __init__(self, config: WriterConfig) -> None:
         self.config = config
         self.client = OpenAI(api_key=config.openai_api_key)
-    
+
     async def generate_article(self, request: ArticleRequest) -> Optional[str]:
         """Generate an article based on the request parameters.
-        
+
         Args:
             request: Article generation request with game details
-            
+
         Returns:
             Generated article content or None if generation fails
-            
+
         Raises:
             ArticleGenerationError: If article generation fails
         """
@@ -220,7 +220,7 @@ CREATE TABLE article_generation_requests (
     target_length INTEGER DEFAULT 2000,
     status VARCHAR(50) DEFAULT 'pending',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
-    
+
     -- Add constraints for data integrity
     CONSTRAINT generation_focus_check CHECK (
         focus_type IN ('game_recap', 'player_spotlight', 'team_analysis')
@@ -231,10 +231,10 @@ CREATE TABLE article_generation_requests (
 );
 
 -- Add indexes for performance
-CREATE INDEX idx_article_generation_requests_status 
+CREATE INDEX idx_article_generation_requests_status
 ON article_generation_requests (status);
 
-CREATE INDEX idx_article_generation_requests_created_at 
+CREATE INDEX idx_article_generation_requests_created_at
 ON article_generation_requests (created_at DESC);
 ```
 
@@ -272,7 +272,7 @@ describe('ArticleCard', () => {
 
   it('renders article information correctly', () => {
     render(<ArticleCard article={mockArticle} />);
-    
+
     expect(screen.getByText('Test Article')).toBeInTheDocument();
     expect(screen.getByText('Test summary')).toBeInTheDocument();
   });
@@ -280,9 +280,9 @@ describe('ArticleCard', () => {
   it('calls onEdit when edit button is clicked', async () => {
     const mockOnEdit = jest.fn();
     render(<ArticleCard article={mockArticle} onEdit={mockOnEdit} />);
-    
+
     fireEvent.click(screen.getByText('Edit'));
-    
+
     await waitFor(() => {
       expect(mockOnEdit).toHaveBeenCalledWith('1');
     });
@@ -313,14 +313,14 @@ async def test_generate_article_success(writer_agent):
         focus_type="game_recap",
         target_length=1000
     )
-    
+
     # Mock the OpenAI client
     writer_agent.client.chat.completions.create = AsyncMock(
         return_value=Mock(choices=[Mock(message=Mock(content="Generated article"))])
     )
-    
+
     result = await writer_agent.generate_article(request)
-    
+
     assert result is not None
     assert "Generated article" in result
     writer_agent.client.chat.completions.create.assert_called_once()
@@ -332,12 +332,12 @@ async def test_generate_article_failure(writer_agent):
         game_id="test-game-id",
         focus_type="game_recap"
     )
-    
+
     # Mock API failure
     writer_agent.client.chat.completions.create = AsyncMock(
         side_effect=Exception("API Error")
     )
-    
+
     with pytest.raises(ArticleGenerationError):
         await writer_agent.generate_article(request)
 ```
@@ -416,11 +416,11 @@ repos:
 ```typescript
 /**
  * Generates a summary for an article based on its content.
- * 
+ *
  * @param content - The full article content
  * @param maxLength - Maximum length of the summary (default: 200)
  * @returns A concise summary of the article
- * 
+ *
  * @example
  * ```typescript
  * const summary = generateSummary("Long article content...", 150);
@@ -435,18 +435,18 @@ function generateSummary(content: string, maxLength = 200): string {
 ```python
 def collect_game_stats(game_id: str, include_player_stats: bool = True) -> GameStats:
     """Collect comprehensive statistics for a specific game.
-    
+
     Args:
         game_id: Unique identifier for the game
         include_player_stats: Whether to include individual player statistics
-        
+
     Returns:
         GameStats object containing team and optionally player statistics
-        
+
     Raises:
         DataCollectionError: If game data cannot be retrieved
         ValidationError: If retrieved data is invalid
-        
+
     Example:
         >>> stats = collect_game_stats("game-123", include_player_stats=True)
         >>> print(stats.home_team_score)
@@ -470,11 +470,11 @@ class ArticleResponse(BaseModel):
 @app.post("/api/articles", response_model=ArticleResponse)
 async def create_article(request: ArticleRequest) -> ArticleResponse:
     """Create a new article.
-    
+
     - **game_id**: The ID of the game to write about
     - **focus_type**: Type of article (game_recap, player_spotlight, etc.)
     - **target_length**: Desired word count for the article
-    
+
     Returns the created article with generated content.
     """
 ```
@@ -502,7 +502,7 @@ from pydantic import BaseModel, validator, Field
 class ArticleRequest(BaseModel):
     game_id: str = Field(..., regex=r'^[a-zA-Z0-9-]+$')
     focus_type: str = Field(..., min_length=1, max_length=50)
-    
+
     @validator('focus_type')
     def validate_focus_type(cls, v):
         allowed_types = ['game_recap', 'player_spotlight', 'team_analysis']
@@ -542,8 +542,8 @@ async def fetch_multiple_games(game_ids: List[str]) -> List[GameData]:
 
 # Use database indexes for common queries
 # Add to migration files
-CREATE INDEX CONCURRENTLY idx_articles_sport_published 
-ON articles (sport, published_at DESC) 
+CREATE INDEX CONCURRENTLY idx_articles_sport_published
+ON articles (sport, published_at DESC)
 WHERE status = 'published';
 ```
 
@@ -579,4 +579,4 @@ cd ai-backend && mypy .    # Type checking
 cd ai-backend && pytest   # Run tests
 ```
 
-Following these coding standards ensures consistency, maintainability, and quality across the Sport Scribe codebase. 
+Following these coding standards ensures consistency, maintainability, and quality across the Sport Scribe codebase.

@@ -22,4 +22,4 @@ extended_capitalisation_policy = lower
 
 [sqlfluff:rules:capitalisation.keywords]
 # Allow mixed case keywords
-extended_capitalisation_policy = consistent 
+extended_capitalisation_policy = consistent

@@ -14,11 +14,11 @@ REGISTRY="registry.render.com"
 build_image() {
     echo "🐳 Building Docker image..."
     cd ai-backend
-    
+
     # Build the image
     docker build -t ${DOCKER_IMAGE}:latest .
     docker tag ${DOCKER_IMAGE}:latest ${REGISTRY}/${SERVICE_NAME}:latest
-    
+
     cd ..
     echo "✅ Docker image built and tagged"
 }
@@ -33,28 +33,28 @@ push_image() {
 # Deploy to production
 deploy() {
     echo "🎯 Deploying to production..."
-    
+
     # Here you would integrate with your deployment platform
     # For Render, this might involve API calls or CLI commands
     echo "🔄 Triggering deployment on Render..."
-    
+
     # Example: curl to Render deploy hook
     # curl -X POST "https://api.render.com/deploy/srv-xxxxx?key=xxxxx"
-    
+
     echo "✅ Deployment triggered"
 }
 
 # Main deployment process
 main() {
     echo "Environment: ${ENVIRONMENT:-production}"
-    
+
     build_image
     push_image
     deploy
-    
+
     echo ""
     echo "🎉 AI Backend deployment complete!"
     echo "🔗 Check deployment status at your hosting platform"
 }
 
-main "$@" 
+main "$@"

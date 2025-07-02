@@ -147,11 +147,15 @@ class AgentOrchestrator:
             },
         }
 
-    async def _edit_content(self, editor: EditorAgent, content: dict[str, Any]) -> dict[str, Any]:
+    async def _edit_content(
+        self, editor: EditorAgent, content: dict[str, Any]
+    ) -> dict[str, Any]:
         """Edit and finalize content."""
         article_content = content.get("content", "")
         metadata = content.get("metadata", {})
-        edited_content, review_feedback = await editor.review_article(article_content, metadata)
+        edited_content, review_feedback = await editor.review_article(
+            article_content, metadata
+        )
         return {
             "content": edited_content,
             "metadata": {**metadata, "review_feedback": review_feedback},

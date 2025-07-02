@@ -9,13 +9,13 @@ echo "🔍 Running type checks..."
 check_ai_backend() {
     echo "🧠 Type checking AI Backend..."
     cd ai-backend
-    
+
     # Activate virtual environment
     source venv/bin/activate 2>/dev/null || echo "Using system Python"
-    
+
     # Run mypy type checking
     mypy agents/ tools/ config/ utils/ --strict
-    
+
     cd ..
     echo "✅ AI Backend type checking complete"
 }
@@ -24,15 +24,15 @@ check_ai_backend() {
 check_web_platform() {
     echo "🌐 Type checking Web Platform..."
     cd web
-    
+
     # Install dependencies if needed
     if [ ! -d "node_modules" ]; then
         npm install
     fi
-    
+
     # Run TypeScript compiler
     npx tsc --noEmit
-    
+
     cd ..
     echo "✅ Web Platform type checking complete"
 }
@@ -55,9 +55,9 @@ main() {
             exit 1
             ;;
     esac
-    
+
     echo ""
     echo "🎉 Type checking complete!"
 }
 
-main "$@" 
+main "$@"

@@ -13,11 +13,13 @@ Sport Scribe uses a multi-layered authentication system built on Supabase Auth, 
 The primary authentication method uses JSON Web Tokens (JWT) issued by Supabase Auth.
 
 #### Token Structure
+
 ```
 Authorization: Bearer <jwt_token>
 ```
 
 #### Example Request
+
 ```bash
 curl -X GET "https://api.sportscribe.com/api/articles" \
   -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
@@ -29,11 +31,13 @@ curl -X GET "https://api.sportscribe.com/api/articles" \
 For service-to-service communication and automated systems.
 
 #### Header Format
+
 ```
 X-API-Key: <api_key>
 ```
 
 #### Example Request
+
 ```bash
 curl -X POST "https://api.sportscribe.com/api/articles/generate" \
   -H "X-API-Key: sk_live_1234567890abcdef..." \
@@ -46,6 +50,7 @@ curl -X POST "https://api.sportscribe.com/api/articles/generate" \
 For web application users through cookie-based sessions.
 
 #### Cookie Structure
+
 ```
 sb-access-token=<token>; sb-refresh-token=<refresh_token>
 ```
@@ -67,6 +72,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "user": {
@@ -98,6 +104,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "user": {
@@ -128,6 +135,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "access_token": "eyJhbGciOiJIUzI1NiIs...",
@@ -145,6 +153,7 @@ Authorization: Bearer <access_token>
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Successfully logged out"
@@ -160,6 +169,7 @@ GET /auth/oauth/google
 ```
 
 **Query Parameters:**
+
 - `redirect_to` (optional): URL to redirect after successful authentication
 
 ### GitHub OAuth
@@ -169,6 +179,7 @@ GET /auth/oauth/github
 ```
 
 **Query Parameters:**
+
 - `redirect_to` (optional): URL to redirect after successful authentication
 
 ### Twitter OAuth
@@ -178,6 +189,7 @@ GET /auth/oauth/twitter
 ```
 
 **Query Parameters:**
+
 - `redirect_to` (optional): URL to redirect after successful authentication
 
 ## API Key Management
@@ -198,6 +210,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "id": "key_123e4567-e89b-12d3-a456-426614174000",
@@ -218,6 +231,7 @@ Authorization: Bearer <access_token>
 ```
 
 **Response:**
+
 ```json
 {
   "api_keys": [
@@ -241,6 +255,7 @@ Authorization: Bearer <access_token>
 ```
 
 **Response:**
+
 ```json
 {
   "message": "API key revoked successfully"
@@ -260,6 +275,7 @@ Authorization: Bearer <access_token>
 ### Permission System
 
 #### Article Permissions
+
 - `articles:read` - Read published articles
 - `articles:read_all` - Read all articles (including drafts)
 - `articles:create` - Create new articles
@@ -269,6 +285,7 @@ Authorization: Bearer <access_token>
 - `articles:generate` - Generate articles via AI
 
 #### User Management Permissions
+
 - `users:read` - View user profiles
 - `users:create` - Create new users
 - `users:edit` - Edit user profiles
@@ -276,6 +293,7 @@ Authorization: Bearer <access_token>
 - `users:manage_roles` - Assign/change user roles
 
 #### Analytics Permissions
+
 - `analytics:read` - View analytics data
 - `analytics:export` - Export analytics data
 
@@ -299,11 +317,13 @@ Authorization: Bearer <access_token>
 ### Rate Limiting
 
 #### Authentication Endpoints
+
 - Login attempts: 5 per minute per IP
 - Registration: 3 per minute per IP
 - Password reset: 3 per hour per email
 
 #### API Endpoints
+
 - Authenticated users: 1000 requests per hour
 - API keys: 5000 requests per hour
 - Public endpoints: 100 requests per hour per IP
@@ -329,6 +349,7 @@ if (process.env.NODE_ENV === 'development') {
 ### Authentication Errors
 
 #### 401 Unauthorized
+
 ```json
 {
   "error": {
@@ -340,6 +361,7 @@ if (process.env.NODE_ENV === 'development') {
 ```
 
 #### 403 Forbidden
+
 ```json
 {
   "error": {
@@ -351,6 +373,7 @@ if (process.env.NODE_ENV === 'development') {
 ```
 
 #### 429 Too Many Requests
+
 ```json
 {
   "error": {
@@ -379,7 +402,7 @@ export const useAuth = () => {
       email,
       password,
     });
-    
+
     if (error) throw error;
     return data;
   };
@@ -420,23 +443,23 @@ async def get_current_user(
 ) -> dict:
     """Verify JWT token and return user information."""
     token = credentials.credentials
-    
+
     try:
         # Verify token with Supabase
         payload = jwt.decode(
             token,
             options={"verify_signature": False}  # Supabase handles verification
         )
-        
+
         user_id = payload.get("sub")
         if not user_id:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid token"
             )
-        
+
         return {"id": user_id, "email": payload.get("email")}
-        
+
     except jwt.InvalidTokenError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -453,7 +476,7 @@ async def require_permission(permission: str):
                 detail=f"Permission '{permission}' required"
             )
         return current_user
-    
+
     return permission_checker
 ```
 
@@ -474,7 +497,7 @@ def test_login_success():
         "email": "test@example.com",
         "password": "password123"
     })
-    
+
     assert response.status_code == 200
     data = response.json()
     assert "access_token" in data["session"]
@@ -485,7 +508,7 @@ def test_login_invalid_credentials():
         "email": "test@example.com",
         "password": "wrong_password"
     })
-    
+
     assert response.status_code == 401
     assert "error" in response.json()
 
@@ -499,15 +522,15 @@ def test_protected_endpoint_with_valid_token():
         "email": "test@example.com",
         "password": "password123"
     })
-    
+
     token = login_response.json()["session"]["access_token"]
-    
+
     # Use token to access protected endpoint
     response = client.get(
         "/api/articles",
         headers={"Authorization": f"Bearer {token}"}
     )
-    
+
     assert response.status_code == 200
 ```
 
@@ -516,4 +539,4 @@ def test_protected_endpoint_with_valid_token():
 - [API Endpoints](./endpoints.md)
 - [Webhooks](./webhooks.md)
 - [Security Guide](../development/security.md)
-- [Deployment Guide](../deployment/) 
+- [Deployment Guide](../deployment/)

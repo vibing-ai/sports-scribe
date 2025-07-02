@@ -1,15 +1,18 @@
 # AI Backend - Sport Scribe
 
 ## Overview
+
 Multi-agent AI system for generating sports articles using OpenAI SDK.
 
 ## Architecture
+
 - **Data Collector Agent**: Gathers game data from sports APIs
 - **Research Agent**: Provides contextual background and analysis
 - **Writing Agent**: Generates engaging sports articles
 - **Editor Agent**: Reviews and refines article quality
 
 ## Tech Stack
+
 - **Python 3.11+**: Modern Python with type hints
 - **FastAPI**: High-performance web framework for APIs
 - **OpenAI SDK**: OpenAI API integration for AI models
@@ -21,6 +24,7 @@ Multi-agent AI system for generating sports articles using OpenAI SDK.
 ## Setup
 
 ### Prerequisites
+
 - Python 3.11 or higher
 - OpenAI API key
 - Supabase project credentials
@@ -95,6 +99,7 @@ DEFAULT_LEAGUES=premier_league,la_liga,serie_a,bundesliga,ligue_1
 ## Running the Application
 
 ### Development Mode
+
 ```bash
 # Run with auto-reload
 python main.py
@@ -104,12 +109,14 @@ uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 ### Production Mode
+
 ```bash
 # Run in production mode
 uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4
 ```
 
 ### Using Docker
+
 ```bash
 # Build the image
 docker build -t sport-scribe-ai .
@@ -121,18 +128,23 @@ docker run -p 8000:8000 --env-file .env sport-scribe-ai
 ## API Endpoints
 
 ### Health Check
+
 ```
 GET /health
 ```
+
 Returns system health status and agent availability.
 
 ### Generate Article
+
 ```
 POST /generate-article
 ```
+
 Generate a sports article using the multi-agent system.
 
 **Request Body:**
+
 ```json
 {
   "game_id": "string",
@@ -143,6 +155,7 @@ Generate a sports article using the multi-agent system.
 ```
 
 **Response:**
+
 ```json
 {
   "article_id": "string",
@@ -159,6 +172,7 @@ Generate a sports article using the multi-agent system.
 ## Configuration
 
 ### Agent Configuration
+
 Agent personalities and capabilities are configured in `config/agent_config.py`. Key settings include:
 
 - **Temperature**: Controls creativity vs. consistency
@@ -167,6 +181,7 @@ Agent personalities and capabilities are configured in `config/agent_config.py`.
 - **Tools**: Available tools for each agent
 
 ### Application Settings
+
 Global settings are managed in `config/settings.py` and loaded from environment variables.
 
 ## Testing
@@ -208,6 +223,7 @@ pre-commit run --all-files
 ## Development Workflow
 
 1. **Create a feature branch**
+
    ```bash
    git checkout -b feature/your-feature-name
    ```
@@ -218,18 +234,21 @@ pre-commit run --all-files
    - Update documentation as needed
 
 3. **Run quality checks**
+
    ```bash
    pre-commit run --all-files
    pytest
    ```
 
 4. **Commit your changes**
+
    ```bash
    git add .
    git commit -m "feat: add new feature"
    ```
 
 5. **Push and create a PR**
+
    ```bash
    git push origin feature/your-feature-name
    ```
@@ -266,6 +285,7 @@ ai-backend/
 ## Deployment
 
 ### Docker Deployment
+
 ```bash
 # Build and run with docker-compose
 docker-compose up --build
@@ -276,7 +296,9 @@ docker run -p 8000:8000 --env-file .env sport-scribe-ai
 ```
 
 ### Cloud Deployment
+
 The application is designed to be deployed on cloud platforms like:
+
 - **Render**: Automatic deployment from GitHub
 - **Railway**: Easy Docker deployment
 - **Google Cloud Run**: Serverless container deployment
@@ -292,6 +314,7 @@ The application is designed to be deployed on cloud platforms like:
 ## Contributing
 
 Please read the main project's CONTRIBUTING.md for guidelines on:
+
 - Code style and standards
 - Testing requirements
 - Documentation expectations
@@ -299,4 +322,4 @@ Please read the main project's CONTRIBUTING.md for guidelines on:
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](../LICENSE) file for details. 
+This project is licensed under the MIT License - see the [LICENSE](../LICENSE) file for details.

@@ -8,7 +8,7 @@ echo "🔧 Setting up environment files..."
 # Setup AI Backend environment
 setup_ai_env() {
     echo "🧠 Setting up AI Backend environment..."
-    
+
     if [ ! -f ai-backend/.env ]; then
         cp ai-backend/.env.example ai-backend/.env
         echo "✅ Created ai-backend/.env from template"
@@ -20,7 +20,7 @@ setup_ai_env() {
 # Setup Web Platform environment
 setup_web_env() {
     echo "🌐 Setting up Web Platform environment..."
-    
+
     if [ ! -f web/.env.local ]; then
         cp web/.env.local.example web/.env.local
         echo "✅ Created web/.env.local from template"
@@ -33,7 +33,7 @@ setup_web_env() {
 main() {
     setup_ai_env
     setup_web_env
-    
+
     echo ""
     echo "📝 Environment files created! Please edit them with your credentials:"
     echo "   - ai-backend/.env (OpenAI API key, Supabase service key)"
@@ -42,4 +42,4 @@ main() {
     echo "🔒 Never commit actual credentials to git!"
 }
 
-main "$@" 
+main "$@"

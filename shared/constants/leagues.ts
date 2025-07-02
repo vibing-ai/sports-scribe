@@ -4,18 +4,18 @@ export const LEAGUES = {
   NFL: 'NFL',
   NCAAF: 'NCAA Football',
   CFL: 'CFL',
-  
+
   // Basketball
   NBA: 'NBA',
   WNBA: 'WNBA',
   NCAAB: 'NCAA Basketball',
   EUROLEAGUE: 'EuroLeague',
-  
+
   // Baseball
   MLB: 'MLB',
   MILB: 'Minor League Baseball',
   NPB: 'NPB',
-  
+
   // Soccer
   MLS: 'MLS',
   EPL: 'Premier League',
@@ -26,27 +26,27 @@ export const LEAGUES = {
   CHAMPIONS_LEAGUE: 'Champions League',
   EUROPA_LEAGUE: 'Europa League',
   WORLD_CUP: 'FIFA World Cup',
-  
+
   // Hockey
   NHL: 'NHL',
   AHL: 'AHL',
   NCAAH: 'NCAA Hockey',
   KHL: 'KHL',
-  
+
   // Tennis
   ATP: 'ATP Tour',
   WTA: 'WTA Tour',
-  
+
   // Golf
   PGA: 'PGA Tour',
   EUROPEAN_TOUR: 'European Tour',
   LPGA: 'LPGA Tour',
-  
+
   // Boxing/MMA
   UFC: 'UFC',
   BELLATOR: 'Bellator',
   ONE_FC: 'ONE Championship',
-  
+
   // Motorsports
   F1: 'Formula 1',
   NASCAR: 'NASCAR',
@@ -235,4 +235,4 @@ export const EUROPEAN_LEAGUES = [
 export const INTERNATIONAL_COMPETITIONS = [
   LEAGUES.WORLD_CUP, LEAGUES.CHAMPIONS_LEAGUE, LEAGUES.EUROPA_LEAGUE,
   LEAGUES.F1, LEAGUES.ATP, LEAGUES.WTA, LEAGUES.PGA, LEAGUES.MOTOGP
-]; 
+];

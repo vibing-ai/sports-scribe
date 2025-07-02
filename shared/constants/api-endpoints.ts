@@ -161,7 +161,7 @@ export const WEBHOOK_ENDPOINTS = {
   DELETE: (id: string) => `/api/webhooks/${id}`,
   TEST: (id: string) => `/api/webhooks/${id}/test`,
   LOGS: (id: string) => `/api/webhooks/${id}/logs`,
-  
+
   // Webhook events
   ARTICLE_GENERATED: '/api/webhooks/article-generated',
   GAME_FINISHED: '/api/webhooks/game-finished',
@@ -272,4 +272,4 @@ export const API_ERROR_CODES = {
   SERVICE_UNAVAILABLE: 'SERVICE_UNAVAILABLE',
   INVALID_API_KEY: 'INVALID_API_KEY',
   QUOTA_EXCEEDED: 'QUOTA_EXCEEDED'
-} as const; 
+} as const;

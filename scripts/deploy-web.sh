@@ -25,16 +25,16 @@ check_vercel_cli() {
 deploy_vercel() {
     echo "🏗️  Building and deploying to Vercel..."
     cd web
-    
+
     # Install dependencies
     npm ci
-    
+
     # Run build
     npm run build
-    
+
     # Deploy to production
     vercel --prod --yes
-    
+
     cd ..
     echo "✅ Deployed to Vercel"
 }
@@ -42,13 +42,13 @@ deploy_vercel() {
 # Main deployment process
 main() {
     echo "Environment: ${ENVIRONMENT:-production}"
-    
+
     check_vercel_cli
     deploy_vercel
-    
+
     echo ""
     echo "🎉 Web Platform deployment complete!"
     echo "🔗 Your site is live on Vercel"
 }
 
-main "$@" 
+main "$@"

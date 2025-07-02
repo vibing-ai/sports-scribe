@@ -1,5 +1,5 @@
 # Sport Scribe Code Owners
-# 
+#
 # Global owners for fallback
 * @vibing-ai
 
@@ -39,4 +39,4 @@ tailwind.config.js @vibing-ai
 
 # Security and compliance
 .pre-commit-config.yaml @vibing-ai
-/.github/workflows/security-audit.yml @vibing-ai 
+/.github/workflows/security-audit.yml @vibing-ai

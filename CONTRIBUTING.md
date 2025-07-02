@@ -17,17 +17,20 @@ Before contributing, ensure you have:
 ### Development Setup
 
 1. **Fork and clone the repository**
+
    ```bash
    git clone https://github.com/your-username/sport-scribe.git
    cd sport-scribe
    ```
 
 2. **Set up the development environment**
+
    ```bash
    ./scripts/setup-dev.sh
    ```
 
 3. **Configure environment variables**
+
    ```bash
    cp .env.example .env
    cp web/.env.local.example web/.env.local
@@ -36,11 +39,12 @@ Before contributing, ensure you have:
    ```
 
 4. **Install dependencies and start development servers**
+
    ```bash
    # Install dependencies
    cd web && npm install && cd ..
    cd ai-backend && pip install -r requirements.txt && cd ..
-   
+
    # Start development servers
    docker-compose -f docker-compose.dev.yml up
    ```
@@ -116,6 +120,7 @@ git commit -m "test: add unit tests for writer agent"
 ```
 
 Commit types:
+
 - `feat`: New features
 - `fix`: Bug fixes
 - `docs`: Documentation changes
@@ -177,7 +182,7 @@ interface ArticleProps {
 // Use functional components with hooks
 export function ArticleCard({ article, onEdit }: ArticleProps) {
   const [isLoading, setIsLoading] = useState(false);
-  
+
   return (
     <div className="article-card">
       {/* Component content */}
@@ -187,6 +192,7 @@ export function ArticleCard({ article, onEdit }: ArticleProps) {
 ```
 
 **Frontend Guidelines:**
+
 - Use TypeScript for all new code
 - Follow React hooks patterns
 - Use Hero UI components when possible
@@ -208,11 +214,11 @@ class ArticleRequest(BaseModel):
 
 class WriterAgent:
     """AI agent responsible for generating sports articles."""
-    
+
     def __init__(self, config: WriterConfig):
         self.config = config
         self.client = OpenAI()
-    
+
     async def generate_article(self, request: ArticleRequest) -> Article:
         """Generate an article based on the request parameters."""
         # Implementation here
@@ -220,6 +226,7 @@ class WriterAgent:
 ```
 
 **Backend Guidelines:**
+
 - Use type hints for all function parameters and return values
 - Follow PEP 8 style guide
 - Use Pydantic models for data validation
@@ -246,7 +253,7 @@ describe('ArticleCard', () => {
   it('displays article title and summary', () => {
     const article = mockArticle();
     render(<ArticleCard article={article} onEdit={jest.fn()} />);
-    
+
     expect(screen.getByText(article.title)).toBeInTheDocument();
     expect(screen.getByText(article.summary)).toBeInTheDocument();
   });
@@ -263,9 +270,9 @@ async def test_writer_agent_generates_article():
     """Test that writer agent generates valid articles."""
     agent = WriterAgent(test_config)
     request = ArticleRequest(game_id="test-id", focus_type="game_recap")
-    
+
     article = await agent.generate_article(request)
-    
+
     assert article.title
     assert len(article.content) > 100
     assert article.sport == "football"
@@ -387,4 +394,4 @@ Contributors are recognized in:
 - README.md contributors section
 - Special recognition for first-time contributors
 
-Thank you for contributing to Sport Scribe! Your efforts help make sports journalism more accessible and efficient. 🏆 
+Thank you for contributing to Sport Scribe! Your efforts help make sports journalism more accessible and efficient. 🏆

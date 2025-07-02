@@ -9,6 +9,7 @@ Sport Scribe uses a comprehensive testing strategy that includes unit tests, int
 ## Testing Stack
 
 ### Backend (Python/FastAPI)
+
 - **pytest** - Primary testing framework
 - **pytest-asyncio** - Async test support
 - **httpx** - HTTP client for API testing
@@ -17,6 +18,7 @@ Sport Scribe uses a comprehensive testing strategy that includes unit tests, int
 - **coverage** - Code coverage reporting
 
 ### Frontend (Next.js/React)
+
 - **Jest** - JavaScript testing framework
 - **React Testing Library** - Component testing
 - **Playwright** - End-to-end testing
@@ -26,6 +28,7 @@ Sport Scribe uses a comprehensive testing strategy that includes unit tests, int
 ## Test Structure
 
 ### Backend Tests (`ai-backend/tests/`)
+
 ```
 tests/
 ├── __init__.py
@@ -46,6 +49,7 @@ tests/
 ```
 
 ### Frontend Tests (`web/`)
+
 ```
 __tests__/                   # Test files
 ├── components/
@@ -116,6 +120,7 @@ npm run test:e2e:headed
 Test individual functions, classes, and components in isolation.
 
 #### Backend Unit Test Example
+
 ```python
 # tests/unit/test_writer.py
 import pytest
@@ -155,6 +160,7 @@ class TestWriterAgent:
 ```
 
 #### Frontend Unit Test Example
+
 ```typescript
 // __tests__/components/articles/article-card.test.tsx
 import { render, screen } from '@testing-library/react';
@@ -181,7 +187,7 @@ const mockArticle: Article = {
 describe('ArticleCard', () => {
   it('renders article information correctly', () => {
     render(<ArticleCard article={mockArticle} />);
-    
+
     expect(screen.getByText('Lakers Beat Warriors 120-110')).toBeInTheDocument();
     expect(screen.getByText('Great game between two rivals')).toBeInTheDocument();
     expect(screen.getByText('AI Sports Writer')).toBeInTheDocument();
@@ -190,7 +196,7 @@ describe('ArticleCard', () => {
 
   it('displays tags correctly', () => {
     render(<ArticleCard article={mockArticle} />);
-    
+
     expect(screen.getByText('NBA')).toBeInTheDocument();
     expect(screen.getByText('Lakers')).toBeInTheDocument();
     expect(screen.getByText('Warriors')).toBeInTheDocument();
@@ -203,6 +209,7 @@ describe('ArticleCard', () => {
 Test interactions between different components, services, and external APIs.
 
 #### Backend Integration Test Example
+
 ```python
 # tests/integration/test_api_endpoints.py
 import pytest
@@ -220,9 +227,9 @@ class TestArticleEndpoints:
                 "include_stats": True,
                 "tone": "professional"
             }
-            
+
             response = await client.post("/api/articles/generate", json=request_data)
-            
+
             assert response.status_code == 201
             data = response.json()
             assert data["status"] == "pending"
@@ -231,7 +238,7 @@ class TestArticleEndpoints:
     async def test_get_articles_by_sport(self):
         async with AsyncClient(app=app, base_url="http://test") as client:
             response = await client.get("/api/articles?sport=basketball")
-            
+
             assert response.status_code == 200
             data = response.json()
             assert "articles" in data
@@ -243,6 +250,7 @@ class TestArticleEndpoints:
 Test complete user workflows from frontend to backend.
 
 #### E2E Test Example
+
 ```typescript
 // __tests__/e2e/article-generation.spec.ts
 import { test, expect } from '@playwright/test';
@@ -251,30 +259,30 @@ test.describe('Article Generation Flow', () => {
   test('user can generate article from game data', async ({ page }) => {
     // Navigate to admin panel
     await page.goto('/admin');
-    
+
     // Click on generate article button
     await page.click('[data-testid="generate-article-btn"]');
-    
+
     // Fill out article generation form
     await page.selectOption('[data-testid="sport-select"]', 'basketball');
     await page.selectOption('[data-testid="league-select"]', 'NBA');
     await page.selectOption('[data-testid="focus-type"]', 'game_recap');
     await page.fill('[data-testid="target-length"]', '800');
     await page.check('[data-testid="include-stats"]');
-    
+
     // Submit generation request
     await page.click('[data-testid="submit-generation"]');
-    
+
     // Verify success message
     await expect(page.locator('[data-testid="success-message"]')).toBeVisible();
-    
+
     // Wait for article generation (with timeout)
     await page.waitForSelector('[data-testid="generated-article"]', { timeout: 60000 });
-    
+
     // Verify article content
     const articleTitle = await page.textContent('[data-testid="article-title"]');
     expect(articleTitle).toBeTruthy();
-    
+
     const articleContent = await page.textContent('[data-testid="article-content"]');
     expect(articleContent?.length).toBeGreaterThan(500);
   });
@@ -284,6 +292,7 @@ test.describe('Article Generation Flow', () => {
 ## Test Data and Fixtures
 
 ### Backend Fixtures
+
 ```python
 # tests/conftest.py
 import pytest
@@ -304,11 +313,11 @@ async def db_session():
     """Create a test database session."""
     settings = get_settings()
     engine = create_async_engine(settings.test_database_url)
-    
+
     async_session = sessionmaker(
         engine, class_=AsyncSession, expire_on_commit=False
     )
-    
+
     async with async_session() as session:
         yield session
 
@@ -328,6 +337,7 @@ def sample_game_data():
 ```
 
 ### Frontend Test Utilities
+
 ```typescript
 // __tests__/utils/test-utils.tsx
 import React from 'react';
@@ -371,6 +381,7 @@ export { customRender as render };
 ## Mocking Strategies
 
 ### API Mocking with MSW
+
 ```typescript
 // __tests__/mocks/handlers.ts
 import { rest } from 'msw';
@@ -416,6 +427,7 @@ export const handlers = [
 ## Performance Testing
 
 ### Load Testing with Locust
+
 ```python
 # tests/performance/locustfile.py
 from locust import HttpUser, task, between
@@ -450,6 +462,7 @@ class SportScribeUser(HttpUser):
 ## Continuous Integration
 
 ### GitHub Actions Test Workflow
+
 ```yaml
 # .github/workflows/test.yml
 name: Tests
@@ -481,17 +494,17 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-      
+
       - name: Install dependencies
         run: |
           cd ai-backend
           pip install -r requirements-dev.txt
-      
+
       - name: Run tests
         run: |
           cd ai-backend
           pytest --cov=. --cov-report=xml
-      
+
       - name: Upload coverage
         uses: codecov/codecov-action@v3
 
@@ -505,17 +518,17 @@ jobs:
           node-version: '18'
           cache: 'npm'
           cache-dependency-path: web/package-lock.json
-      
+
       - name: Install dependencies
         run: |
           cd web
           npm ci
-      
+
       - name: Run tests
         run: |
           cd web
           npm run test:coverage
-      
+
       - name: Run E2E tests
         run: |
           cd web
@@ -526,30 +539,35 @@ jobs:
 ## Best Practices
 
 ### 1. Test Organization
+
 - Group related tests in describe blocks
 - Use descriptive test names that explain what is being tested
 - Follow the AAA pattern: Arrange, Act, Assert
 - Keep tests independent and isolated
 
 ### 2. Test Data
+
 - Use factories for creating test data
 - Avoid hardcoded values where possible
 - Clean up test data after each test
 - Use realistic but anonymized data
 
 ### 3. Mocking
+
 - Mock external dependencies (APIs, databases, file systems)
 - Don't mock what you're testing
 - Use dependency injection to make mocking easier
 - Verify mock interactions when relevant
 
 ### 4. Coverage Goals
+
 - Aim for 80%+ code coverage
 - Focus on critical business logic
 - Don't chase 100% coverage at the expense of test quality
 - Use coverage reports to identify untested code paths
 
 ### 5. Test Maintenance
+
 - Regularly review and update tests
 - Remove obsolete tests
 - Refactor tests when code changes
@@ -558,6 +576,7 @@ jobs:
 ## Debugging Tests
 
 ### Backend Debugging
+
 ```bash
 # Run tests with pdb debugger
 pytest --pdb
@@ -570,6 +589,7 @@ pytest -s
 ```
 
 ### Frontend Debugging
+
 ```bash
 # Run tests in debug mode
 npm test -- --verbose
@@ -586,4 +606,4 @@ npm run test:coverage && open coverage/lcov-report/index.html
 - [Development Setup](./getting-started.md)
 - [Coding Standards](./coding-standards.md)
 - [API Documentation](../api/)
-- [Deployment Guide](../deployment/) 
+- [Deployment Guide](../deployment/)

@@ -13,52 +13,52 @@ graph TB
         MOBILE[Mobile App]
         API_CLIENT[API Clients]
     end
-    
+
     subgraph "Load Balancer"
         LB[Load Balancer]
     end
-    
+
     subgraph "Application Layer"
         WEB_SERVER[Next.js Web Server]
         API_GATEWAY[API Gateway]
     end
-    
+
     subgraph "AI Backend Services"
         AI_API[AI Backend API]
         AGENTS[Multi-Agent System]
         SCHEDULER[Task Scheduler]
     end
-    
+
     subgraph "Data Layer"
         SUPABASE[(Supabase)]
         REDIS[(Redis Cache)]
         STORAGE[File Storage]
     end
-    
+
     subgraph "External Services"
         SPORTS_API[Sports APIs]
         AI_SERVICES[AI Services]
         CDN[CDN]
     end
-    
+
     WEB --> LB
     MOBILE --> LB
     API_CLIENT --> LB
-    
+
     LB --> WEB_SERVER
     LB --> API_GATEWAY
-    
+
     WEB_SERVER --> SUPABASE
     API_GATEWAY --> AI_API
-    
+
     AI_API --> AGENTS
     AI_API --> SCHEDULER
     AI_API --> SUPABASE
     AI_API --> REDIS
-    
+
     AGENTS --> SPORTS_API
     AGENTS --> AI_SERVICES
-    
+
     WEB_SERVER --> CDN
     STORAGE --> CDN
 ```
@@ -76,6 +76,7 @@ The web application provides the user interface for Sport Scribe, including:
 - **User Portal**: Profile management, API key management, and preferences
 
 **Key Features**:
+
 - Server-side rendering (SSR) for SEO optimization
 - Real-time updates using WebSocket connections
 - Responsive design for mobile and desktop
@@ -93,6 +94,7 @@ The AI backend is responsible for automated content generation using multiple AI
 - **Editor Agent**: Reviews and refines generated content
 
 **Key Features**:
+
 - Multi-agent orchestration
 - Asynchronous task processing
 - Real-time generation status updates
@@ -103,12 +105,14 @@ The AI backend is responsible for automated content generation using multiple AI
 **Technology**: Supabase (PostgreSQL), Redis
 
 **Supabase Database**:
+
 - Primary data storage for articles, users, games, and system configuration
 - Row Level Security (RLS) for data protection
 - Real-time subscriptions for live updates
 - Built-in authentication and authorization
 
 **Redis Cache**:
+
 - Session storage and caching
 - Task queue for background jobs
 - Rate limiting and API throttling
@@ -119,6 +123,7 @@ The AI backend is responsible for automated content generation using multiple AI
 **Technology**: FastAPI, Supabase Edge Functions
 
 The API gateway provides:
+
 - RESTful API endpoints
 - Authentication and authorization
 - Rate limiting and request validation
@@ -128,11 +133,13 @@ The API gateway provides:
 ### 5. External Integrations
 
 **Sports Data APIs**:
+
 - ESPN API for game data and statistics
 - NBA API for basketball-specific data
 - Custom data aggregation services
 
 **AI Services**:
+
 - OpenAI GPT models for content generation
 - Custom fine-tuned models for sports writing
 - Content quality assessment services
@@ -150,14 +157,14 @@ sequenceDiagram
     participant Agents
     participant DB
     participant External
-    
+
     User->>Web: Request article generation
     Web->>API: POST /api/articles/generate
     API->>DB: Create generation request
     API->>AI: Queue generation task
     API-->>Web: Return request ID
     Web-->>User: Show pending status
-    
+
     AI->>Agents: Initialize agent workflow
     Agents->>External: Fetch game data
     External-->>Agents: Return sports data
@@ -179,33 +186,33 @@ graph LR
         USER_INPUT[User Input]
         SYSTEM[System Events]
     end
-    
+
     subgraph "Processing"
         COLLECTOR[Data Collector]
         VALIDATOR[Data Validator]
         CACHE[Redis Cache]
     end
-    
+
     subgraph "Storage"
         DB[(Database)]
         SEARCH[Search Index]
     end
-    
+
     subgraph "Distribution"
         WEBSOCKET[WebSocket]
         WEBHOOK[Webhooks]
         API_RESPONSE[API Responses]
     end
-    
+
     SPORTS --> COLLECTOR
     USER_INPUT --> VALIDATOR
     SYSTEM --> COLLECTOR
-    
+
     COLLECTOR --> CACHE
     VALIDATOR --> CACHE
     CACHE --> DB
     DB --> SEARCH
-    
+
     DB --> WEBSOCKET
     DB --> WEBHOOK
     DB --> API_RESPONSE
@@ -271,13 +278,13 @@ graph TB
         JWT[JWT Tokens]
         RLS[Row Level Security]
     end
-    
+
     subgraph "Authorization Layers"
         API_AUTH[API Authentication]
         RBAC[Role-Based Access Control]
         PERMISSIONS[Fine-grained Permissions]
     end
-    
+
     USER --> AUTH
     AUTH --> JWT
     JWT --> API_AUTH
@@ -287,6 +294,7 @@ graph TB
 ```
 
 **Security Features**:
+
 - JWT-based authentication with automatic refresh
 - Row Level Security (RLS) for database access control
 - Role-based access control (RBAC) with fine-grained permissions
@@ -315,38 +323,39 @@ graph TB
         API1[API Instance 1]
         API2[API Instance 2]
     end
-    
+
     subgraph "Data Layer Scaling"
         DB_PRIMARY[(Primary DB)]
         DB_REPLICA[(Read Replica)]
         CACHE_CLUSTER[Redis Cluster]
     end
-    
+
     subgraph "Background Processing"
         WORKER1[Worker 1]
         WORKER2[Worker 2]
         WORKER3[Worker 3]
     end
-    
+
     LB --> WEB1
     LB --> WEB2
     LB --> API1
     LB --> API2
-    
+
     API1 --> DB_PRIMARY
     API2 --> DB_PRIMARY
     WEB1 --> DB_REPLICA
     WEB2 --> DB_REPLICA
-    
+
     API1 --> CACHE_CLUSTER
     API2 --> CACHE_CLUSTER
-    
+
     API1 --> WORKER1
     API2 --> WORKER2
     API2 --> WORKER3
 ```
 
 **Performance Optimizations**:
+
 - **CDN**: Global content delivery for static assets
 - **Caching**: Multi-layer caching strategy (Redis, CDN, browser)
 - **Database Optimization**: Query optimization and indexing
@@ -363,34 +372,35 @@ graph TB
         CUSTOM_METRICS[Custom Business Metrics]
         PERFORMANCE[Performance Metrics]
     end
-    
+
     subgraph "Infrastructure Metrics"
         SYSTEM_METRICS[System Metrics]
         DATABASE_METRICS[Database Metrics]
         NETWORK_METRICS[Network Metrics]
     end
-    
+
     subgraph "Logging and Tracing"
         ERROR_TRACKING[Error Tracking]
         REQUEST_TRACING[Request Tracing]
         AUDIT_LOGS[Audit Logs]
     end
-    
+
     subgraph "Alerting"
         ALERTS[Automated Alerts]
         DASHBOARDS[Monitoring Dashboards]
         NOTIFICATIONS[Notification Channels]
     end
-    
+
     APP_METRICS --> ALERTS
     SYSTEM_METRICS --> ALERTS
     ERROR_TRACKING --> ALERTS
-    
+
     ALERTS --> DASHBOARDS
     ALERTS --> NOTIFICATIONS
 ```
 
 **Monitoring Tools**:
+
 - **Sentry**: Error tracking and performance monitoring
 - **PostHog**: Product analytics and user behavior tracking
 - **Supabase Dashboard**: Database performance and query analysis
@@ -407,25 +417,25 @@ graph TB
         DEV_LOCAL[Local Development]
         DEV_BRANCH[Feature Branches]
     end
-    
+
     subgraph "Staging"
         STAGING_WEB[Staging Web]
         STAGING_API[Staging API]
         STAGING_DB[(Staging DB)]
     end
-    
+
     subgraph "Production"
         PROD_WEB[Production Web]
         PROD_API[Production API]
         PROD_DB[(Production DB)]
     end
-    
+
     DEV_LOCAL --> DEV_BRANCH
     DEV_BRANCH --> STAGING_WEB
     DEV_BRANCH --> STAGING_API
     STAGING_WEB --> STAGING_DB
     STAGING_API --> STAGING_DB
-    
+
     STAGING_WEB --> PROD_WEB
     STAGING_API --> PROD_API
     PROD_WEB --> PROD_DB
@@ -433,6 +443,7 @@ graph TB
 ```
 
 **Deployment Strategy**:
+
 - **Development**: Local development with hot reloading
 - **Staging**: Full production-like environment for testing
 - **Production**: Multi-region deployment with blue-green deployments
@@ -448,24 +459,25 @@ erDiagram
     USERS ||--o{ ARTICLES : creates
     USERS ||--o{ API_KEYS : owns
     USERS ||--o{ USER_SESSIONS : has
-    
+
     ARTICLES ||--o{ ARTICLE_METADATA : has
     ARTICLES ||--o{ ARTICLE_ENTITIES : contains
     ARTICLES ||--o{ ARTICLE_VIEWS : tracked_by
     ARTICLES ||--o{ ARTICLE_COMMENTS : receives
-    
+
     GAMES ||--o{ ARTICLES : generates
     GAMES ||--|| TEAMS : home_team
     GAMES ||--|| TEAMS : away_team
     GAMES ||--o{ GAME_STATS : has
-    
+
     TEAMS ||--o{ PLAYERS : employs
     PLAYERS ||--o{ PLAYER_STATS : has
-    
+
     ARTICLE_GENERATION_REQUESTS ||--o{ ARTICLES : produces
 ```
 
 **Key Data Entities**:
+
 - **Users**: Authentication, profiles, and permissions
 - **Articles**: Generated content with metadata and analytics
 - **Games**: Sports events and statistics
@@ -492,26 +504,26 @@ graph TB
         WEB_CLIENT[Client-side React]
         WEB_SERVER[Next.js Server]
     end
-    
+
     subgraph "API Services"
         API_GATEWAY[API Gateway]
         AUTH_SERVICE[Auth Service]
         ARTICLE_SERVICE[Article Service]
         AI_SERVICE[AI Service]
     end
-    
+
     subgraph "Background Services"
         TASK_QUEUE[Task Queue]
         WORKER_POOL[Worker Pool]
         SCHEDULER[Cron Scheduler]
     end
-    
+
     WEB_CLIENT --> WEB_SERVER
     WEB_SERVER --> API_GATEWAY
     API_GATEWAY --> AUTH_SERVICE
     API_GATEWAY --> ARTICLE_SERVICE
     API_GATEWAY --> AI_SERVICE
-    
+
     AI_SERVICE --> TASK_QUEUE
     TASK_QUEUE --> WORKER_POOL
     SCHEDULER --> TASK_QUEUE
@@ -540,4 +552,4 @@ graph TB
 - [Data Flow](./data-flow.md)
 - [API Documentation](../api/)
 - [Deployment Guide](../deployment/)
-- [Development Setup](../development/getting-started.md) 
+- [Development Setup](../development/getting-started.md)

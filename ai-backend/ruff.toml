@@ -81,4 +81,4 @@ line-ending = "auto"
 max-complexity = 10
 
 [lint.pydocstyle]
-convention = "google" 
+convention = "google"

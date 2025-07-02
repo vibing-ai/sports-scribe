@@ -9,16 +9,16 @@ echo "🧪 Running Sport Scribe test suite..."
 test_ai_backend() {
     echo "🧠 Testing AI Backend..."
     cd ai-backend
-    
+
     # Activate virtual environment
     source venv/bin/activate 2>/dev/null || echo "Virtual environment not found, using system Python"
-    
+
     # Run tests with coverage
     pytest --cov=agents --cov=tools --cov=config --cov=utils \
            --cov-report=term-missing \
            --cov-report=html:htmlcov \
            tests/
-    
+
     cd ..
     echo "✅ AI Backend tests complete"
 }
@@ -27,18 +27,18 @@ test_ai_backend() {
 test_web_platform() {
     echo "🌐 Testing Web Platform..."
     cd web
-    
+
     # Install dependencies if needed
     if [ ! -d "node_modules" ]; then
         npm install
     fi
-    
+
     # Run tests
     npm test
-    
+
     # Run type checking
     npm run type-check
-    
+
     cd ..
     echo "✅ Web Platform tests complete"
 }
@@ -46,7 +46,7 @@ test_web_platform() {
 # Run linting
 run_linting() {
     echo "🔍 Running linters..."
-    
+
     # AI Backend linting
     cd ai-backend
     source venv/bin/activate 2>/dev/null || echo "Using system Python"
@@ -54,12 +54,12 @@ run_linting() {
     black --check .
     mypy .
     cd ..
-    
+
     # Web Platform linting
     cd web
     npm run lint
     cd ..
-    
+
     echo "✅ Linting complete"
 }
 
@@ -85,9 +85,9 @@ main() {
             exit 1
             ;;
     esac
-    
+
     echo ""
     echo "🎉 Test suite complete!"
 }
 
-main "$@" 
+main "$@"

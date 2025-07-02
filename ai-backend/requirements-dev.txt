@@ -13,4 +13,4 @@ types-PyYAML
 bandit>=1.7.5
 safety>=2.3.0
 vulture>=2.7
-pydocstyle>=6.3.0 
+pydocstyle>=6.3.0

@@ -44,6 +44,7 @@ POST /auth/register
 ```
 
 **Request Body:**
+
 ```json
 {
   "email": "user@example.com",
@@ -54,6 +55,7 @@ POST /auth/register
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -82,6 +84,7 @@ POST /auth/login
 ```
 
 **Request Body:**
+
 ```json
 {
   "email": "user@example.com",
@@ -96,6 +99,7 @@ POST /auth/refresh
 ```
 
 **Request Body:**
+
 ```json
 {
   "refresh_token": "v1.Mr5hBVBTSSxn..."
@@ -117,6 +121,7 @@ GET /api/articles
 ```
 
 **Query Parameters:**
+
 - `page` (integer): Page number (default: 1)
 - `limit` (integer): Items per page (default: 20, max: 100)
 - `sport` (string): Filter by sport
@@ -128,11 +133,13 @@ GET /api/articles
 - `order` (string): Sort order (asc, desc)
 
 **Example Request:**
+
 ```bash
 GET /api/articles?sport=basketball&league=NBA&limit=10&sort=published_at&order=desc
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -174,6 +181,7 @@ GET /api/articles/{article_id}
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -206,6 +214,7 @@ POST /api/articles
 ```
 
 **Request Body:**
+
 ```json
 {
   "title": "New Article Title",
@@ -242,6 +251,7 @@ POST /api/articles/generate
 ```
 
 **Request Body:**
+
 ```json
 {
   "game_id": "456e7890-f12b-34c5-d678-901234567890",
@@ -254,6 +264,7 @@ POST /api/articles/generate
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -273,6 +284,7 @@ GET /api/articles/generate/{generation_id}
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -295,6 +307,7 @@ GET /api/games
 ```
 
 **Query Parameters:**
+
 - `page` (integer): Page number
 - `limit` (integer): Items per page
 - `sport` (string): Filter by sport
@@ -305,6 +318,7 @@ GET /api/games
 - `team_id` (string): Filter by team
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -361,6 +375,7 @@ GET /api/games/{game_id}/stats
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -415,6 +430,7 @@ GET /api/teams
 ```
 
 **Query Parameters:**
+
 - `sport` (string): Filter by sport
 - `league` (string): Filter by league
 - `conference` (string): Filter by conference
@@ -439,6 +455,7 @@ GET /api/teams/{team_id}/schedule
 ```
 
 **Query Parameters:**
+
 - `season` (string): Season year
 - `date_from` (string): Start date
 - `date_to` (string): End date
@@ -452,6 +469,7 @@ GET /api/players
 ```
 
 **Query Parameters:**
+
 - `sport` (string): Filter by sport
 - `team_id` (string): Filter by team
 - `position` (string): Filter by position
@@ -470,6 +488,7 @@ GET /api/players/{player_id}/stats
 ```
 
 **Query Parameters:**
+
 - `season` (string): Season year
 - `game_type` (string): regular_season, playoffs, preseason
 
@@ -482,6 +501,7 @@ GET /api/analytics/articles
 ```
 
 **Query Parameters:**
+
 - `date_from` (string): Start date
 - `date_to` (string): End date
 - `article_id` (string): Specific article
@@ -489,6 +509,7 @@ GET /api/analytics/articles
 - `metric` (string): views, shares, comments, reading_time
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -520,6 +541,7 @@ GET /api/analytics/system
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -560,6 +582,7 @@ PUT /api/user/profile
 ```
 
 **Request Body:**
+
 ```json
 {
   "name": "Updated Name",
@@ -587,6 +610,7 @@ POST /api/user/api-keys
 ```
 
 **Request Body:**
+
 ```json
 {
   "name": "My API Key",
@@ -619,6 +643,7 @@ PUT /api/admin/users/{user_id}/role
 ```
 
 **Request Body:**
+
 ```json
 {
   "role": "editor"
@@ -640,6 +665,7 @@ PUT /api/admin/config
 ```
 
 **Request Body:**
+
 ```json
 {
   "key": "max_article_length",
@@ -783,6 +809,7 @@ Response includes pagination metadata:
 - `order`: `asc` or `desc`
 
 Example:
+
 ```
 GET /api/articles?sort=published_at&order=desc&sport=basketball
 ```
@@ -844,4 +871,4 @@ generation = client.articles.generate(
 - [Authentication](./authentication.md)
 - [Webhooks](./webhooks.md)
 - [Rate Limiting](../development/rate-limiting.md)
-- [SDKs and Libraries](../development/sdks.md) 
+- [SDKs and Libraries](../development/sdks.md)

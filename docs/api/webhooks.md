@@ -11,6 +11,7 @@ Sport Scribe webhooks allow your application to receive HTTP POST notifications 
 ### Article Events
 
 #### `article.generated`
+
 Triggered when an AI article generation is completed.
 
 ```json
@@ -32,6 +33,7 @@ Triggered when an AI article generation is completed.
 ```
 
 #### `article.published`
+
 Triggered when an article is published.
 
 ```json
@@ -52,6 +54,7 @@ Triggered when an article is published.
 ```
 
 #### `article.updated`
+
 Triggered when an article is updated.
 
 ```json
@@ -77,6 +80,7 @@ Triggered when an article is updated.
 ```
 
 #### `article.deleted`
+
 Triggered when an article is deleted.
 
 ```json
@@ -95,6 +99,7 @@ Triggered when an article is deleted.
 ### Generation Events
 
 #### `generation.started`
+
 Triggered when article generation begins.
 
 ```json
@@ -113,6 +118,7 @@ Triggered when article generation begins.
 ```
 
 #### `generation.failed`
+
 Triggered when article generation fails.
 
 ```json
@@ -135,6 +141,7 @@ Triggered when article generation fails.
 ### User Events
 
 #### `user.registered`
+
 Triggered when a new user registers.
 
 ```json
@@ -153,6 +160,7 @@ Triggered when a new user registers.
 ```
 
 #### `user.role_changed`
+
 Triggered when a user's role is changed.
 
 ```json
@@ -173,6 +181,7 @@ Triggered when a user's role is changed.
 ### System Events
 
 #### `system.maintenance_scheduled`
+
 Triggered when system maintenance is scheduled.
 
 ```json
@@ -213,6 +222,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -241,6 +251,7 @@ Authorization: Bearer <access_token>
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -315,26 +326,26 @@ import time
 
 def verify_webhook_signature(payload_body, signature_header, secret, timestamp_header):
     """Verify webhook signature and timestamp."""
-    
+
     # Check timestamp (reject if older than 5 minutes)
     timestamp = int(timestamp_header)
     if abs(time.time() - timestamp) > 300:
         raise ValueError("Timestamp too old")
-    
+
     # Create expected signature
     expected_signature = hmac.new(
         secret.encode('utf-8'),
         payload_body,
         hashlib.sha256
     ).hexdigest()
-    
+
     # Extract signature from header
     signature = signature_header.replace('sha256=', '')
-    
+
     # Compare signatures
     if not hmac.compare_digest(expected_signature, signature):
         raise ValueError("Invalid signature")
-    
+
     return True
 
 # Usage in Flask
@@ -353,13 +364,13 @@ def handle_webhook():
         )
     except ValueError:
         abort(400)
-    
+
     event_type = request.headers.get('X-SportScribe-Event')
     payload = request.get_json()
-    
+
     # Process webhook
     handle_sportscribe_event(event_type, payload)
-    
+
     return '', 200
 ```
 
@@ -374,21 +385,21 @@ function verifyWebhookSignature(payloadBody, signatureHeader, secret, timestampH
   if (Math.abs(Date.now() / 1000 - timestamp) > 300) {
     throw new Error('Timestamp too old');
   }
-  
+
   // Create expected signature
   const expectedSignature = crypto
     .createHmac('sha256', secret)
     .update(payloadBody)
     .digest('hex');
-  
+
   // Extract signature from header
   const signature = signatureHeader.replace('sha256=', '');
-  
+
   // Compare signatures
   if (!crypto.timingSafeEqual(Buffer.from(expectedSignature), Buffer.from(signature))) {
     throw new Error('Invalid signature');
   }
-  
+
   return true;
 }
 
@@ -409,13 +420,13 @@ app.post('/webhooks/sportscribe', (req, res) => {
   } catch (error) {
     return res.status(400).send('Invalid signature');
   }
-  
+
   const eventType = req.headers['x-sportscribe-event'];
   const payload = JSON.parse(req.body);
-  
+
   // Process webhook
   handleSportScribeEvent(eventType, payload);
-  
+
   res.status(200).send('OK');
 });
 ```
@@ -453,12 +464,14 @@ Authorization: Bearer <access_token>
 ```
 
 **Query Parameters:**
+
 - `page` (integer): Page number
 - `limit` (integer): Items per page (max 100)
 - `status` (string): Filter by delivery status (success, failed, pending)
 - `event` (string): Filter by event type
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -505,6 +518,7 @@ Authorization: Bearer <access_token>
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -597,9 +611,9 @@ logging.basicConfig(level=logging.INFO)
 def handle_sportscribe_webhook():
     event_type = request.headers.get('X-SportScribe-Event')
     payload = request.get_json()
-    
+
     logging.info(f"Received webhook: {event_type}")
-    
+
     try:
         if event_type == 'article.generated':
             handle_article_generated(payload['data'])
@@ -609,9 +623,9 @@ def handle_sportscribe_webhook():
             handle_generation_failed(payload['data'])
         else:
             logging.warning(f"Unknown event type: {event_type}")
-        
+
         return jsonify({"status": "success"}), 200
-        
+
     except Exception as e:
         logging.error(f"Error processing webhook: {str(e)}")
         return jsonify({"error": str(e)}), 500
@@ -620,7 +634,7 @@ def handle_article_generated(data):
     """Handle article generation completion."""
     article_id = data['article_id']
     logging.info(f"Article {article_id} generated successfully")
-    
+
     # Your custom logic here
     # e.g., send notification, update database, etc.
 
@@ -629,7 +643,7 @@ def handle_article_published(data):
     article_id = data['article_id']
     title = data['title']
     logging.info(f"Article published: {title}")
-    
+
     # Your custom logic here
 
 def handle_generation_failed(data):
@@ -637,7 +651,7 @@ def handle_generation_failed(data):
     generation_id = data['generation_request_id']
     error = data['error']
     logging.error(f"Generation {generation_id} failed: {error['message']}")
-    
+
     # Your custom logic here
 
 if __name__ == '__main__':
@@ -659,4 +673,4 @@ if __name__ == '__main__':
 - [API Endpoints](./endpoints.md)
 - [Authentication](./authentication.md)
 - [Error Handling](../development/error-handling.md)
-- [Security Guide](../development/security.md) 
+- [Security Guide](../development/security.md)

@@ -217,10 +217,10 @@ RETURNS JSONB AS $$
 DECLARE
     config_value JSONB;
 BEGIN
-    SELECT value INTO config_value 
-    FROM system_config 
+    SELECT value INTO config_value
+    FROM system_config
     WHERE key = config_key;
-    
+
     RETURN config_value;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
@@ -231,10 +231,10 @@ CREATE OR REPLACE FUNCTION update_system_config(
 )
 RETURNS BOOLEAN AS $$
 BEGIN
-    UPDATE system_config 
+    UPDATE system_config
     SET value = config_value, updated_at = NOW()
     WHERE key = config_key;
-    
+
     RETURN FOUND;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
@@ -250,22 +250,22 @@ DECLARE
 BEGIN
     -- Get user role
     SELECT role INTO user_role FROM user_profiles WHERE id = user_uuid;
-    
+
     -- Admin has all permissions
     IF user_role = 'admin' THEN
         RETURN true;
     END IF;
-    
+
     -- Check specific permissions
     SELECT EXISTS(
-        SELECT 1 FROM user_permissions 
-        WHERE user_id = user_uuid 
-        AND resource = resource_name 
+        SELECT 1 FROM user_permissions
+        WHERE user_id = user_uuid
+        AND resource = resource_name
         AND action_name = ANY(actions)
         AND is_active = true
         AND (expires_at IS NULL OR expires_at > NOW())
     ) INTO has_permission;
-    
+
     RETURN has_permission;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

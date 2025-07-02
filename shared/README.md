@@ -39,17 +39,20 @@ import { Player, PlayerStats } from '@/shared/types/player';
 Contains data validation schemas and database definitions:
 
 ### Database Schemas (`/schemas/database`)
+
 - **`articles.sql`** - Article tables, metadata, and relationships
 - **`games.sql`** - Game data, statistics, and player performance
 - **`users.sql`** - User profiles, permissions, and authentication
 - **`init.sql`** - Database initialization and system configuration
 
 ### API Schemas (`/schemas/api`)
+
 - **`article-endpoints.json`** - REST API endpoint definitions
 - **`webhook-payloads.json`** - Webhook event payload schemas
 - **`openapi.yaml`** - Complete OpenAPI specification
 
 ### Validation Schemas (`/schemas/validation`)
+
 - **`article-schema.json`** - JSON Schema for article validation
 - **`game-schema.json`** - JSON Schema for game data validation
 
@@ -139,6 +142,7 @@ graph LR
 ## Validation Rules
 
 ### Article Validation
+
 - Title: 10-500 characters, non-empty
 - Content: 100-50,000 characters
 - Sport: Must be from supported sports list
@@ -146,12 +150,14 @@ graph LR
 - Reading time: 1-120 minutes
 
 ### Game Validation
+
 - Teams: Home and away teams must be different
 - Scores: 0-999 range
 - Status: Must be valid game status
 - Season: Format 'YYYY' or 'YYYY-YYYY'
 
 ### Player Validation
+
 - Position: Must be valid for the sport
 - Status: Active, injured, suspended, etc.
 - Statistics: Sport-specific validation rules
@@ -236,4 +242,4 @@ export const VENUE_CAPACITIES = {
 - [API Documentation](../docs/api/)
 - [Database Schema](../docs/architecture/database-schema.md)
 - [Development Guidelines](../docs/development/coding-standards.md)
-- [Deployment Guide](../docs/deployment/) 
+- [Deployment Guide](../docs/deployment/)

@@ -37,12 +37,14 @@ Sport Scribe is an intelligent sports journalism platform that leverages AI agen
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/your-org/sport-scribe.git
    cd sport-scribe
    ```
 
 2. **Set up environment variables**
+
    ```bash
    cp .env.example .env
    cp web/.env.local.example web/.env.local
@@ -50,34 +52,37 @@ Sport Scribe is an intelligent sports journalism platform that leverages AI agen
    ```
 
 3. **Install dependencies**
+
    ```bash
    # Web platform
    cd web && npm install && cd ..
-   
+
    # AI backend
    cd ai-backend && pip install -r requirements.txt && cd ..
    ```
 
 4. **Initialize database**
+
    ```bash
    supabase db reset
    python scripts/seed-data.py
    ```
 
 5. **Start development servers**
+
    ```bash
    # Option 1: Docker Compose
    docker-compose -f docker-compose.dev.yml up
-   
+
    # Option 2: Individual services
    cd web && npm run dev &
    cd ai-backend && python main.py &
    ```
 
 6. **Access the application**
-   - Web Platform: http://localhost:3000
-   - AI Backend API: http://localhost:8000
-   - API Docs: http://localhost:8000/docs
+   - Web Platform: <http://localhost:3000>
+   - AI Backend API: <http://localhost:8000>
+   - API Docs: <http://localhost:8000/docs>
 
 For detailed setup instructions, see [Getting Started Guide](docs/development/getting-started.md).
 
@@ -298,4 +303,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Built with ❤️ for sports journalism** 
+**Built with ❤️ for sports journalism**
