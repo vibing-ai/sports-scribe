@@ -117,36 +117,45 @@ class AgentOrchestrator:
 
     async def _collect_game_data(
         self, collector: DataCollectorAgent, game_id: str
-    ) -> dict:
+    ) -> dict[str, Any]:
         """Collect game data using data collector agent."""
         return await collector.collect_game_data(game_id)
 
     async def _research_background(
-        self, researcher: ResearchAgent, game_data: dict
-    ) -> dict:
+        self, researcher: ResearchAgent, game_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Research background information."""
-        return await researcher.research_teams_and_players(
-            game_data.get("home_team", ""), game_data.get("away_team", "")
-        )
+        home_team = game_data.get("home_team", "")
+        away_team = game_data.get("away_team", "")
+        return await researcher.research_team_history(home_team, away_team)
 
     async def _generate_content(
         self,
         writer: WritingAgent,
-        game_data: dict,
-        research_data: dict,
+        game_data: dict[str, Any],
+        research_data: dict[str, Any],
         request: ArticleRequest,
-    ) -> dict:
+    ) -> dict[str, Any]:
         """Generate article content."""
-        return await writer.write_article(
-            game_data=game_data,
-            research_data=research_data,
-            tone=request.tone,
-            target_length=request.target_length,
-        )
+        content = await writer.generate_game_recap(game_data, research_data)
+        return {
+            "content": content,
+            "metadata": {
+                "tone": request.tone,
+                "target_length": request.target_length,
+                "article_type": request.article_type,
+            },
+        }
 
-    async def _edit_content(self, editor: EditorAgent, content: dict) -> dict:
+    async def _edit_content(self, editor: EditorAgent, content: dict[str, Any]) -> dict[str, Any]:
         """Edit and finalize content."""
-        return await editor.edit_article(content)
+        article_content = content.get("content", "")
+        metadata = content.get("metadata", {})
+        edited_content, review_feedback = await editor.review_article(article_content, metadata)
+        return {
+            "content": edited_content,
+            "metadata": {**metadata, "review_feedback": review_feedback},
+        }
 
 
 # Global orchestrator instance
