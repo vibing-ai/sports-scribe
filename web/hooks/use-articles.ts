@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
 export interface Article {
@@ -22,11 +22,7 @@ export function useArticles() {
 
   const supabase = createClient()
 
-  useEffect(() => {
-    fetchArticles()
-  }, [])
-
-  const fetchArticles = async () => {
+  const fetchArticles = useCallback(async () => {
     try {
       setLoading(true)
       const { data, error } = await supabase
@@ -42,7 +38,11 @@ export function useArticles() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [supabase])
+
+  useEffect(() => {
+    fetchArticles()
+  }, [fetchArticles])
 
   const getArticleById = async (id: string) => {
     try {

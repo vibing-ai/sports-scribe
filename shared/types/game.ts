@@ -36,6 +36,8 @@ export interface GameStats {
 }
 
 export interface TeamGameStats {
+  id: string;
+  game_id: string;
   team_id: string;
   is_home: boolean;
   points: number;
@@ -47,23 +49,55 @@ export interface TeamGameStats {
   rushing_yards?: number;
   third_down_conversions?: string;
   red_zone_efficiency?: string;
+  created_at: Date;
 }
 
 export interface PlayerGameStats {
+  id: string;
+  game_id: string;
   player_id: string;
   team_id: string;
-  position: string;
+  position?: string;
   minutes_played?: number;
-  points?: number;
-  assists?: number;
-  rebounds?: number;
-  passing_yards?: number;
-  rushing_yards?: number;
-  touchdowns?: number;
-  interceptions?: number;
-  fumbles?: number;
-  tackles?: number;
-  sacks?: number;
+  
+  // Universal stats
+  points: number;
+  
+  // Football specific
+  passing_yards: number;
+  passing_touchdowns: number;
+  interceptions_thrown: number;
+  completion_percentage?: number;
+  rushing_yards: number;
+  rushing_touchdowns: number;
+  receiving_yards: number;
+  receiving_touchdowns: number;
+  receptions: number;
+  tackles: number;
+  sacks: number;
+  interceptions_caught: number;
+  fumbles_forced: number;
+  fumbles_recovered: number;
+  
+  // Basketball specific
+  assists: number;
+  rebounds: number;
+  steals: number;
+  blocks: number;
+  field_goal_percentage?: number;
+  three_point_percentage?: number;
+  free_throw_percentage?: number;
+  
+  // Baseball specific
+  batting_average?: number;
+  home_runs: number;
+  rbis: number;
+  era?: number;
+  wins: number;
+  saves: number;
+  strikeouts: number;
+  
+  created_at: Date;
 }
 
 export interface GameMoment {
@@ -102,10 +136,78 @@ export interface Venue {
   id: string;
   name: string;
   city: string;
-  state: string;
+  state?: string;
   country: string;
-  capacity: number;
-  surface_type: string;
+  capacity?: number;
+  surface_type?: string;
   is_dome: boolean;
   timezone: string;
-} 
+  latitude?: number;
+  longitude?: number;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface TeamSeasonStats {
+  id: string;
+  team_id: string;
+  season: string;
+  wins: number;
+  losses: number;
+  ties: number;
+  win_percentage?: number;
+  points_for: number;
+  points_against: number;
+  point_differential: number;
+  
+  // Football specific
+  total_yards_per_game?: number;
+  passing_yards_per_game?: number;
+  rushing_yards_per_game?: number;
+  turnovers: number;
+  turnover_differential: number;
+  
+  // Basketball specific
+  field_goal_percentage?: number;
+  three_point_percentage?: number;
+  free_throw_percentage?: number;
+  rebounds_per_game?: number;
+  assists_per_game?: number;
+  
+  // Baseball specific
+  era?: number;
+  batting_average?: number;
+  home_runs: number;
+  errors: number;
+  
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface PlayerInjury {
+  id: string;
+  player_id: string;
+  injury_type: string;
+  body_part: string;
+  severity: InjurySeverity;
+  occurred_at: Date;
+  expected_return?: Date;
+  status: InjuryStatus;
+  description?: string;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export enum InjurySeverity {
+  MINOR = 'minor',
+  MODERATE = 'moderate',
+  MAJOR = 'major',
+  CAREER_THREATENING = 'career_threatening'
+}
+
+export enum InjuryStatus {
+  ACTIVE = 'active',
+  RECOVERING = 'recovering',
+  QUESTIONABLE = 'questionable',
+  CLEARED = 'cleared'
+}

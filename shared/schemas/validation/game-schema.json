@@ -191,27 +191,5 @@
       { "required": ["finished_at"] },
       { "properties": { "status": { "enum": ["postponed", "cancelled"] } } }
     ]
-  },
-  "errorMessage": {
-    "required": {
-      "sport": "Sport category is required",
-      "league": "League is required",
-      "season": "Season is required",
-      "home_team_id": "Home team ID is required",
-      "away_team_id": "Away team ID is required",
-      "scheduled_at": "Scheduled start time is required",
-      "venue_id": "Venue ID is required"
-    },
-    "properties": {
-      "sport": "Sport must be one of the supported categories",
-      "league": "League name must be 2-100 characters with alphanumeric characters, spaces, and hyphens only",
-      "season": "Season must be in format 'YYYY' or 'YYYY-YYYY'",
-      "week": "Week must be between 1 and 52",
-      "home_score": "Home score must be between 0 and 999",
-      "away_score": "Away score must be between 0 and 999",
-      "status": "Status must be one of: scheduled, pregame, in_progress, halftime, overtime, final, postponed, cancelled",
-      "attendance": "Attendance must be between 0 and 200,000"
-    },
-    "not": "Home team and away team cannot be the same"
   }
 } 

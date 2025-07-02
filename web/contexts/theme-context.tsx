@@ -41,6 +41,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       mediaQuery.addEventListener('change', updateActualTheme)
       return () => mediaQuery.removeEventListener('change', updateActualTheme)
     }
+    
+    // Return undefined explicitly for non-system themes
+    return undefined
   }, [theme])
 
   useEffect(() => {

@@ -113,7 +113,7 @@ class DatabaseSeeder:
         
         # Update team_ids with actual IDs from inserted teams
         players_data = []
-        for i, player in enumerate(SAMPLE_PLAYERS):
+        for player in SAMPLE_PLAYERS:
             player_copy = player.copy()
             # Map to actual team IDs
             team_index = player["team_id"] - 1

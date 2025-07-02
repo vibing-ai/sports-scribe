@@ -20,8 +20,10 @@ export class ArticleProcessor {
   }
 
   static extractExcerpt(content: string, maxLength: number = 150): string {
+    if (!content) return ''
+    
     const sentences = content.split('.')
-    let excerpt = sentences[0]
+    let excerpt = sentences[0] || ''
     
     for (let i = 1; i < sentences.length; i++) {
       const next = excerpt + '.' + sentences[i]
@@ -29,7 +31,8 @@ export class ArticleProcessor {
       excerpt = next
     }
     
-    return excerpt.trim() + (excerpt.length < content.length ? '...' : '')
+    const trimmedExcerpt = excerpt.trim()
+    return trimmedExcerpt + (trimmedExcerpt.length < content.length ? '...' : '')
   }
 
   static categorizeByKeywords(content: string): string[] {

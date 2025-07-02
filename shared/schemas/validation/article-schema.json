@@ -116,27 +116,5 @@
         "formatMinimum": "1970-01-01T00:00:00Z"
       }
     }
-  },
-  "errorMessage": {
-    "required": {
-      "title": "Article title is required",
-      "content": "Article content is required",
-      "sport": "Sport category is required",
-      "league": "League is required",
-      "author": "Author name is required"
-    },
-    "properties": {
-      "title": "Title must be 10-500 characters and not just whitespace",
-      "content": "Content must be 100-50000 characters",
-      "summary": "Summary cannot exceed 1000 characters",
-      "author": "Author name must be 2-255 characters with only letters, spaces, hyphens, and apostrophes",
-      "sport": "Sport must be one of the supported categories",
-      "league": "League name must be 2-100 characters with alphanumeric characters, spaces, and hyphens only",
-      "status": "Status must be draft, published, archived, or scheduled",
-      "tags": "Tags must be unique, max 20 items, each 2-50 characters",
-      "featured_image_url": "Featured image must be a valid HTTP/HTTPS URL to an image file",
-      "reading_time_minutes": "Reading time must be between 1 and 120 minutes",
-      "seo_keywords": "SEO keywords must be unique, max 10 items, each 2-100 characters"
-    }
   }
 } 
