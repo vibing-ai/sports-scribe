@@ -4,11 +4,10 @@ This is the main entry point for the AI backend system that orchestrates
 the multi-agent sports journalism workflow.
 """
 
+import uuid
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from typing import Any
-from datetime import datetime
-import uuid
 
 from fastapi import BackgroundTasks, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -37,6 +36,7 @@ class ArticleRequest(BaseModel):
     article_type: str = "game_recap"
     target_length: int = 800
     priority: str = "normal"
+    tone: str = "professional"
 
 
 class ArticleResponse(BaseModel):
@@ -90,13 +90,14 @@ class AgentOrchestrator:
 
             # Collect game data
             game_data = await self._collect_game_data(data_collector, request.game_id)
-            
+
             # Research background information
             research_data = await self._research_background(researcher, game_data)
-            
+
             # Generate article content
-            article_content = await self._generate_content(writer, game_data, research_data, request)
-            
+            article_content = await self._generate_content(
+                writer, game_data, research_data, request
+            )
             # Edit and finalize
             final_article = await self._edit_content(editor, article_content)
 
@@ -104,31 +105,42 @@ class AgentOrchestrator:
                 article_id=str(uuid.uuid4()),
                 status="completed",
                 content=final_article.get("content", ""),
-                metadata=final_article.get("metadata", {})
+                metadata=final_article.get("metadata", {}),
             )
 
         except Exception as e:
-            logger.error(f"Error generating article: {str(e)}")
-            raise HTTPException(status_code=500, detail=f"Failed to generate article: {str(e)}")
+            logger.error(f"Error generating article: {e!s}")
+            raise HTTPException(
+                status_code=500, detail=f"Failed to generate article: {e!s}"
+            ) from e
 
-    async def _collect_game_data(self, collector: DataCollectorAgent, game_id: str) -> dict:
+    async def _collect_game_data(
+        self, collector: DataCollectorAgent, game_id: str
+    ) -> dict:
         """Collect game data using data collector agent."""
         return await collector.collect_game_data(game_id)
 
-    async def _research_background(self, researcher: ResearchAgent, game_data: dict) -> dict:
+    async def _research_background(
+        self, researcher: ResearchAgent, game_data: dict
+    ) -> dict:
         """Research background information."""
         return await researcher.research_teams_and_players(
-            game_data.get("home_team", ""),
-            game_data.get("away_team", "")
+            game_data.get("home_team", ""), game_data.get("away_team", "")
         )
 
-    async def _generate_content(self, writer: WritingAgent, game_data: dict, research_data: dict, request: ArticleRequest) -> dict:
+    async def _generate_content(
+        self,
+        writer: WritingAgent,
+        game_data: dict,
+        research_data: dict,
+        request: ArticleRequest,
+    ) -> dict:
         """Generate article content."""
         return await writer.write_article(
             game_data=game_data,
             research_data=research_data,
             tone=request.tone,
-            target_length=request.target_length
+            target_length=request.target_length,
         )
 
     async def _edit_content(self, editor: EditorAgent, content: dict) -> dict:

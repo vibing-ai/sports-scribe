@@ -14,6 +14,11 @@ export interface DashboardStats {
   totalArticles: number
   totalViews: number
   articlesThisWeek: number
+  publishedArticles: number
+  totalUsers: number
+  activeUsers: number
+  viewsThisWeek: number
+  totalComments: number
   aiAgentStatus: {
     dataCollector: string
     researcher: string
