@@ -104,14 +104,14 @@ class DataCleaner:
 
         # Remove extra whitespace and normalize case
         cleaned = re.sub(r"\s+", " ", team_name.strip())
-        
+
         # Remove common football suffixes
         suffixes = [" FC", " F.C.", " CF", " C.F."]
         for suffix in suffixes:
             if cleaned.endswith(suffix):
                 cleaned = cleaned[:-len(suffix)]
                 break
-        
+
         return cleaned
 
     @staticmethod
@@ -130,11 +130,11 @@ class DataCleaner:
 
         # Remove extra whitespace and normalize case
         cleaned = re.sub(r"\s+", " ", player_name.strip())
-        
+
         # Remove trailing periods from Jr., Sr., etc.
         if cleaned.endswith('.'):
             cleaned = cleaned[:-1]
-        
+
         return cleaned.title()
 
     @staticmethod
@@ -188,7 +188,7 @@ class DataCleaner:
             # Skip None values
             if value is None:
                 continue
-                
+
             try:
                 # Try to convert to float
                 if isinstance(value, str):

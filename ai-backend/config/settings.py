@@ -29,12 +29,12 @@ class Settings:
         self.supabase_service_role_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
 
         # FastAPI Configuration
-        self.fastapi_host = os.getenv("FASTAPI_HOST", "0.0.0.0")
+        self.fastapi_host = os.getenv("FASTAPI_HOST", "127.0.0.1")
         self.fastapi_port = int(os.getenv("FASTAPI_PORT", "8000"))
         self.fastapi_reload = os.getenv("FASTAPI_RELOAD", "false").lower() == "true"
 
         # Chainlit Configuration
-        self.chainlit_host = os.getenv("CHAINLIT_HOST", "0.0.0.0")
+        self.chainlit_host = os.getenv("CHAINLIT_HOST", "127.0.0.1")
         self.chainlit_port = int(os.getenv("CHAINLIT_PORT", "8001"))
 
         # Logging Configuration

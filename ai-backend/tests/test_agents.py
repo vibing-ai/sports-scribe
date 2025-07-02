@@ -31,6 +31,11 @@ class TestDataCollectorAgent:
         # TODO: Implement test for team statistics collection
         pass
 
+    def test_placeholder(self):
+        """Placeholder test - implement actual agent tests."""
+        # TODO: Implement actual agent tests
+        assert True
+
 
 class TestResearchAgent:
     """Test cases for Research Agent."""

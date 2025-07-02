@@ -19,7 +19,7 @@ report_result() {
     local tool=$1
     local exit_code=$2
     
-    if [ $exit_code -eq 0 ]; then
+    if [ "$exit_code" -eq 0 ]; then
         echo -e "${GREEN}✅ $tool passed${NC}"
     else
         echo -e "${RED}❌ $tool failed${NC}"

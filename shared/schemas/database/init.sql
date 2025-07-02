@@ -42,10 +42,25 @@ CREATE SCHEMA IF NOT EXISTS agents;
 GRANT USAGE ON SCHEMA public TO authenticated;
 GRANT USAGE ON SCHEMA agents TO authenticated;
 
--- Grant all privileges on all tables in public schema to authenticated users
-GRANT ALL ON ALL TABLES IN SCHEMA public TO authenticated;
-GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO authenticated;
-GRANT ALL ON ALL FUNCTIONS IN SCHEMA public TO authenticated;
+-- Create role-based accounts for better security
+CREATE ROLE IF NOT EXISTS app_read_role;
+CREATE ROLE IF NOT EXISTS app_write_role;
+CREATE ROLE IF NOT EXISTS app_admin_role;
+
+-- Grant specific permissions to roles instead of authenticated directly
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO app_read_role;
+GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA public TO app_write_role;
+GRANT ALL ON ALL TABLES IN SCHEMA public TO app_admin_role;
+
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO app_write_role;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO app_admin_role;
+
+GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO app_read_role;
+GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO app_write_role;
+GRANT ALL ON ALL FUNCTIONS IN SCHEMA public TO app_admin_role;
+
+-- Grant roles to authenticated users based on their role
+-- This will be managed through RLS policies and application logic
 
 -- Create a function to automatically update the updated_at column
 CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -383,9 +398,12 @@ SELECT
     ) AS created_today
 FROM user_profiles;
 
--- Grant necessary permissions
-GRANT SELECT ON popular_articles TO authenticated;
-GRANT SELECT ON database_stats TO authenticated;
+-- Grant necessary permissions to roles
+GRANT SELECT ON popular_articles TO app_read_role;
+GRANT SELECT ON database_stats TO app_read_role;
+
+-- Grant roles to authenticated users (this should be managed by application logic)
+GRANT app_read_role TO authenticated;
 
 COMMENT ON DATABASE postgres IS 'Sport Scribe - AI-Powered Sports Journalism Platform Database';
 COMMENT ON SCHEMA public IS 'Main application schema containing articles, games, teams, and user data';

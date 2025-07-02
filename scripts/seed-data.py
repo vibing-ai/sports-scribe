@@ -93,7 +93,7 @@ class DatabaseSeeder:
         tables = ["articles", "games", "players", "teams"]
         for table in tables:
             try:
-                result = self.supabase.table(table).delete().neq("id", 0).execute()
+                _ = self.supabase.table(table).delete().neq("id", 0).execute()
                 logger.info(f"Cleared {table} table")
             except Exception as e:
                 logger.warning(f"Could not clear {table}: {e}")

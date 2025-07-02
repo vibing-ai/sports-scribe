@@ -1,12 +1,16 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
-# Sport Scribe - Web Platform Deployment
+# Deploy Web Platform Script
+# This script deploys the web platform to Vercel
+
 set -e
 
-echo "🌐 Deploying Web Platform..."
-
 # Configuration
-PROJECT_NAME="sport-scribe-web"
+VERCEL_ORG_ID=${VERCEL_ORG_ID}
+VERCEL_PROJECT_ID=${VERCEL_PROJECT_ID}
+VERCEL_TOKEN=${VERCEL_TOKEN}
+
+echo "🌐 Deploying Web Platform..."
 
 # Install Vercel CLI if not present
 check_vercel_cli() {
