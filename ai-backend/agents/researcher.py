@@ -35,7 +35,9 @@ class ResearchAgent:
         """
         # TODO: Implement team history research
         team_safe, opponent_safe = sanitize_multiple_log_inputs(team_id, opponent_id)
-        logger.info("Researching history between teams: %s vs %s", team_safe, opponent_safe)
+        logger.info(
+            "Researching history between teams: %s vs %s", team_safe, opponent_safe
+        )
         return {}
 
     async def research_player_performance(

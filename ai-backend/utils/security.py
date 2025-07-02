@@ -17,7 +17,7 @@ def sanitize_log_input(value: Any) -> str:
         value = str(value)
 
     # Remove newlines and carriage returns to prevent log injection
-    sanitized = re.sub(r'[\r\n]', '', value)
+    sanitized = re.sub(r"[\r\n]", "", value)
 
     # Limit length to prevent log flooding
     if len(sanitized) > 100:
