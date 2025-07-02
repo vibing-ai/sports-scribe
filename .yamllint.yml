@@ -10,6 +10,12 @@ rules:
   document-start: disable
   truthy:
     allowed-values: ['true', 'false', 'on', 'off']
+  indentation:
+    spaces: 2
+  brackets:
+    max-spaces-inside: 1
+  braces:
+    max-spaces-inside: 1
 
 ignore: |
   web/node_modules/
@@ -22,3 +28,5 @@ ignore: |
   *.egg-info/
   dist/
   build/
+  # Ignore disabled workflows
+  .github/workflows/*.disabled

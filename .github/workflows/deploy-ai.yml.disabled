@@ -4,7 +4,7 @@ name: Deploy AI Backend
 on:
   push:
     branches: [ main ]
-    paths: 
+    paths:
       - 'ai-backend/**'
       - '.github/workflows/deploy-ai.yml'
   workflow_dispatch:
@@ -12,36 +12,36 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python 3.11
       uses: actions/setup-python@v4
       with:
         python-version: '3.11'
-    
+
     - name: Install dependencies
       working-directory: ai-backend
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install -r requirements-dev.txt
-    
+
     - name: Run tests
       working-directory: ai-backend
       run: pytest tests/
-    
+
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@d70bba72b1f3fd22344832f00baa16ece964efeb
-    
+
     - name: Log in to Container Registry
       uses: docker/login-action@e92390c5fb421da1463c202d546fed0ec5c39f20
       with:
         registry: registry.render.com
         username: ${{ secrets.RENDER_REGISTRY_USERNAME }}
         password: ${{ secrets.RENDER_REGISTRY_PASSWORD }}
-    
+
     - name: Build and push Docker image
       uses: docker/build-push-action@2cdde995de11925a030ce8070c3d77a52ffcf1c0
       with:
@@ -50,13 +50,13 @@ jobs:
         tags: registry.render.com/${{ secrets.RENDER_SERVICE_NAME }}:latest
         cache-from: type=gha
         cache-to: type=gha,mode=max
-    
+
     - name: Deploy to Render
       run: |
         curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}" \
           -H "Content-Type: application/json" \
           -d '{"ref": "main"}'
-    
+
     - name: Notify deployment
       if: always()
       run: |
@@ -64,4 +64,4 @@ jobs:
           echo "✅ AI Backend deployed successfully"
         else
           echo "❌ AI Backend deployment failed"
-        fi 
+        fi
