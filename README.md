@@ -8,26 +8,33 @@ and analysis from live game data and statistics.
 
 ## 🌟 Features
 
-- **AI-Powered Content Generation**: Basic AI agent framework for content generation (currently in development - basic agents implemented with room for expansion)
+- **AI-Powered Content Generation**: Basic AI agent framework for content
+  generation (currently in development - basic agents implemented with room
+  for expansion)
 - **Real-time Game Integration**: Connects to sports APIs for live game data
   and statistics
 - **Modern Web Platform**: Next.js frontend with responsive design and
   real-time updates
-- **Football-Focused Platform**: Specializing in football (soccer) coverage with comprehensive league support including Premier League, La Liga, Bundesliga, Serie A, and more
+- **Football-Focused Platform**: Specializing in football (soccer) coverage
+  with comprehensive league support including Premier League, La Liga,
+  Bundesliga, Serie A, and more
 - **Content Management**: Full editorial workflow with drafts, reviews, and publishing
 - **Analytics Dashboard**: Track article performance and user engagement
 
 ## 🏗️ Architecture
 
-- **Frontend**: Next.js 14 (App Router) + TypeScript + HeroUI (@heroui/react) + Tailwind CSS
+- **Frontend**: Next.js 14 (App Router) + TypeScript + HeroUI
+  (@heroui/react) + Tailwind CSS
 - **Backend**: Python FastAPI with OpenAI integration
 - **Database**: Supabase (PostgreSQL) with real-time capabilities
-- **AI System**: AI agent framework (currently in development - basic agents implemented with room for expansion):
+- **AI System**: AI agent framework (currently in development - basic
+  agents implemented with room for expansion):
   - **Data Collector**: Gathers game data from sports APIs
   - **Researcher**: Analyzes team and player backgrounds
   - **Writer**: Generates articles with various tones and styles
   - **Editor**: Reviews and improves content quality
-  - **Basic content generation** (fact-checking planned for future releases)
+  - **Basic content generation** (fact-checking planned for future
+    releases)
 
 ## 🚀 Quick Start
 
@@ -142,7 +149,8 @@ collaborate to produce high-quality sports content:
 2. **Researcher** → Analyzes team history, player backgrounds, and context
 3. **Writer** → Generates articles with appropriate tone and style
 4. **Editor** → Reviews content for quality, grammar, and readability
-5. **Basic content generation** (fact-checking planned for future releases)
+5. **Basic content generation** (fact-checking planned for future
+   releases)
 
 ### Supported Content Types
 
@@ -171,7 +179,8 @@ Sport Scribe uses comprehensive quality tools to ensure code excellence:
 # Type checking
 ./scripts/type-check.sh
 
-# Testing setup in progress - see CONTRIBUTING.md for current testing approach
+# Testing setup in progress - see CONTRIBUTING.md for current testing
+# approach
 ```
 
 #### Quality Tools
@@ -245,7 +254,8 @@ See [Contributing Guidelines](CONTRIBUTING.md) for detailed information.
 - **Database**: Supabase managed PostgreSQL
 - **CI/CD**: GitHub Actions workflows
 
-See [Deployment Documentation](docs/deployment/) for detailed instructions.
+See [Deployment Documentation](docs/deployment/) for detailed
+instructions.
 
 ## 📚 Documentation
 
@@ -257,11 +267,13 @@ See [Deployment Documentation](docs/deployment/) for detailed instructions.
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+We welcome contributions! Please see our
+[Contributing Guidelines](CONTRIBUTING.md) for details.
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the
+[LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 

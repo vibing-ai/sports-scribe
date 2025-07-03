@@ -171,7 +171,9 @@ INSERT INTO agents.agent_configs (
     'data_collector',
     'API-Football Collector',
     'Collects football game data from API-Football via RapidAPI',
-    '{"api_endpoint": "https://api-football-v1.p.rapidapi.com/v3", "rate_limit": 100, "timeout": 30, "api_host": "api-football-v1.p.rapidapi.com"}'
+    '{"api_endpoint": "https://api-football-v1.p.rapidapi.com/v3",
+      "rate_limit": 100, "timeout": 30,
+      "api_host": "api-football-v1.p.rapidapi.com"}'
 ),
 (
     'researcher',
