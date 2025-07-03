@@ -10,6 +10,14 @@ import sys
 from datetime import datetime, timedelta
 from typing import Dict, List
 
+# Load environment variables from .env file
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    print("⚠️  python-dotenv not installed. Install with: pip install python-dotenv")
+    # Continue without dotenv - environment variables must be set manually
+
 # Add the shared directory to the Python path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'shared'))
 
@@ -45,7 +53,7 @@ SAMPLE_GAMES = [
         "game_date": datetime.now() - timedelta(days=1),
         "home_score": 112,
         "away_score": 108,
-        "status": "completed",
+        "status": "final",
         "venue": "Crypto.com Arena"
     },
     {
@@ -64,7 +72,7 @@ SAMPLE_ARTICLES = [
         "title": "Lakers Edge Warriors in Thrilling Overtime Victory",
         "content": "In a spectacular display of basketball prowess, the Los Angeles Lakers defeated the Golden State Warriors 112-108 in overtime...",
         "summary": "Lakers win in overtime against Warriors",
-        "author": "AI Sports Writer",
+        "author_id": None,  # Will be set to null for AI-generated content
         "status": "published",
         "tags": ["basketball", "NBA", "Lakers", "Warriors"],
         "game_id": 1,
@@ -167,8 +175,8 @@ class DatabaseSeeder:
             if game_index < len(games):
                 article_copy["game_id"] = games[game_index]["id"]
 
-            # Convert tags list to JSON
-            article_copy["tags"] = json.dumps(article_copy["tags"])
+            # Keep tags as array (don't convert to JSON string)
+            # article_copy["tags"] = json.dumps(article_copy["tags"])
 
             articles_data.append(article_copy)
 
