@@ -1,238 +1,247 @@
-// Professional sports leagues and their metadata
+// Football leagues available through API-Football
 export const LEAGUES = {
-  // Football
-  NFL: 'NFL',
-  NCAAF: 'NCAA Football',
-  CFL: 'CFL',
-
-  // Basketball
-  NBA: 'NBA',
-  WNBA: 'WNBA',
-  NCAAB: 'NCAA Basketball',
-  EUROLEAGUE: 'EuroLeague',
-
-  // Baseball
-  MLB: 'MLB',
-  MILB: 'Minor League Baseball',
-  NPB: 'NPB',
-
-  // Soccer
-  MLS: 'MLS',
+  // European Leagues
   EPL: 'Premier League',
   LA_LIGA: 'La Liga',
   BUNDESLIGA: 'Bundesliga',
   SERIE_A: 'Serie A',
   LIGUE_1: 'Ligue 1',
-  CHAMPIONS_LEAGUE: 'Champions League',
-  EUROPA_LEAGUE: 'Europa League',
+
+  // International Competitions
+  CHAMPIONS_LEAGUE: 'UEFA Champions League',
+  EUROPA_LEAGUE: 'UEFA Europa League',
   WORLD_CUP: 'FIFA World Cup',
+  EURO: 'UEFA European Championship',
 
-  // Hockey
-  NHL: 'NHL',
-  AHL: 'AHL',
-  NCAAH: 'NCAA Hockey',
-  KHL: 'KHL',
+  // Other Major Leagues
+  MLS: 'Major League Soccer',
+  LIGA_MX: 'Liga MX',
+  BRASILEIRAO: 'Brasileirão',
 
-  // Tennis
-  ATP: 'ATP Tour',
-  WTA: 'WTA Tour',
-
-  // Golf
-  PGA: 'PGA Tour',
-  EUROPEAN_TOUR: 'European Tour',
-  LPGA: 'LPGA Tour',
-
-  // Boxing/MMA
-  UFC: 'UFC',
-  BELLATOR: 'Bellator',
-  ONE_FC: 'ONE Championship',
-
-  // Motorsports
-  F1: 'Formula 1',
-  NASCAR: 'NASCAR',
-  INDYCAR: 'IndyCar',
-  MOTOGP: 'MotoGP'
+  // Cup Competitions
+  FA_CUP: 'FA Cup',
+  COPA_DEL_REY: 'Copa del Rey',
+  DFB_POKAL: 'DFB-Pokal',
+  COPPA_ITALIA: 'Coppa Italia'
 } as const;
 
 export type League = typeof LEAGUES[keyof typeof LEAGUES];
 
-// League configurations and metadata
+// Football league configurations and metadata
 export const LEAGUE_INFO = {
-  [LEAGUES.NFL]: {
-    sport: 'football',
-    country: 'USA',
-    season_format: 'regular_playoffs',
-    teams_count: 32,
-    conference_structure: ['AFC', 'NFC'],
-    divisions: ['North', 'South', 'East', 'West'],
-    playoff_format: 'single_elimination',
-    championship: 'Super Bowl'
-  },
-  [LEAGUES.NBA]: {
-    sport: 'basketball',
-    country: 'USA',
-    season_format: 'regular_playoffs',
-    teams_count: 30,
-    conference_structure: ['Eastern', 'Western'],
-    divisions: ['Atlantic', 'Central', 'Southeast', 'Northwest', 'Pacific', 'Southwest'],
-    playoff_format: 'best_of_seven',
-    championship: 'NBA Finals'
-  },
-  [LEAGUES.MLB]: {
-    sport: 'baseball',
-    country: 'USA',
-    season_format: 'regular_playoffs',
-    teams_count: 30,
-    conference_structure: ['American League', 'National League'],
-    divisions: ['East', 'Central', 'West'],
-    playoff_format: 'best_of_series',
-    championship: 'World Series'
-  },
   [LEAGUES.EPL]: {
-    sport: 'soccer',
+    sport: 'football',
     country: 'England',
     season_format: 'league_table',
     teams_count: 20,
-    conference_structure: [],
-    divisions: [],
-    playoff_format: 'none',
-    championship: 'Premier League Title'
+    api_id: 39,
+    season_start: 'August',
+    season_end: 'May'
   },
-  [LEAGUES.NHL]: {
-    sport: 'hockey',
+  [LEAGUES.LA_LIGA]: {
+    sport: 'football',
+    country: 'Spain',
+    season_format: 'league_table',
+    teams_count: 20,
+    api_id: 140,
+    season_start: 'August',
+    season_end: 'May'
+  },
+  [LEAGUES.BUNDESLIGA]: {
+    sport: 'football',
+    country: 'Germany',
+    season_format: 'league_table',
+    teams_count: 18,
+    api_id: 78,
+    season_start: 'August',
+    season_end: 'May'
+  },
+  [LEAGUES.SERIE_A]: {
+    sport: 'football',
+    country: 'Italy',
+    season_format: 'league_table',
+    teams_count: 20,
+    api_id: 135,
+    season_start: 'August',
+    season_end: 'May'
+  },
+  [LEAGUES.LIGUE_1]: {
+    sport: 'football',
+    country: 'France',
+    season_format: 'league_table',
+    teams_count: 20,
+    api_id: 61,
+    season_start: 'August',
+    season_end: 'May'
+  },
+  [LEAGUES.CHAMPIONS_LEAGUE]: {
+    sport: 'football',
+    country: 'Europe',
+    season_format: 'knockout',
+    teams_count: 32,
+    api_id: 2,
+    season_start: 'September',
+    season_end: 'June'
+  },
+  [LEAGUES.MLS]: {
+    sport: 'football',
     country: 'USA/Canada',
     season_format: 'regular_playoffs',
-    teams_count: 32,
-    conference_structure: ['Eastern', 'Western'],
-    divisions: ['Atlantic', 'Metropolitan', 'Central', 'Pacific'],
-    playoff_format: 'best_of_seven',
-    championship: 'Stanley Cup'
+    teams_count: 30,
+    api_id: 253,
+    season_start: 'February',
+    season_end: 'November'
   }
 };
 
-// Season structures by league
+// Season structures for football leagues
 export const SEASON_STRUCTURES = {
-  [LEAGUES.NFL]: {
-    preseason: { weeks: 3, games_per_team: 3 },
-    regular: { weeks: 18, games_per_team: 17 },
-    playoffs: { rounds: 4, format: 'single_elimination' },
-    offseason: { months: 6 }
+  [LEAGUES.EPL]: {
+    regular: { games: 38, rounds: 38 },
+    offseason: { months: 3 }
   },
-  [LEAGUES.NBA]: {
-    preseason: { games: 4 },
-    regular: { games: 82 },
-    playoffs: { rounds: 4, format: 'best_of_seven' },
-    offseason: { months: 4 }
+  [LEAGUES.LA_LIGA]: {
+    regular: { games: 38, rounds: 38 },
+    offseason: { months: 3 }
   },
-  [LEAGUES.MLB]: {
-    spring_training: { weeks: 6 },
-    regular: { games: 162 },
-    playoffs: { rounds: 4, format: 'best_of_series' },
-    offseason: { months: 4 }
+  [LEAGUES.BUNDESLIGA]: {
+    regular: { games: 34, rounds: 34 },
+    offseason: { months: 3 }
+  },
+  [LEAGUES.SERIE_A]: {
+    regular: { games: 38, rounds: 38 },
+    offseason: { months: 3 }
+  },
+  [LEAGUES.LIGUE_1]: {
+    regular: { games: 38, rounds: 38 },
+    offseason: { months: 3 }
+  },
+  [LEAGUES.CHAMPIONS_LEAGUE]: {
+    group_stage: { games: 6, teams: 32 },
+    knockout: { rounds: 5 },
+    offseason: { months: 3 }
   }
 };
 
-// Popular teams by league
+// Popular teams by football league
 export const POPULAR_TEAMS = {
-  [LEAGUES.NFL]: [
-    'Dallas Cowboys', 'New England Patriots', 'Pittsburgh Steelers',
-    'Green Bay Packers', 'San Francisco 49ers', 'Kansas City Chiefs'
-  ],
-  [LEAGUES.NBA]: [
-    'Los Angeles Lakers', 'Golden State Warriors', 'Boston Celtics',
-    'Chicago Bulls', 'Miami Heat', 'Brooklyn Nets'
-  ],
-  [LEAGUES.MLB]: [
-    'New York Yankees', 'Los Angeles Dodgers', 'Boston Red Sox',
-    'Chicago Cubs', 'San Francisco Giants', 'St. Louis Cardinals'
-  ],
   [LEAGUES.EPL]: [
     'Manchester United', 'Manchester City', 'Liverpool',
     'Chelsea', 'Arsenal', 'Tottenham Hotspur'
   ],
-  [LEAGUES.NHL]: [
-    'Toronto Maple Leafs', 'Montreal Canadiens', 'Boston Bruins',
-    'New York Rangers', 'Chicago Blackhawks', 'Detroit Red Wings'
+  [LEAGUES.LA_LIGA]: [
+    'Real Madrid', 'Barcelona', 'Atletico Madrid',
+    'Sevilla', 'Real Sociedad', 'Valencia'
+  ],
+  [LEAGUES.BUNDESLIGA]: [
+    'Bayern Munich', 'Borussia Dortmund', 'RB Leipzig',
+    'Bayer Leverkusen', 'Eintracht Frankfurt', 'Borussia Mönchengladbach'
+  ],
+  [LEAGUES.SERIE_A]: [
+    'Juventus', 'AC Milan', 'Inter Milan',
+    'AS Roma', 'Napoli', 'Lazio'
+  ],
+  [LEAGUES.LIGUE_1]: [
+    'Paris Saint-Germain', 'AS Monaco', 'Olympique Marseille',
+    'Olympique Lyon', 'Nice', 'Lille'
+  ],
+  [LEAGUES.MLS]: [
+    'LA Galaxy', 'Seattle Sounders', 'Atlanta United',
+    'Portland Timbers', 'New York City FC', 'Inter Miami'
   ]
 };
 
-// Rivalry matchups by league
+// Classic rivalries in football
 export const CLASSIC_RIVALRIES = {
-  [LEAGUES.NFL]: [
-    ['Dallas Cowboys', 'Washington Commanders'],
-    ['Green Bay Packers', 'Chicago Bears'],
-    ['Pittsburgh Steelers', 'Baltimore Ravens'],
-    ['New England Patriots', 'New York Jets']
-  ],
-  [LEAGUES.NBA]: [
-    ['Los Angeles Lakers', 'Boston Celtics'],
-    ['Chicago Bulls', 'Detroit Pistons'],
-    ['Miami Heat', 'New York Knicks']
-  ],
-  [LEAGUES.MLB]: [
-    ['New York Yankees', 'Boston Red Sox'],
-    ['Los Angeles Dodgers', 'San Francisco Giants'],
-    ['Chicago Cubs', 'St. Louis Cardinals']
-  ],
   [LEAGUES.EPL]: [
     ['Manchester United', 'Manchester City'],
     ['Liverpool', 'Everton'],
-    ['Arsenal', 'Tottenham Hotspur']
+    ['Arsenal', 'Tottenham Hotspur'],
+    ['Chelsea', 'Arsenal'],
+    ['Manchester United', 'Liverpool']
   ],
-  [LEAGUES.NHL]: [
-    ['Montreal Canadiens', 'Toronto Maple Leafs'],
-    ['Boston Bruins', 'New York Rangers'],
-    ['Chicago Blackhawks', 'Detroit Red Wings']
+  [LEAGUES.LA_LIGA]: [
+    ['Real Madrid', 'Barcelona'],
+    ['Real Madrid', 'Atletico Madrid'],
+    ['Barcelona', 'Espanyol'],
+    ['Sevilla', 'Real Betis']
+  ],
+  [LEAGUES.BUNDESLIGA]: [
+    ['Bayern Munich', 'Borussia Dortmund'],
+    ['Bayern Munich', 'TSV 1860 Munich'],
+    ['Borussia Dortmund', 'Schalke 04'],
+    ['Hamburg', 'Werder Bremen']
+  ],
+  [LEAGUES.SERIE_A]: [
+    ['Juventus', 'AC Milan'],
+    ['AC Milan', 'Inter Milan'],
+    ['AS Roma', 'Lazio'],
+    ['Juventus', 'Inter Milan']
+  ],
+  [LEAGUES.LIGUE_1]: [
+    ['Paris Saint-Germain', 'Olympique Marseille'],
+    ['Olympique Lyon', 'Saint-Etienne'],
+    ['AS Monaco', 'Nice']
   ]
 };
 
-// League-specific awards and honors
+// Football league awards and honors
 export const LEAGUE_AWARDS = {
-  [LEAGUES.NFL]: [
-    'MVP', 'Offensive Player of the Year', 'Defensive Player of the Year',
-    'Rookie of the Year', 'Coach of the Year', 'Comeback Player of the Year'
-  ],
-  [LEAGUES.NBA]: [
-    'MVP', 'Finals MVP', 'Defensive Player of the Year', 'Sixth Man of the Year',
-    'Rookie of the Year', 'Most Improved Player', 'Coach of the Year'
-  ],
-  [LEAGUES.MLB]: [
-    'MVP', 'Cy Young Award', 'Rookie of the Year', 'Gold Glove',
-    'Silver Slugger', 'Reliever of the Year', 'Manager of the Year'
-  ],
   [LEAGUES.EPL]: [
     'Player of the Season', 'Golden Boot', 'Golden Glove',
     'Young Player of the Season', 'Manager of the Season'
   ],
-  [LEAGUES.NHL]: [
-    'Hart Trophy (MVP)', 'Vezina Trophy', 'Norris Trophy',
-    'Calder Trophy', 'Selke Trophy', 'Lady Byng Trophy'
+  [LEAGUES.LA_LIGA]: [
+    'Pichichi Trophy', 'Zamora Trophy', 'Best Player',
+    'Best Young Player', 'Best Coach'
+  ],
+  [LEAGUES.BUNDESLIGA]: [
+    'Top Scorer', 'Player of the Season', 'Rookie of the Year',
+    'Coach of the Year'
+  ],
+  [LEAGUES.SERIE_A]: [
+    'Capocannoniere', 'Player of the Year', 'Young Player of the Year',
+    'Coach of the Year'
+  ],
+  [LEAGUES.LIGUE_1]: [
+    'Player of the Year', 'Top Scorer', 'Young Player of the Year',
+    'Coach of the Year'
+  ],
+  [LEAGUES.CHAMPIONS_LEAGUE]: [
+    'Top Scorer', 'Player of the Tournament', 'Goalkeeper of the Tournament'
   ]
 };
 
-// Supported leagues list for validation
+// Supported football leagues list for validation
 export const SUPPORTED_LEAGUES = Object.values(LEAGUES);
 
-// Major leagues (highest tier)
+// Major football leagues (highest tier)
 export const MAJOR_LEAGUES = [
-  LEAGUES.NFL, LEAGUES.NBA, LEAGUES.MLB, LEAGUES.EPL, LEAGUES.NHL,
-  LEAGUES.LA_LIGA, LEAGUES.BUNDESLIGA, LEAGUES.SERIE_A, LEAGUES.F1, LEAGUES.UFC
+  LEAGUES.EPL, LEAGUES.LA_LIGA, LEAGUES.BUNDESLIGA,
+  LEAGUES.SERIE_A, LEAGUES.LIGUE_1, LEAGUES.CHAMPIONS_LEAGUE
 ];
 
-// North American leagues
-export const NORTH_AMERICAN_LEAGUES = [
-  LEAGUES.NFL, LEAGUES.NBA, LEAGUES.MLB, LEAGUES.NHL, LEAGUES.MLS,
-  LEAGUES.NCAAF, LEAGUES.NCAAB, LEAGUES.NASCAR, LEAGUES.INDYCAR
-];
-
-// European leagues
-export const EUROPEAN_LEAGUES = [
-  LEAGUES.EPL, LEAGUES.LA_LIGA, LEAGUES.BUNDESLIGA, LEAGUES.SERIE_A,
-  LEAGUES.LIGUE_1, LEAGUES.CHAMPIONS_LEAGUE, LEAGUES.EUROPA_LEAGUE, LEAGUES.F1
+// European domestic leagues
+export const EUROPEAN_DOMESTIC_LEAGUES = [
+  LEAGUES.EPL, LEAGUES.LA_LIGA, LEAGUES.BUNDESLIGA,
+  LEAGUES.SERIE_A, LEAGUES.LIGUE_1
 ];
 
 // International competitions
 export const INTERNATIONAL_COMPETITIONS = [
-  LEAGUES.WORLD_CUP, LEAGUES.CHAMPIONS_LEAGUE, LEAGUES.EUROPA_LEAGUE,
-  LEAGUES.F1, LEAGUES.ATP, LEAGUES.WTA, LEAGUES.PGA, LEAGUES.MOTOGP
+  LEAGUES.WORLD_CUP, LEAGUES.EURO, LEAGUES.CHAMPIONS_LEAGUE,
+  LEAGUES.EUROPA_LEAGUE
+];
+
+// Cup competitions
+export const CUP_COMPETITIONS = [
+  LEAGUES.FA_CUP, LEAGUES.COPA_DEL_REY, LEAGUES.DFB_POKAL,
+  LEAGUES.COPPA_ITALIA, LEAGUES.CHAMPIONS_LEAGUE, LEAGUES.EUROPA_LEAGUE
+];
+
+// League competitions (domestic leagues)
+export const LEAGUE_COMPETITIONS = [
+  LEAGUES.EPL, LEAGUES.LA_LIGA, LEAGUES.BUNDESLIGA,
+  LEAGUES.SERIE_A, LEAGUES.LIGUE_1, LEAGUES.MLS,
+  LEAGUES.LIGA_MX, LEAGUES.BRASILEIRAO
 ];

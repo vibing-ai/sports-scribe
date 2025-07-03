@@ -42,12 +42,12 @@ Triggered when an article is published.
   "timestamp": "2024-01-15T20:10:00Z",
   "data": {
     "article_id": "123e4567-e89b-12d3-a456-426614174000",
-    "title": "Lakers Beat Warriors in Overtime Thriller",
+    "title": "Manchester United Beat City in Derby Thriller",
     "author": "AI Sports Writer",
-    "sport": "basketball",
-    "league": "NBA",
+    "sport": "football",
+    "league": "Premier League",
     "published_at": "2024-01-15T20:10:00Z",
-    "tags": ["NBA", "Lakers", "Warriors"],
+    "tags": ["Premier League", "Manchester United", "Manchester City"],
     "url": "https://sportscribe.com/articles/123e4567-e89b-12d3-a456-426614174000"
   }
 }

@@ -8,53 +8,70 @@ and analysis from live game data and statistics.
 
 ## 🌟 Features
 
-- **AI-Powered Content Generation**: Multi-agent system that researches,
-  writes, and edits sports content
+- **AI-Powered Content Generation**: Basic AI agent framework for content generation (currently in development - basic agents implemented with room for expansion)
 - **Real-time Game Integration**: Connects to sports APIs for live game data
   and statistics
 - **Modern Web Platform**: Next.js frontend with responsive design and
   real-time updates
-- **Comprehensive Coverage**: Supports football, basketball, baseball, soccer,
-  and hockey
+- **Football-Focused Platform**: Specializing in football (soccer) coverage with comprehensive league support including Premier League, La Liga, Bundesliga, Serie A, and more
 - **Content Management**: Full editorial workflow with drafts, reviews, and publishing
 - **Analytics Dashboard**: Track article performance and user engagement
 
 ## 🏗️ Architecture
 
-- **Frontend**: Next.js 14 + TypeScript + Hero UI + Tailwind CSS
+- **Frontend**: Next.js 14 (App Router) + TypeScript + HeroUI (@heroui/react) + Tailwind CSS
 - **Backend**: Python FastAPI with OpenAI integration
 - **Database**: Supabase (PostgreSQL) with real-time capabilities
-- **AI System**: Multi-agent architecture with specialized roles:
+- **AI System**: AI agent framework (currently in development - basic agents implemented with room for expansion):
   - **Data Collector**: Gathers game data from sports APIs
   - **Researcher**: Analyzes team and player backgrounds
   - **Writer**: Generates articles with various tones and styles
   - **Editor**: Reviews and improves content quality
-  - **Fact Checker**: Verifies accuracy of claims and statistics
+  - **Basic content generation** (fact-checking planned for future releases)
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 
 - Node.js 18+
-- Python 3.9+
+- Python 3.11+
 - Supabase account
 - OpenAI API key
+
+### Important Setup Notes
+
+⚠️ **Before starting, ensure you have:**
+
+- Python 3.11+ installed
+- Node.js 18+ installed
+- Git installed
+- A code editor (VS Code recommended)
+
+### Python Virtual Environment Setup (REQUIRED)
+
+```bash
+cd ai-backend
+python3.11 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+pip install -r requirements-dev.txt
+```
 
 ### Installation
 
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/your-org/sport-scribe.git
+   git clone https://github.com/vibing-ai/sport-scribe.git
    cd sport-scribe
    ```
 
 2. **Set up environment variables**
 
    ```bash
-   cp .env.example .env
-   cp web/.env.local.example web/.env.local
-   cp ai-backend/.env.example ai-backend/.env
+   cp env.example .env
+   cp web/env.local.example web/.env.local
+   cp ai-backend/env.example ai-backend/.env
    ```
 
 3. **Install dependencies**
@@ -70,8 +87,7 @@ and analysis from live game data and statistics.
 4. **Initialize database**
 
    ```bash
-   supabase db reset
-   python scripts/seed-data.py
+   # Database setup requires Supabase CLI - see deployment/database-setup.md
    ```
 
 5. **Start development servers**
@@ -126,7 +142,7 @@ collaborate to produce high-quality sports content:
 2. **Researcher** → Analyzes team history, player backgrounds, and context
 3. **Writer** → Generates articles with appropriate tone and style
 4. **Editor** → Reviews content for quality, grammar, and readability
-5. **Fact Checker** → Verifies statistical accuracy and claims
+5. **Basic content generation** (fact-checking planned for future releases)
 
 ### Supported Content Types
 
@@ -155,8 +171,7 @@ Sport Scribe uses comprehensive quality tools to ensure code excellence:
 # Type checking
 ./scripts/type-check.sh
 
-# Run tests
-./scripts/run-tests.sh
+# Testing setup in progress - see CONTRIBUTING.md for current testing approach
 ```
 
 #### Quality Tools
@@ -166,7 +181,7 @@ Sport Scribe uses comprehensive quality tools to ensure code excellence:
 - **hadolint**: Dockerfile linting
 - **ajv-cli**: JSON schema validation
 - **sqlfluff**: SQL linting and formatting
-- **ruff**: Python linting (fast)
+- **ruff**: Python linting and formatting (fast)
 - **mypy**: Python type checking
 - **bandit**: Python security analysis
 - **safety**: Python vulnerability scanning
@@ -198,124 +213,59 @@ npm run generate:types
 
 See [Contributing Guidelines](CONTRIBUTING.md) for detailed information.
 
+## 📊 Technology Stack
+
+### Frontend
+
+- **Next.js 14** (App Router)
+- **TypeScript** for type safety
+- **HeroUI** (@heroui/react) for UI components
+- **Tailwind CSS** for styling
+- **Supabase** for database and auth
+
+### Backend
+
+- **Python 3.11+** runtime
+- **FastAPI** for API framework
+- **Ruff** for linting and formatting
+- **OpenAI** for AI model integration
+- **Supabase** for database
+
+### Development Tools
+
+- **Docker** for containerization
+- **GitHub Actions** for CI/CD
+- **Ruff** for Python code quality
+- **ESLint** for TypeScript code quality
+
+## 🚀 Deployment
+
+- **AI Backend**: Docker containerized FastAPI service
+- **Web Platform**: Next.js application (Vercel ready)
+- **Database**: Supabase managed PostgreSQL
+- **CI/CD**: GitHub Actions workflows
+
+See [Deployment Documentation](docs/deployment/) for detailed instructions.
+
 ## 📚 Documentation
 
-- [Getting Started](docs/development/getting-started.md) - Setup and
-  installation
-- [Architecture Overview](docs/architecture/system-overview.md) - System
-  design
-- [API Documentation](docs/api/endpoints.md) - REST API reference
-- [Deployment Guide](docs/deployment/web-platform.md) - Production deployment
-- [Coding Standards](docs/development/coding-standards.md) - Development
-  guidelines
-
-## 🔧 Configuration
-
-### Environment Variables
-
-Key environment variables to configure:
-
-```bash
-# Supabase
-SUPABASE_URL=your_supabase_url
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
-
-# OpenAI
-OPENAI_API_KEY=your_openai_api_key
-
-# Sports APIs
-ESPN_API_KEY=your_espn_api_key
-```
-
-### Agent Configuration
-
-AI agents can be configured in `ai-backend/config/agent_config.py`:
-
-```python
-WRITER_CONFIG = {
-    "tone": "professional",
-    "max_length": 2000,
-    "include_stats": True,
-    "fact_check": True
-}
-```
-
-## 🚢 Deployment
-
-### Production Deployment
-
-```bash
-# Deploy web platform
-./scripts/deploy-web.sh
-
-# Deploy AI backend
-./scripts/deploy-ai.sh
-```
-
-### Docker
-
-```bash
-# Production build
-docker-compose up -d
-
-# Development with hot reload
-docker-compose -f docker-compose.dev.yml up
-```
-
-## 🧪 Testing
-
-```bash
-# Frontend tests
-cd web && npm test
-
-# Backend tests
-cd ai-backend && pytest
-
-# End-to-end tests
-npm run test:e2e
-```
-
-## 📊 Performance
-
-- **Article Generation**: ~30-60 seconds per article
-- **API Response Time**: <200ms average
-- **Database Queries**: Optimized with indexes and caching
-- **Real-time Updates**: WebSocket connections for live data
+- [Getting Started](docs/development/getting-started.md)
+- [API Documentation](docs/api/endpoints.md)
+- [Architecture Overview](docs/architecture/system-overview.md)
+- [Contributing Guidelines](CONTRIBUTING.md)
+- [Deployment Guide](docs/deployment/)
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md)
-and [Code of Conduct](CODE_OF_CONDUCT.md).
-
-### Development Team
-
-- **Frontend**: Next.js, TypeScript, Hero UI
-- **Backend**: Python, FastAPI, OpenAI
-- **Database**: PostgreSQL, Supabase
-- **DevOps**: Docker, GitHub Actions
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE)
-file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🆘 Support
+## 🙏 Acknowledgments
 
-- 📖 [Documentation](docs/README.md)
-- 🐛 [Issue Tracker](https://github.com/your-org/sport-scribe/issues)
-- 💬 [Discussions](https://github.com/your-org/sport-scribe/discussions)
-
-## 🎯 Roadmap
-
-- [ ] Mobile app development
-- [ ] Advanced analytics and insights
-- [ ] Multi-language support
-- [ ] Video content generation
-- [ ] Social media integration
-- [ ] Custom team/league support
-
----
-
-## Acknowledgments
-
-Built with ❤️ for sports journalism
+- OpenAI for AI model capabilities
+- Supabase for backend infrastructure
+- Next.js for frontend framework
+- The sports data API providers

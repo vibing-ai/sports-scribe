@@ -118,6 +118,19 @@ const buttonVariants = cva(
 );
 ```
 
+### TypeScript Tools
+
+**Formatter**: ESLint (with formatting rules)
+**Linter**: ESLint
+
+We use ESLint for both linting and formatting (Prettier not separately configured)
+
+**Running Tools:**
+```bash
+npm run lint      # Lint and format
+npm run lint:fix  # Fix auto-fixable issues
+```
+
 ## 🐍 Backend Standards (Python)
 
 ### File Organization
@@ -134,6 +147,21 @@ ai-backend/
 ```
 
 ### Python Code Style
+
+**Formatter**: Ruff
+**Linter**: Ruff
+
+We use Ruff for both linting and formatting with these settings:
+- Line length: 100 characters (configured in ruff.toml)
+- Import sorting included
+- Fast performance with same rules as Black + flake8
+
+**Running Tools:**
+```bash
+ruff format .     # Format code
+ruff check .      # Lint code
+ruff check --fix . # Fix auto-fixable issues
+```
 
 ```python
 # Follow PEP 8 style guide
@@ -198,385 +226,265 @@ class DataCollectionError(SportScribeError):
 async def collect_game_data(game_id: str) -> Optional[GameData]:
     try:
         response = await sports_api.get_game(game_id)
-        return GameData.parse_obj(response)
-    except httpx.HTTPError as e:
-        logger.error(f"HTTP error collecting game data: {e}")
-        raise DataCollectionError(f"Failed to collect game data: {e}")
+        return GameData(**response)
+    except HTTPException as e:
+        logger.error(f"Failed to collect game data: {e}")
+        raise DataCollectionError(f"API request failed: {e}")
     except ValidationError as e:
-        logger.error(f"Data validation error: {e}")
-        raise DataCollectionError(f"Invalid game data format: {e}")
+        logger.error(f"Invalid game data format: {e}")
+        raise DataCollectionError(f"Data validation failed: {e}")
 ```
 
-## 🗄️ Database Standards
+## 📊 Database Standards
 
 ### Schema Design
 
 ```sql
--- Use descriptive table and column names
-CREATE TABLE article_generation_requests (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    game_id UUID NOT NULL REFERENCES games (id),
-    focus_type VARCHAR(50) NOT NULL,
-    target_length INTEGER DEFAULT 2000,
-    status VARCHAR(50) DEFAULT 'pending',
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
-
-    -- Add constraints for data integrity
-    CONSTRAINT generation_focus_check CHECK (
-        focus_type IN ('game_recap', 'player_spotlight', 'team_analysis')
-    ),
-    CONSTRAINT generation_status_check CHECK (
-        status IN ('pending', 'in_progress', 'completed', 'failed')
-    )
+-- Use descriptive table names
+CREATE TABLE articles (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    title TEXT NOT NULL,
+    content TEXT NOT NULL,
+    summary TEXT,
+    author TEXT NOT NULL,
+    sport VARCHAR(50) NOT NULL,
+    league VARCHAR(50),
+    game_id UUID REFERENCES games(id),
+    status article_status NOT NULL DEFAULT 'draft',
+    published_at TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Add indexes for performance
-CREATE INDEX idx_article_generation_requests_status
-ON article_generation_requests (status);
-
-CREATE INDEX idx_article_generation_requests_created_at
-ON article_generation_requests (created_at DESC);
+CREATE INDEX idx_articles_sport ON articles(sport);
+CREATE INDEX idx_articles_published_at ON articles(published_at) WHERE status = 'published';
+CREATE INDEX idx_articles_game_id ON articles(game_id);
 ```
 
-### Migration Guidelines
+### Database Guidelines
 
-```sql
--- Always include rollback instructions
--- Migration: 001_add_article_generation_requests.sql
-
--- Forward migration
-CREATE TABLE article_generation_requests (
-    -- table definition
-);
-
--- Rollback (in separate file: 001_add_article_generation_requests_rollback.sql)
-DROP TABLE IF EXISTS article_generation_requests;
-```
-
-## 🧪 Testing Standards
-
-### Frontend Testing
-
-```typescript
-// Use React Testing Library for component tests
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { ArticleCard } from './ArticleCard';
-
-describe('ArticleCard', () => {
-  const mockArticle = {
-    id: '1',
-    title: 'Test Article',
-    summary: 'Test summary',
-    status: 'published' as const,
-  };
-
-  it('renders article information correctly', () => {
-    render(<ArticleCard article={mockArticle} />);
-
-    expect(screen.getByText('Test Article')).toBeInTheDocument();
-    expect(screen.getByText('Test summary')).toBeInTheDocument();
-  });
-
-  it('calls onEdit when edit button is clicked', async () => {
-    const mockOnEdit = jest.fn();
-    render(<ArticleCard article={mockArticle} onEdit={mockOnEdit} />);
-
-    fireEvent.click(screen.getByText('Edit'));
-
-    await waitFor(() => {
-      expect(mockOnEdit).toHaveBeenCalledWith('1');
-    });
-  });
-});
-```
-
-### Backend Testing
-
-```python
-# Use pytest for backend tests
-import pytest
-from unittest.mock import Mock, AsyncMock
-from ai_backend.agents.writer import WriterAgent
-from ai_backend.models.article import ArticleRequest
-
-@pytest.fixture
-def writer_agent():
-    config = Mock()
-    config.openai_api_key = "test-key"
-    return WriterAgent(config)
-
-@pytest.mark.asyncio
-async def test_generate_article_success(writer_agent):
-    """Test successful article generation."""
-    request = ArticleRequest(
-        game_id="test-game-id",
-        focus_type="game_recap",
-        target_length=1000
-    )
-
-    # Mock the OpenAI client
-    writer_agent.client.chat.completions.create = AsyncMock(
-        return_value=Mock(choices=[Mock(message=Mock(content="Generated article"))])
-    )
-
-    result = await writer_agent.generate_article(request)
-
-    assert result is not None
-    assert "Generated article" in result
-    writer_agent.client.chat.completions.create.assert_called_once()
-
-@pytest.mark.asyncio
-async def test_generate_article_failure(writer_agent):
-    """Test article generation failure handling."""
-    request = ArticleRequest(
-        game_id="test-game-id",
-        focus_type="game_recap"
-    )
-
-    # Mock API failure
-    writer_agent.client.chat.completions.create = AsyncMock(
-        side_effect=Exception("API Error")
-    )
-
-    with pytest.raises(ArticleGenerationError):
-        await writer_agent.generate_article(request)
-```
-
-## 📏 Code Quality Tools
-
-### Linting Configuration
-
-```json
-// .eslintrc.json (Frontend)
-{
-  "extends": [
-    "next/core-web-vitals",
-    "@typescript-eslint/recommended",
-    "prettier"
-  ],
-  "rules": {
-    "@typescript-eslint/no-unused-vars": "error",
-    "@typescript-eslint/explicit-function-return-type": "warn",
-    "prefer-const": "error",
-    "no-var": "error"
-  }
-}
-```
-
-```toml
-# ruff.toml (Backend)
-[tool.ruff]
-line-length = 88
-target-version = "py39"
-
-[tool.ruff.lint]
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "UP", # pyupgrade
-]
-ignore = [
-    "E501", # line too long (handled by formatter)
-]
-```
-
-### Pre-commit Hooks
-
-```yaml
-# .pre-commit-config.yaml
-repos:
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
-    hooks:
-      - id: trailing-whitespace
-      - id: end-of-file-fixer
-      - id: check-yaml
-      - id: check-added-large-files
-
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.6
-    hooks:
-      - id: ruff
-        args: [--fix, --exit-non-zero-on-fix]
-
-  - repo: https://github.com/psf/black
-    rev: 23.11.0
-    hooks:
-      - id: black
-```
+- **Use UUIDs** for primary keys
+- **Add foreign key constraints** for data integrity
+- **Use enum types** for status columns
+- **Add indexes** for frequently queried columns
+- **Use snake_case** for table and column names
+- **Add meaningful comments** for complex tables
 
 ## 📝 Documentation Standards
 
-### Code Comments
-
-```typescript
-/**
- * Generates a summary for an article based on its content.
- *
- * @param content - The full article content
- * @param maxLength - Maximum length of the summary (default: 200)
- * @returns A concise summary of the article
- *
- * @example
- * ```typescript
- * const summary = generateSummary("Long article content...", 150);
- * console.log(summary); // "Concise summary..."
- * ```
- */
-function generateSummary(content: string, maxLength = 200): string {
-  // Implementation
-}
-```
+### Code Documentation
 
 ```python
-def collect_game_stats(game_id: str, include_player_stats: bool = True) -> GameStats:
-    """Collect comprehensive statistics for a specific game.
+def generate_article(
+    game_id: str,
+    focus_type: str,
+    target_length: int = 2000
+) -> Article:
+    """Generate a sports article based on game data.
 
     Args:
         game_id: Unique identifier for the game
-        include_player_stats: Whether to include individual player statistics
+        focus_type: Type of article focus ('recap', 'analysis', 'preview')
+        target_length: Target word count for the article
 
     Returns:
-        GameStats object containing team and optionally player statistics
+        Generated article with title, content, and metadata
 
     Raises:
-        DataCollectionError: If game data cannot be retrieved
-        ValidationError: If retrieved data is invalid
+        GameNotFoundError: If game_id doesn't exist
+        ArticleGenerationError: If article generation fails
 
     Example:
-        >>> stats = collect_game_stats("game-123", include_player_stats=True)
-        >>> print(stats.home_team_score)
-        105
+        >>> article = generate_article("game-123", "recap", 1500)
+        >>> print(article.title)
+        "Lakers Beat Warriors in Overtime Thriller"
     """
 ```
 
 ### API Documentation
 
 ```python
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-
-class ArticleResponse(BaseModel):
-    """Response model for article operations."""
-    id: str
-    title: str
-    content: str
-    status: str
-
 @app.post("/api/articles", response_model=ArticleResponse)
-async def create_article(request: ArticleRequest) -> ArticleResponse:
+async def create_article(
+    request: ArticleRequest,
+    current_user: User = Depends(get_current_user)
+) -> ArticleResponse:
     """Create a new article.
 
-    - **game_id**: The ID of the game to write about
-    - **focus_type**: Type of article (game_recap, player_spotlight, etc.)
-    - **target_length**: Desired word count for the article
+    **Parameters:**
+    - **request**: Article creation request
+    - **current_user**: Authenticated user
 
-    Returns the created article with generated content.
+    **Returns:**
+    - Article with generated content and metadata
+
+    **Raises:**
+    - **400**: Invalid request data
+    - **401**: Authentication required
+    - **500**: Article generation failed
     """
+```
+
+## 🧪 Testing Standards
+
+### Test Organization
+
+```
+tests/
+├── test_agents.py       # Agent functionality tests
+├── test_tools.py        # Tool integration tests
+├── test_api.py          # API endpoint tests
+├── fixtures/            # Test data fixtures
+└── conftest.py          # Pytest configuration
+```
+
+### Test Guidelines
+
+```python
+# Use descriptive test names
+def test_writer_agent_generates_article_with_valid_game_data():
+    """Test that writer agent generates article when given valid game data."""
+
+def test_writer_agent_raises_error_with_invalid_game_id():
+    """Test that writer agent raises error for invalid game ID."""
+
+# Use fixtures for test data
+@pytest.fixture
+def sample_game_data():
+    return {
+        "id": "game-123",
+        "teams": ["Lakers", "Warriors"],
+        "score": {"Lakers": 120, "Warriors": 115},
+        "status": "final"
+    }
+
+# Test edge cases
+def test_article_generation_with_empty_game_data():
+    """Test article generation handles empty game data gracefully."""
+```
+
+## 🔧 Configuration Standards
+
+### Environment Variables
+
+```python
+# Use Pydantic for configuration
+from pydantic import BaseSettings
+
+class Settings(BaseSettings):
+    openai_api_key: str
+    supabase_url: str
+    supabase_key: str
+    database_url: str
+    log_level: str = "INFO"
+
+    class Config:
+        env_file = ".env"
+        case_sensitive = False
+
+settings = Settings()
+```
+
+### Configuration Guidelines
+
+- **Use environment variables** for sensitive data
+- **Provide default values** for optional settings
+- **Validate configuration** on startup
+- **Use type hints** for all configuration fields
+- **Document required vs optional** settings
+
+## 🚀 Performance Standards
+
+### Database Optimization
+
+```python
+# Use connection pooling
+engine = create_async_engine(
+    DATABASE_URL,
+    pool_size=20,
+    max_overflow=30,
+    pool_pre_ping=True
+)
+
+# Use indexes for queries
+@app.get("/api/articles")
+async def get_articles(
+    sport: str = None,
+    limit: int = 20,
+    offset: int = 0
+):
+    query = select(Article)
+    if sport:
+        query = query.where(Article.sport == sport)  # Uses index
+    query = query.limit(limit).offset(offset)
+```
+
+### API Performance
+
+```python
+# Use async/await for I/O operations
+async def fetch_game_data(game_id: str) -> GameData:
+    async with httpx.AsyncClient() as client:
+        response = await client.get(f"/api/games/{game_id}")
+        return GameData(**response.json())
+
+# Cache frequently accessed data
+@lru_cache(maxsize=128)
+def get_team_info(team_id: str) -> TeamInfo:
+    return TeamInfo.from_database(team_id)
 ```
 
 ## 🔒 Security Standards
 
-### Environment Variables
-
-```bash
-# Never commit actual secrets
-# Use .env.example for templates
-OPENAI_API_KEY=your_openai_api_key_here
-SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key_here
-
-# Use strong, unique keys in production
-JWT_SECRET=$(openssl rand -base64 32)
-ENCRYPTION_KEY=$(openssl rand -base64 32)
-```
-
-### Input Validation
+### Data Protection
 
 ```python
-from pydantic import BaseModel, validator, Field
+# Never log sensitive data
+logger.info(f"Processing game {game_id}")  # Good
+logger.info(f"API key: {api_key}")        # Bad
 
+# Use environment variables for secrets
+API_KEY = os.getenv("OPENAI_API_KEY")
+
+# Validate all input data
 class ArticleRequest(BaseModel):
     game_id: str = Field(..., regex=r'^[a-zA-Z0-9-]+$')
-    focus_type: str = Field(..., min_length=1, max_length=50)
-
-    @validator('focus_type')
-    def validate_focus_type(cls, v):
-        allowed_types = ['game_recap', 'player_spotlight', 'team_analysis']
-        if v not in allowed_types:
-            raise ValueError(f'focus_type must be one of {allowed_types}')
-        return v
+    focus_type: str = Field(..., regex=r'^(recap|analysis|preview)$')
 ```
 
-## 🚀 Performance Guidelines
-
-### Frontend Performance
-
-```typescript
-// Use React.memo for expensive components
-export const ArticleCard = React.memo(({ article }: ArticleProps) => {
-  // Component implementation
-});
-
-// Use useMemo for expensive calculations
-const sortedArticles = useMemo(() => {
-  return articles.sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime());
-}, [articles]);
-
-// Use useCallback for event handlers
-const handleEdit = useCallback((id: string) => {
-  onEdit?.(id);
-}, [onEdit]);
-```
-
-### Backend Performance
+### Authentication
 
 ```python
-# Use async/await for I/O operations
-async def fetch_multiple_games(game_ids: List[str]) -> List[GameData]:
-    tasks = [fetch_game_data(game_id) for game_id in game_ids]
-    return await asyncio.gather(*tasks)
-
-# Use database indexes for common queries
-# Add to migration files
-CREATE INDEX CONCURRENTLY idx_articles_sport_published
-ON articles (sport, published_at DESC)
-WHERE status = 'published';
+# Use proper authentication middleware
+@app.middleware("http")
+async def auth_middleware(request: Request, call_next):
+    if request.url.path.startswith("/api/"):
+        token = request.headers.get("Authorization")
+        if not token or not validate_token(token):
+            return JSONResponse(
+                status_code=401,
+                content={"error": "Authentication required"}
+            )
+    return await call_next(request)
 ```
 
-## 📋 Checklist
+## 📚 Resources
 
-Before submitting code, ensure:
+### Python Resources
+- [PEP 8 Style Guide](https://pep8.org/)
+- [Ruff Documentation](https://docs.astral.sh/ruff/)
+- [FastAPI Documentation](https://fastapi.tiangolo.com/)
 
-- [ ] Code follows style guidelines (run `./scripts/lint-fix.sh`)
-- [ ] All tests pass (run `./scripts/run-tests.sh`)
-- [ ] Type checking passes (run `./scripts/type-check.sh`)
-- [ ] Documentation is updated for new features
-- [ ] No secrets or sensitive data in commits
-- [ ] Meaningful commit messages using conventional commits
-- [ ] Code is reviewed by at least one other developer
+### TypeScript Resources
+- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
+- [React Best Practices](https://react.dev/learn)
+- [ESLint Configuration](https://eslint.org/docs/user-guide/configuring/)
 
-## 🛠️ Tools and Scripts
-
-```bash
-# Development scripts
-./scripts/lint-fix.sh      # Fix linting issues
-./scripts/type-check.sh    # Run type checking
-./scripts/run-tests.sh     # Run all tests
-./scripts/setup-dev.sh     # Setup development environment
-
-# Frontend specific
-cd web && npm run lint     # ESLint
-cd web && npm run type-check # TypeScript checking
-cd web && npm test         # Jest tests
-
-# Backend specific
-cd ai-backend && ruff check # Ruff linting
-cd ai-backend && mypy .    # Type checking
-cd ai-backend && pytest   # Run tests
-```
+### Tools
+- **Ruff**: Python linting and formatting
+- **ESLint**: TypeScript linting
+- **Tailwind CSS**: Utility-first styling
+- **HeroUI**: React component library
 
 Following these coding standards ensures consistency, maintainability, and quality across the Sport Scribe codebase.

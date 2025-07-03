@@ -22,8 +22,17 @@ interface ArticleFilters {
 }
 
 // Constants for validation
-const VALID_SPORTS = ["football", "basketball", "baseball", "soccer", "hockey"];
-const VALID_LEAGUES = ["nfl", "nba", "mlb", "mls", "nhl", "premier-league"];
+const VALID_SPORTS = ["football"];
+const VALID_LEAGUES = [
+  "premier-league",
+  "la-liga",
+  "bundesliga",
+  "serie-a",
+  "ligue-1",
+  "champions-league",
+  "europa-league",
+  "mls",
+];
 
 // Validation utilities
 const validateFilters = (filters: ArticleFilters): boolean => {

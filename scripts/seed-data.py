@@ -25,17 +25,23 @@ logger = structlog.get_logger()
 
 # Sample data
 SAMPLE_TEAMS = [
-    {"name": "Lakers", "city": "Los Angeles", "sport": "basketball", "league": "NBA"},
-    {"name": "Warriors", "city": "Golden State", "sport": "basketball", "league": "NBA"},
-    {"name": "Cowboys", "city": "Dallas", "sport": "football", "league": "NFL"},
-    {"name": "Patriots", "city": "New England", "sport": "football", "league": "NFL"},
+    {"name": "Manchester United", "city": "Manchester", "sport": "football", "league": "Premier League"},
+    {"name": "Manchester City", "city": "Manchester", "sport": "football", "league": "Premier League"},
+    {"name": "Liverpool", "city": "Liverpool", "sport": "football", "league": "Premier League"},
+    {"name": "Arsenal", "city": "London", "sport": "football", "league": "Premier League"},
+    {"name": "Real Madrid", "city": "Madrid", "sport": "football", "league": "La Liga"},
+    {"name": "Barcelona", "city": "Barcelona", "sport": "football", "league": "La Liga"},
 ]
 
 SAMPLE_PLAYERS = [
-    {"name": "LeBron James", "position": "Forward", "team_id": 1, "jersey_number": 6},
-    {"name": "Stephen Curry", "position": "Guard", "team_id": 2, "jersey_number": 30},
-    {"name": "Dak Prescott", "position": "Quarterback", "team_id": 3, "jersey_number": 4},
-    {"name": "Mac Jones", "position": "Quarterback", "team_id": 4, "jersey_number": 10},
+    {"name": "Marcus Rashford", "position": "LW", "team_id": 1, "jersey_number": 10},
+    {"name": "Bruno Fernandes", "position": "CAM", "team_id": 1, "jersey_number": 8},
+    {"name": "Erling Haaland", "position": "ST", "team_id": 2, "jersey_number": 9},
+    {"name": "Kevin De Bruyne", "position": "CM", "team_id": 2, "jersey_number": 17},
+    {"name": "Mohamed Salah", "position": "RW", "team_id": 3, "jersey_number": 11},
+    {"name": "Virgil van Dijk", "position": "CB", "team_id": 3, "jersey_number": 4},
+    {"name": "Bukayo Saka", "position": "RW", "team_id": 4, "jersey_number": 7},
+    {"name": "Martin Ødegaard", "position": "CAM", "team_id": 4, "jersey_number": 8},
 ]
 
 SAMPLE_GAMES = [
@@ -43,10 +49,10 @@ SAMPLE_GAMES = [
         "home_team_id": 1,
         "away_team_id": 2,
         "game_date": datetime.now() - timedelta(days=1),
-        "home_score": 112,
-        "away_score": 108,
+        "home_score": 2,
+        "away_score": 1,
         "status": "completed",
-        "venue": "Crypto.com Arena"
+        "venue": "Old Trafford"
     },
     {
         "home_team_id": 3,
@@ -55,20 +61,39 @@ SAMPLE_GAMES = [
         "home_score": None,
         "away_score": None,
         "status": "scheduled",
-        "venue": "AT&T Stadium"
+        "venue": "Anfield"
+    },
+    {
+        "home_team_id": 5,
+        "away_team_id": 6,
+        "game_date": datetime.now() + timedelta(days=14),
+        "home_score": None,
+        "away_score": None,
+        "status": "scheduled",
+        "venue": "Santiago Bernabéu"
     },
 ]
 
 SAMPLE_ARTICLES = [
     {
-        "title": "Lakers Edge Warriors in Thrilling Overtime Victory",
-        "content": "In a spectacular display of basketball prowess, the Los Angeles Lakers defeated the Golden State Warriors 112-108 in overtime...",
-        "summary": "Lakers win in overtime against Warriors",
+        "title": "Manchester United Edge Past City in Thrilling Derby Victory",
+        "content": "In a spectacular display of tactical brilliance and individual quality, Manchester United defeated Manchester City 2-1 in a pulsating Manchester Derby at Old Trafford. Marcus Rashford opened the scoring with a sublime finish before Erling Haaland equalized for City. Bruno Fernandes sealed the victory with a penalty in the 78th minute, sending the home crowd into raptures...",
+        "summary": "Manchester United beat Manchester City 2-1 in thrilling Manchester Derby",
         "author": "AI Sports Writer",
         "status": "published",
-        "tags": ["basketball", "NBA", "Lakers", "Warriors"],
+        "tags": ["football", "Premier League", "Manchester United", "Manchester City", "Derby"],
         "game_id": 1,
         "ai_confidence": 0.95
+    },
+    {
+        "title": "Liverpool vs Arsenal: Anfield Awaits Crucial Premier League Clash",
+        "content": "Liverpool prepare to host Arsenal at Anfield in what promises to be a crucial Premier League encounter. Both teams are fighting for European qualification spots, with Mohamed Salah and Bukayo Saka expected to be key players in this high-stakes match...",
+        "summary": "Preview of Liverpool vs Arsenal at Anfield",
+        "author": "AI Sports Writer",
+        "status": "published",
+        "tags": ["football", "Premier League", "Liverpool", "Arsenal", "Preview"],
+        "game_id": 2,
+        "ai_confidence": 0.88
     }
 ]
 

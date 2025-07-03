@@ -169,15 +169,9 @@ INSERT INTO agents.agent_configs (
 ) VALUES
 (
     'data_collector',
-    'ESPN Data Collector',
-    'Collects game data from ESPN API',
-    '{"api_endpoint": "https://api.espn.com", "rate_limit": 100, "timeout": 30}'
-),
-(
-    'data_collector',
-    'Sports Reference Collector',
-    'Collects historical data from Sports Reference',
-    '{"api_endpoint": "https://api.sports-reference.com", "rate_limit": 60, "timeout": 45}'
+    'API-Football Collector',
+    'Collects football game data from API-Football via RapidAPI',
+    '{"api_endpoint": "https://api-football-v1.p.rapidapi.com/v3", "rate_limit": 100, "timeout": 30, "api_host": "api-football-v1.p.rapidapi.com"}'
 ),
 (
     'researcher',

@@ -270,7 +270,7 @@ components:
       description: Filter by sport
       schema:
         type: string
-        enum: [football, basketball, baseball, soccer, hockey, tennis, golf, mma, boxing, olympics]
+        enum: [football]
 
     StatusFilter:
       name: status
@@ -364,7 +364,7 @@ components:
           description: Brief article summary
         sport:
           type: string
-          enum: [football, basketball, baseball, soccer, hockey, tennis, golf, mma, boxing, olympics]
+          enum: [football]
           description: Primary sport category
         status:
           type: string
@@ -436,7 +436,7 @@ components:
           maxLength: 1000
         sport:
           type: string
-          enum: [football, basketball, baseball, soccer, hockey, tennis, golf, mma, boxing, olympics]
+          enum: [football]
         tags:
           type: array
           items:
@@ -465,7 +465,7 @@ components:
           maxLength: 1000
         sport:
           type: string
-          enum: [football, basketball, baseball, soccer, hockey, tennis, golf, mma, boxing, olympics]
+          enum: [football]
         status:
           type: string
           enum: [draft, pending_review, published, archived]

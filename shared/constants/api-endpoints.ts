@@ -170,26 +170,17 @@ export const WEBHOOK_ENDPOINTS = {
 
 // External API endpoints (for data collection)
 export const EXTERNAL_ENDPOINTS = {
-  ESPN: {
-    BASE: 'https://api.espn.com',
-    SPORTS: '/sports',
+  API_FOOTBALL: {
+    BASE: 'https://api-football-v1.p.rapidapi.com/v3',
+    LEAGUES: '/leagues',
     TEAMS: '/teams',
-    GAMES: '/games',
+    FIXTURES: '/fixtures',
     PLAYERS: '/players',
-    STANDINGS: '/standings'
-  },
-  SPORTS_REFERENCE: {
-    BASE: 'https://api.sports-reference.com',
-    NFL: '/nfl',
-    NBA: '/nba',
-    MLB: '/mlb',
-    NHL: '/nhl'
-  },
-  THE_SPORTS_DB: {
-    BASE: 'https://www.thesportsdb.com/api/v1/json',
-    LEAGUES: '/all_leagues.php',
-    TEAMS: '/search_all_teams.php',
-    PLAYERS: '/searchplayers.php'
+    STANDINGS: '/standings',
+    STATISTICS: '/teams/statistics',
+    LINEUPS: '/fixtures/lineups',
+    EVENTS: '/fixtures/events',
+    HEAD_TO_HEAD: '/fixtures/headtohead'
   }
 } as const;
 

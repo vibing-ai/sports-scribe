@@ -9,10 +9,35 @@ Thank you for your interest in contributing to Sport Scribe! This document provi
 Before contributing, ensure you have:
 
 - Node.js 18+ and npm
-- Python 3.9+ and pip
+- Python 3.11+ and pip
 - Git
 - A Supabase account
 - An OpenAI API key
+
+### Development Environment Setup
+
+**CRITICAL: Python Virtual Environment Setup**
+```bash
+cd ai-backend
+python3.11 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+pip install -r requirements-dev.txt
+```
+
+**Verify Setup:**
+```bash
+# Test Python environment
+python --version  # Should show 3.11+
+ruff check .       # Should run without errors
+ruff format .      # Should format code
+
+# Test Node environment
+cd ../web
+node --version     # Should show 18+
+npm install        # Install dependencies
+npm run build      # Should build successfully
+```
 
 ### Development Setup
 
@@ -32,9 +57,9 @@ Before contributing, ensure you have:
 3. **Configure environment variables**
 
    ```bash
-   cp .env.example .env
-   cp web/.env.local.example web/.env.local
-   cp ai-backend/.env.example ai-backend/.env
+   cp env.example .env
+   cp web/env.local.example web/.env.local
+   cp ai-backend/env.example ai-backend/.env
    # Edit the files with your actual API keys
    ```
 
@@ -98,14 +123,10 @@ git checkout -b fix/issue-number-short-description
 #### 4. Test Your Changes
 
 ```bash
-# Run all tests
-./scripts/run-tests.sh
-
-# Run linting and formatting
-./scripts/lint-fix.sh
-
-# Type checking
-./scripts/type-check.sh
+# Testing framework currently in development
+# For now, run linting and type checking:
+npm run lint               # Frontend linting
+cd ai-backend && source venv/bin/activate && ruff check .  # Backend linting
 ```
 
 #### 5. Commit Your Changes
@@ -170,6 +191,23 @@ sport-scribe/
 - **Write tests** for new functionality
 - **Update documentation** when needed
 
+### Python (Backend)
+
+**Formatter**: Ruff
+**Linter**: Ruff
+
+We use Ruff for both linting and formatting with these settings:
+- Line length: 100 characters (configured in ruff.toml)
+- Import sorting included
+- Fast performance with same rules as Black + flake8
+
+**Running Tools:**
+```bash
+ruff format .     # Format code
+ruff check .      # Lint code
+ruff check --fix . # Fix auto-fixable issues
+```
+
 ### Frontend (TypeScript/React)
 
 ```typescript
@@ -195,203 +233,120 @@ export function ArticleCard({ article, onEdit }: ArticleProps) {
 
 - Use TypeScript for all new code
 - Follow React hooks patterns
-- Use Hero UI components when possible
+- Use HeroUI components when possible
 - Follow Tailwind CSS utility-first approach
 - Use meaningful component and variable names
-- Extract reusable logic into custom hooks
 
-### Backend (Python)
+**TypeScript Tools:**
 
-```python
-from typing import Optional, List
-from pydantic import BaseModel
+**Formatter**: ESLint (with formatting rules)
+**Linter**: ESLint
 
-class ArticleRequest(BaseModel):
-    """Request model for article generation."""
-    game_id: str
-    focus_type: str
-    target_length: Optional[int] = 2000
+We use ESLint for both linting and formatting (Prettier not separately configured)
 
-class WriterAgent:
-    """AI agent responsible for generating sports articles."""
-
-    def __init__(self, config: WriterConfig):
-        self.config = config
-        self.client = OpenAI()
-
-    async def generate_article(self, request: ArticleRequest) -> Article:
-        """Generate an article based on the request parameters."""
-        # Implementation here
-        pass
+**Running Tools:**
+```bash
+npm run lint      # Lint and format
+npm run lint:fix  # Fix auto-fixable issues
 ```
-
-**Backend Guidelines:**
-
-- Use type hints for all function parameters and return values
-- Follow PEP 8 style guide
-- Use Pydantic models for data validation
-- Write async functions for I/O operations
-- Add docstrings to classes and functions
-- Handle errors gracefully with proper logging
 
 ### Database
 
-- **Use migrations** for schema changes
-- **Add indexes** for performance-critical queries
-- **Follow naming conventions**: snake_case for tables and columns
-- **Use foreign keys** for data integrity
-- **Add comments** to complex SQL
+- Use descriptive table and column names
+- Add proper indexes for performance
+- Include comments for complex queries
+- Use migrations for schema changes
 
-### Testing
+## 🔧 Environment Setup
 
-```typescript
-// Frontend tests (Jest + Testing Library)
-import { render, screen } from '@testing-library/react';
-import { ArticleCard } from './ArticleCard';
+### Local Development
 
-describe('ArticleCard', () => {
-  it('displays article title and summary', () => {
-    const article = mockArticle();
-    render(<ArticleCard article={article} onEdit={jest.fn()} />);
+1. **Python Backend Setup**:
+   ```bash
+   cd ai-backend
+   python3.11 -m venv venv
+   source venv/bin/activate
+   pip install -r requirements.txt
+   pip install -r requirements-dev.txt
+   ```
 
-    expect(screen.getByText(article.title)).toBeInTheDocument();
-    expect(screen.getByText(article.summary)).toBeInTheDocument();
-  });
-});
+2. **Frontend Setup**:
+   ```bash
+   cd web
+   npm install
+   npm run dev
+   ```
+
+3. **Database Setup**:
+   ```bash
+   # Requires Supabase CLI
+   supabase start
+   supabase db reset
+   ```
+
+### Code Quality Tools
+
+We use Ruff for Python code formatting and linting:
+
+```bash
+# Python (AI Backend)
+cd ai-backend
+ruff format .     # Code formatting
+ruff check .      # Linting
 ```
 
-```python
-# Backend tests (pytest)
-import pytest
-from ai_backend.agents.writer import WriterAgent
+### Pre-commit Hooks
 
-@pytest.mark.asyncio
-async def test_writer_agent_generates_article():
-    """Test that writer agent generates valid articles."""
-    agent = WriterAgent(test_config)
-    request = ArticleRequest(game_id="test-id", focus_type="game_recap")
+Set up pre-commit hooks to automatically run quality checks:
 
-    article = await agent.generate_article(request)
-
-    assert article.title
-    assert len(article.content) > 100
-    assert article.sport == "football"
+```bash
+pre-commit install
 ```
 
-## 🔍 Code Review Process
+## 🧪 Testing
 
-### For Contributors
+Testing framework currently in development. For now, focus on:
 
-- **Self-review** your code before submitting
-- **Respond promptly** to review feedback
-- **Ask questions** if feedback is unclear
-- **Be open** to suggestions and improvements
+- Code quality through linting
+- Type checking with TypeScript/mypy
+- Manual testing of features
+- Integration testing with actual API calls
 
-### For Reviewers
+## 📖 Documentation
 
-- **Be constructive** and helpful in feedback
-- **Focus on** code quality, logic, and standards
-- **Suggest improvements** rather than just pointing out problems
-- **Approve** when the code meets standards
+When contributing, please:
 
-### Review Checklist
+- Update relevant documentation
+- Add docstrings to new functions
+- Update API documentation for new endpoints
+- Include examples in code comments
 
-- [ ] Code follows project standards
-- [ ] Tests are included and passing
-- [ ] Documentation is updated
-- [ ] No security vulnerabilities
-- [ ] Performance considerations addressed
-- [ ] Accessibility guidelines followed (frontend)
+## 🤝 Code Review Process
 
-## 🚀 Release Process
+1. **Pull Request Requirements**:
+   - Clear description of changes
+   - Link to related issues
+   - Tests passing (when available)
+   - Code review approval
 
-### Versioning
+2. **Review Criteria**:
+   - Code quality and standards
+   - Documentation completeness
+   - Performance impact
+   - Security considerations
 
-We follow [Semantic Versioning](https://semver.org/):
+## 💬 Getting Help
 
-- **MAJOR** version for incompatible API changes
-- **MINOR** version for new functionality (backward compatible)
-- **PATCH** version for bug fixes (backward compatible)
-
-### Release Steps
-
-1. Update version numbers
-2. Update CHANGELOG.md
-3. Create release branch
-4. Run full test suite
-5. Deploy to staging
-6. Create release tag
-7. Deploy to production
-
-## 🏷️ Labels and Workflow
-
-### Issue Labels
-
-- `bug` - Something isn't working
-- `feature` - New feature request
-- `documentation` - Documentation improvements
-- `good first issue` - Good for newcomers
-- `help wanted` - Extra attention needed
-- `priority/high` - High priority issue
-- `priority/low` - Low priority issue
-
-### Pull Request Labels
-
-- `breaking change` - Introduces breaking changes
-- `needs review` - Ready for review
-- `work in progress` - Still being worked on
-- `ready to merge` - Approved and ready
-
-## 📚 Resources
-
-### Documentation
-
-- [Getting Started Guide](docs/development/getting-started.md)
-- [Architecture Overview](docs/architecture/system-overview.md)
-- [API Documentation](docs/api/endpoints.md)
-- [Coding Standards](docs/development/coding-standards.md)
-
-### Tools and Technologies
-
-- **Frontend**: [Next.js](https://nextjs.org/), [TypeScript](https://www.typescriptlang.org/), [Hero UI](https://heroui.com/)
-- **Backend**: [FastAPI](https://fastapi.tiangolo.com/), [OpenAI](https://openai.com/), [Pydantic](https://pydantic.dev/)
-- **Database**: [Supabase](https://supabase.com/), [PostgreSQL](https://www.postgresql.org/)
-- **Testing**: [Jest](https://jestjs.io/), [pytest](https://pytest.org/)
-
-### Learning Resources
-
-- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
-- [React Documentation](https://react.dev/)
-- [FastAPI Tutorial](https://fastapi.tiangolo.com/tutorial/)
-- [OpenAI API Documentation](https://platform.openai.com/docs/)
-
-## 🤝 Community
-
-### Code of Conduct
-
-We are committed to providing a welcoming and inclusive environment. Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md).
-
-### Communication
-
-- **GitHub Discussions** for general questions and ideas
-- **GitHub Issues** for bug reports and feature requests
-- **Pull Request comments** for code-specific discussions
-
-### Getting Help
-
-If you need help:
-
-1. Check the documentation
-2. Search existing issues and discussions
-3. Ask in GitHub Discussions
-4. Tag maintainers in issues if urgent
+- Check existing documentation
+- Look at similar implementations
+- Ask questions in issues or discussions
+- Reach out to maintainers
 
 ## 🎉 Recognition
 
-Contributors are recognized in:
+Contributors will be recognized in:
+- README acknowledgments
+- Release notes
+- Hall of fame (coming soon)
 
-- Release notes for significant contributions
-- README.md contributors section
-- Special recognition for first-time contributors
-
-Thank you for contributing to Sport Scribe! Your efforts help make sports journalism more accessible and efficient. 🏆
+Thank you for contributing to Sport Scribe! 🏆
