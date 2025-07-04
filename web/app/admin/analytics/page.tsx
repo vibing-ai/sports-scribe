@@ -1,4 +1,4 @@
-import { Card, CardBody, CardHeader } from "@heroui/react";
+import { Card, CardBody, CardHeader } from '@heroui/react'
 
 export default function AdminAnalyticsPage() {
   return (
@@ -31,5 +31,5 @@ export default function AdminAnalyticsPage() {
         </Card>
       </div>
     </div>
-  );
+  )
 }

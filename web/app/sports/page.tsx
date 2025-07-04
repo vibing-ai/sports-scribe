@@ -1,14 +1,7 @@
-import { Card, CardBody, CardHeader, Button } from "@heroui/react";
-import Link from "next/link";
+import { Card, CardBody, CardHeader, Button } from '@heroui/react'
+import Link from 'next/link'
 
-const sports = [
-  "football",
-  "basketball",
-  "baseball",
-  "soccer",
-  "tennis",
-  "hockey",
-];
+const sports = ['football', 'basketball', 'baseball', 'soccer', 'tennis', 'hockey']
 
 export default function SportsPage() {
   return (
@@ -22,12 +15,7 @@ export default function SportsPage() {
             </CardHeader>
             <CardBody>
               <p className="mb-4">Browse {sport} articles and news</p>
-              <Button
-                as={Link}
-                href={`/sports/${sport}`}
-                color="primary"
-                size="sm"
-              >
+              <Button as={Link} href={`/sports/${sport}`} color="primary" size="sm">
                 View {sport} Articles
               </Button>
             </CardBody>
@@ -35,5 +23,5 @@ export default function SportsPage() {
         ))}
       </div>
     </div>
-  );
+  )
 }

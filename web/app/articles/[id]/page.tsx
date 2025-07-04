@@ -1,9 +1,9 @@
-import { Card, CardBody, CardHeader } from "@heroui/react";
+import { Card, CardBody, CardHeader } from '@heroui/react'
 
 interface ArticlePageProps {
   params: {
-    id: string;
-  };
+    id: string
+  }
 }
 
 export default function ArticlePage({ params }: ArticlePageProps) {
@@ -16,11 +16,10 @@ export default function ArticlePage({ params }: ArticlePageProps) {
         <CardBody>
           <p>This is a placeholder for article content with ID: {params.id}</p>
           <p className="mt-4 text-gray-600">
-            This page will display the full content of an AI-generated sports
-            article.
+            This page will display the full content of an AI-generated sports article.
           </p>
         </CardBody>
       </Card>
     </div>
-  );
+  )
 }

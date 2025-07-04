@@ -1,13 +1,13 @@
-import { Card, CardHeader, CardBody } from "@heroui/react";
-import { ArticleCard, ArticleCardProps } from "./article-card";
+import { Card, CardHeader, CardBody } from '@heroui/react'
+import { ArticleCard, ArticleCardProps } from './article-card'
 
 export interface RelatedArticlesProps {
-  articles: ArticleCardProps[];
+  articles: ArticleCardProps[]
 }
 
 export function RelatedArticles({ articles }: RelatedArticlesProps) {
   if (articles.length === 0) {
-    return null;
+    return null
   }
 
   return (
@@ -23,5 +23,5 @@ export function RelatedArticles({ articles }: RelatedArticlesProps) {
         </div>
       </CardBody>
     </Card>
-  );
+  )
 }

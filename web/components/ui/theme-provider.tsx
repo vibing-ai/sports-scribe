@@ -1,15 +1,15 @@
-"use client";
+'use client'
 
-import { useEffect, useState } from "react";
-import { HeroUIProvider } from "@heroui/react";
-import { ThemeProvider as NextThemesProvider } from "next-themes";
+import { useEffect, useState } from 'react'
+import { HeroUIProvider } from '@heroui/react'
+import { ThemeProvider as NextThemesProvider } from 'next-themes'
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [mounted, setMounted] = useState(false);
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    setMounted(true)
+  }, [])
 
   return (
     <HeroUIProvider>
@@ -27,5 +27,5 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         <div suppressHydrationWarning>{children}</div>
       )}
     </HeroUIProvider>
-  );
+  )
 }

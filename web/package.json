@@ -39,6 +39,7 @@
     "test": "echo 'No tests specified yet' && exit 0",
     "db:setup": "supabase db reset && npm run db:seed",
     "generate:types": "supabase gen types typescript --project-id $NEXT_PUBLIC_SUPABASE_PROJECT_ID > lib/supabase/database.types.ts",
-    "db:seed": "python3 ../scripts/seed-data.py"
+    "db:seed": "python3 ../scripts/seed-data.py",
+    "prepare": "husky install"
   }
 }

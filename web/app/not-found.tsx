@@ -1,5 +1,5 @@
-import { Button } from "@heroui/react";
-import Link from "next/link";
+import { Button } from '@heroui/react'
+import Link from 'next/link'
 
 export default function NotFound() {
   return (
@@ -10,5 +10,5 @@ export default function NotFound() {
         Return Home
       </Button>
     </div>
-  );
+  )
 }

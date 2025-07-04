@@ -1,12 +1,5 @@
-import {
-  Navbar,
-  NavbarBrand,
-  NavbarContent,
-  NavbarItem,
-  Link,
-  Button,
-} from "@heroui/react";
-import NextLink from "next/link";
+import { Navbar, NavbarBrand, NavbarContent, NavbarItem, Link, Button } from '@heroui/react'
+import NextLink from 'next/link'
 
 export function HeroNavbar() {
   return (
@@ -38,5 +31,5 @@ export function HeroNavbar() {
         </NavbarItem>
       </NavbarContent>
     </Navbar>
-  );
+  )
 }

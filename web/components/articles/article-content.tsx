@@ -1,11 +1,11 @@
-import { Card, CardHeader, CardBody, Chip } from "@heroui/react";
+import { Card, CardHeader, CardBody, Chip } from '@heroui/react'
 
 export interface ArticleContentProps {
-  title: string;
-  content: string;
-  sport: string;
-  createdAt: string;
-  author?: string;
+  title: string
+  content: string
+  sport: string
+  createdAt: string
+  author?: string
 }
 
 export function ArticleContent({
@@ -13,7 +13,7 @@ export function ArticleContent({
   content,
   sport,
   createdAt,
-  author = "AI Sports Writer",
+  author = 'AI Sports Writer',
 }: ArticleContentProps) {
   return (
     <Card className="w-full">
@@ -31,7 +31,7 @@ export function ArticleContent({
       </CardHeader>
       <CardBody className="px-6 py-4">
         <div className="prose prose-lg max-w-none dark:prose-invert">
-          {content.split("\n").map((paragraph, index) => (
+          {content.split('\n').map((paragraph, index) => (
             <p key={index} className="mb-4">
               {paragraph}
             </p>
@@ -39,5 +39,5 @@ export function ArticleContent({
         </div>
       </CardBody>
     </Card>
-  );
+  )
 }

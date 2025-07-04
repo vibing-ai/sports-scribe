@@ -1,5 +1,5 @@
-import { Card, CardBody, CardHeader, Button } from "@heroui/react";
-import Link from "next/link";
+import { Card, CardBody, CardHeader, Button } from '@heroui/react'
+import Link from 'next/link'
 
 export default function AdminPage() {
   return (
@@ -30,5 +30,5 @@ export default function AdminPage() {
         </Card>
       </div>
     </div>
-  );
+  )
 }
