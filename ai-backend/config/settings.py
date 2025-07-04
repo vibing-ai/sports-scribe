@@ -21,12 +21,12 @@ class Settings(BaseSettings):
     """Application settings loaded from environment variables with validation."""
 
     # Required settings
-    openai_api_key: str = Field(..., min_length=20, description="OpenAI API key")
-    supabase_url: str = Field(..., description="Supabase project URL")
-    supabase_service_role_key: str = Field(
+    OPENAI_API_KEY: str = Field(..., min_length=20, description="OpenAI API key")
+    SUPABASE_URL: str = Field(..., description="Supabase project URL")
+    SUPABASE_SERVICE_ROLE_KEY: str = Field(
         ..., min_length=20, description="Supabase service role key"
     )
-    rapidapi_key: str = Field(
+    RAPIDAPI_KEY: str = Field(
         ..., min_length=10, description="RapidAPI key for API-Football"
     )
 
@@ -56,7 +56,7 @@ class Settings(BaseSettings):
         description="API-Football base URL",
     )
 
-    @validator("openai_api_key")
+    @validator("OPENAI_API_KEY")
     def validate_openai_key(cls, v: str) -> str:  # noqa: N805
         if not v or v == "your-openai-api-key" or v == "sk-...":
             raise ValueError("Valid OpenAI API key is required")
@@ -64,7 +64,7 @@ class Settings(BaseSettings):
             raise ValueError('OpenAI API key must start with "sk-"')
         return v
 
-    @validator("supabase_url")
+    @validator("SUPABASE_URL")
     def validate_supabase_url(cls, v: str) -> str:  # noqa: N805
         if not v.startswith("https://"):
             raise ValueError("Supabase URL must be a valid HTTPS URL")

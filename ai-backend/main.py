@@ -8,6 +8,7 @@ import uuid
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from typing import Any
+import os
 
 from fastapi import BackgroundTasks, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -15,10 +16,10 @@ from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from pydantic import BaseModel
 
-from agents.data_collector import DataCollectorAgent
-from agents.editor import EditorAgent
-from agents.researcher import ResearchAgent
-from agents.writer import WritingAgent
+from sciber_agents.data_collector import DataCollectorAgent
+from sciber_agents.editor import EditorAgent
+from sciber_agents.researcher import ResearchAgent
+from sciber_agents.writer import WritingAgent
 from config.agent_config import AgentConfigurations
 from config.settings import get_settings
 from utils.logging import get_logger, setup_logging
@@ -29,6 +30,7 @@ logger = get_logger(__name__)
 
 # Get application settings
 settings = get_settings()
+
 
 
 class ArticleRequest(BaseModel):
