@@ -176,9 +176,9 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     # Startup
     logger.info(
         "Starting Sport Scribe AI Backend",
-        environment=settings.environment,
-        debug=settings.debug,
-        log_level=settings.log_level,
+        environment=settings.ENVIRONMENT,
+        debug=settings.DEBUG,
+        log_level=settings.LOG_LEVEL,
         version="1.0.0",
     )
 
@@ -210,7 +210,7 @@ app.add_middleware(GZipMiddleware, minimum_size=1000)
 # Add trusted host middleware for security
 allowed_hosts = (
     ["*"]
-    if settings.environment == "development"
+    if settings.ENVIRONMENT == "development"
     else [
         "localhost",
         "127.0.0.1",
@@ -240,7 +240,7 @@ async def health_check() -> HealthResponse:
     """Health check endpoint."""
     return HealthResponse(
         status="healthy",
-        environment=settings.environment,
+        environment=settings.ENVIRONMENT,
         agents_status={
             "data_collector": "ready",
             "researcher": "ready",
@@ -276,12 +276,12 @@ if __name__ == "__main__":
     import uvicorn
 
     logger.info(
-        "Starting server on %s:%s", settings.fastapi_host, settings.fastapi_port
+        "Starting server on %s:%s", settings.FASTAPI_HOST, settings.FASTAPI_PORT
     )
     uvicorn.run(
         "main:app",
-        host=settings.fastapi_host,
-        port=settings.fastapi_port,
-        reload=settings.fastapi_reload,
-        log_level=settings.log_level.lower(),
+        host=settings.FASTAPI_HOST,
+        port=settings.FASTAPI_PORT,
+        reload=settings.FASTAPI_RELOAD,
+        log_level=settings.LOG_LEVEL.lower(),
     )

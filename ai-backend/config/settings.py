@@ -21,42 +21,42 @@ class Settings(BaseSettings):
     """Application settings loaded from environment variables with validation."""
 
     # Required settings
-    openai_api_key: str = Field(..., min_length=20, description="OpenAI API key")
-    supabase_url: str = Field(..., description="Supabase project URL")
-    supabase_service_role_key: str = Field(
+    OPENAI_API_KEY: str = Field(..., min_length=20, description="OpenAI API key")
+    SUPABASE_URL: str = Field(..., description="Supabase project URL")
+    SUPABASE_SERVICE_ROLE_KEY: str = Field(
         ..., min_length=20, description="Supabase service role key"
     )
-    rapidapi_key: str = Field(
+    RAPIDAPI_KEY: str = Field(
         ..., min_length=10, description="RapidAPI key for API-Football"
     )
 
     # OpenAI Configuration
-    openai_model: str = Field(default="gpt-4-turbo", description="OpenAI model to use")
+    OPENAI_MODEL: str = Field(default="gpt-4-turbo", description="OpenAI model to use")
 
     # FastAPI Configuration
-    fastapi_host: str = Field(default="127.0.0.1", description="FastAPI host")
-    fastapi_port: int = Field(default=8000, ge=1, le=65535, description="FastAPI port")
-    fastapi_reload: bool = Field(default=False, description="FastAPI reload mode")
+    FASTAPI_HOST: str = Field(default="127.0.0.1", description="FastAPI host")
+    FASTAPI_PORT: int = Field(default=8000, ge=1, le=65535, description="FastAPI port")
+    FASTAPI_RELOAD: bool = Field(default=False, description="FastAPI reload mode")
 
     # Chainlit Configuration
-    chainlit_host: str = Field(default="127.0.0.1", description="Chainlit host")
-    chainlit_port: int = Field(
+    CHAINLIT_HOST: str = Field(default="127.0.0.1", description="Chainlit host")
+    CHAINLIT_PORT: int = Field(
         default=8001, ge=1, le=65535, description="Chainlit port"
     )
 
     # Environment Configuration
-    environment: str = Field(default="development", description="Environment name")
-    debug: bool = Field(default=False, description="Debug mode")
-    log_level: str = Field(default="INFO", description="Logging level")
-    log_format: str = Field(default="json", description="Log format")
+    ENVIRONMENT: str = Field(default="development", description="Environment name")
+    DEBUG: bool = Field(default=False, description="Debug mode")
+    LOG_LEVEL: str = Field(default="INFO", description="Logging level")
+    LOG_FORMAT: str = Field(default="json", description="Log format")
 
     # API Configuration
-    api_football_base_url: str = Field(
+    API_FOOTBALL_BASE_URL: str = Field(
         default="https://api-football-v1.p.rapidapi.com/v3",
-        description="API-Football base URL",
+        description="API-Football base URL"
     )
 
-    @validator("openai_api_key")
+    @validator("OPENAI_API_KEY")
     def validate_openai_key(cls, v: str) -> str:  # noqa: N805
         if not v or v == "your-openai-api-key" or v == "sk-...":
             raise ValueError("Valid OpenAI API key is required")
@@ -64,7 +64,7 @@ class Settings(BaseSettings):
             raise ValueError('OpenAI API key must start with "sk-"')
         return v
 
-    @validator("supabase_url")
+    @validator("SUPABASE_URL")
     def validate_supabase_url(cls, v: str) -> str:  # noqa: N805
         if not v.startswith("https://"):
             raise ValueError("Supabase URL must be a valid HTTPS URL")
@@ -72,14 +72,14 @@ class Settings(BaseSettings):
             raise ValueError("Supabase URL must end with .supabase.co")
         return v
 
-    @validator("environment")
+    @validator("ENVIRONMENT")
     def validate_environment(cls, v: str) -> str:  # noqa: N805
         allowed = ["development", "staging", "production"]
         if v not in allowed:
             raise ValueError(f"Environment must be one of: {allowed}")
         return v
 
-    @validator("log_level")
+    @validator("LOG_LEVEL")
     def validate_log_level(cls, v: str) -> str:  # noqa: N805
         allowed = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
         v_upper = v.upper()
@@ -87,7 +87,7 @@ class Settings(BaseSettings):
             raise ValueError(f"Log level must be one of: {allowed}")
         return v_upper
 
-    @validator("log_format")
+    @validator("LOG_FORMAT")
     def validate_log_format(cls, v: str) -> str:  # noqa: N805
         allowed = ["json", "text"]
         if v not in allowed:
@@ -97,17 +97,17 @@ class Settings(BaseSettings):
     def to_dict(self) -> dict[str, Any]:
         """Convert settings to dictionary (excluding sensitive values)."""
         return {
-            "openai_model": self.openai_model,
-            "fastapi_host": self.fastapi_host,
-            "fastapi_port": self.fastapi_port,
-            "fastapi_reload": self.fastapi_reload,
-            "chainlit_host": self.chainlit_host,
-            "chainlit_port": self.chainlit_port,
-            "log_level": self.log_level,
-            "log_format": self.log_format,
-            "debug": self.debug,
-            "environment": self.environment,
-            "api_football_base_url": self.api_football_base_url,
+            "openai_model": self.OPENAI_MODEL,
+            "fastapi_host": self.FASTAPI_HOST,
+            "fastapi_port": self.FASTAPI_PORT,
+            "fastapi_reload": self.FASTAPI_RELOAD,
+            "chainlit_host": self.CHAINLIT_HOST,
+            "chainlit_port": self.CHAINLIT_PORT,
+            "log_level": self.LOG_LEVEL,
+            "log_format": self.LOG_FORMAT,
+            "debug": self.DEBUG,
+            "environment": self.ENVIRONMENT,
+            "api_football_base_url": self.API_FOOTBALL_BASE_URL,
         }
 
     class Config:
@@ -117,6 +117,8 @@ class Settings(BaseSettings):
         case_sensitive = True
         # Allow extra fields for forward compatibility
         extra = "ignore"
+        # Allow field aliases
+        populate_by_name = True
 
 
 # Global settings instance

@@ -124,8 +124,8 @@ def setup_logging(
 
     try:
         app_settings = get_settings()
-        level = level or app_settings.log_level
-        format_type = format_type or app_settings.log_format
+        level = level or app_settings.LOG_LEVEL
+        format_type = format_type or app_settings.LOG_FORMAT
     except RuntimeError:
         # Fallback to defaults if settings not available
         level = level or "INFO"
