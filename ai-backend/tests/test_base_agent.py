@@ -1,8 +1,10 @@
 # agents/data_collector_agent.py
 import json
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from scriber_agents.base_agent import BaseAgent
 from openai import OpenAI
-import os
 from dotenv import load_dotenv
 load_dotenv()
 
