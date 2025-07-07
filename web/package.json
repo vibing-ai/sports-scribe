@@ -76,9 +76,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "vercel-build": "npm install --legacy-peer-deps && next build",
     "start": "next start",
     "lint": "next lint",
+    "vercel-build": "npm install --legacy-peer-deps && npm run build",
     "test": "vitest",
     "test:watch": "vitest watch",
     "test:coverage": "vitest run --coverage",
