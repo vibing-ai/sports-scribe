@@ -41,10 +41,7 @@ const nextConfig = {
   sassOptions: {
     includePaths: ['./src/styles'],
   },
-  // Configure font optimization
-  optimizeFonts: {
-    display: 'swap',
-  },
+  // Font optimization is handled automatically by Next.js
 };
 
 // Only require pre-build for non-Vercel environments
