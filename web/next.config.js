@@ -18,7 +18,9 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ['@nextui-org/react'],
     // Enable server actions
-    serverActions: true,
+    serverActions: {
+      allowedOrigins: ['localhost:3000', 'sports-scribe.vercel.app']
+    },
   },
   webpack: (config, { isServer }) => {
     // Handle SVG imports
