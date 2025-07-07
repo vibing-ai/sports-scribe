@@ -1,0 +1,45 @@
+# Ignore build files
+.next/
+out/
+
+# Ignore test files
+**/*.test.*
+**/*.spec.*
+**/__tests__
+
+# Ignore environment files (handled by Vercel)
+.env*
+!.env.example
+
+# Ignore development files
+.vercel
+.vscode
+.idea
+*.log
+
+# Ignore Python files (if any)
+*.py
+
+# Ignore database files (if any)
+*.sqlite
+*.sqlite3
+
+# Ignore cache directories
+node_modules/
+.cache/
+.turbo/
+
+# Ignore local development files
+.DS_Store
+*.pem
+*.p8
+*.key
+*.crt
+*.cer
+
+# Ignore TypeScript build output
+dist/
+build/
+
+# Ignore coverage directory
+coverage/

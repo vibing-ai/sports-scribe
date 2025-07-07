@@ -172,17 +172,21 @@ function NavLink({
   )
 }
 
+interface MobileNavLinkProps {
+  href: string;
+  children: React.ReactNode;
+  isActive: boolean;
+  icon?: React.ReactNode;
+  onClick: () => void;
+}
+
 function MobileNavLink({ 
   href, 
   children, 
   isActive,
+  icon,
   onClick
-}: { 
-  href: string; 
-  children: React.ReactNode;
-  isActive: boolean;
-  onClick: () => void;
-}) {
+}: MobileNavLinkProps) {
   return (
     <Link 
       href={href}
@@ -190,9 +194,10 @@ function MobileNavLink({
       className={`block px-4 py-3 rounded-lg text-base font-medium transition-colors duration-200 ${
         isActive 
           ? 'text-white bg-gradient-to-r from-blue-500 to-indigo-600' 
-          : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800/50'
+          : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
       }`}
     >
+      {icon && <span className="mr-3">{icon}</span>}
       {children}
     </Link>
   )

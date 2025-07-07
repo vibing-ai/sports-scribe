@@ -1,9 +1,9 @@
 import { useState, useCallback } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { supabaseConfig } from '@/config/supabase';
-import type { Tables } from '@/types/database.types';
+import type { Database } from '@/types/database.types';
 
-type Article = Tables<'articles'> & {
+type Article = Database['public']['Tables']['articles']['Row'] & {
   user_id?: string;
 };
 

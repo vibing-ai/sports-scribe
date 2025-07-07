@@ -15,10 +15,10 @@ type DatabaseArticle = {
   author: string | null;
   sport: string;
   league: string;
-  status: 'draft' | 'published' | 'archived' | 'scheduled';
+  status: 'draft' | 'published' | 'archived' | 'scheduled' | null;
   tags: string[] | null;
   featured_image_url: string | null;
-  created_at: string | null;
+  created_at: string;
   updated_at: string | null;
   published_at: string | null;
   slug: string | null;
@@ -29,10 +29,12 @@ type DatabaseArticle = {
   author_id: string | null;
   byline: string | null;
   game_id: string | null;
+  [key: string]: any; // Add index signature to handle any additional properties
 }
 
 // Define our application's article type with required fields
-type Article = Omit<DatabaseArticle, 'slug' | 'is_featured' | 'view_count' | 'tags' | 'summary' | 'featured_image_url' | 'author' | 'meta_title' | 'meta_description'> & {
+type Article = Omit<DatabaseArticle, 'status' | 'created_at' | 'updated_at' | 'published_at'> & {
+  status: 'draft' | 'published' | 'archived' | 'scheduled';
   slug: string;
   is_featured: boolean;
   view_count: number;
@@ -42,6 +44,9 @@ type Article = Omit<DatabaseArticle, 'slug' | 'is_featured' | 'view_count' | 'ta
   author: string | null;
   meta_title: string | null;
   meta_description: string | null;
+  created_at?: string;
+  updated_at?: string | null;
+  published_at?: string | null;
 }
 
 export default function TestDatabase() {
@@ -61,21 +66,39 @@ export default function TestDatabase() {
       if (error) throw error
       
       // Map the database articles to our application's Article type
-      const formattedArticles: Article[] = (data || []).map(article => ({
-        ...article,
-        slug: article.slug || `article-${article.id}`,
-        is_featured: article.is_featured ?? false,
-        view_count: article.view_count ?? 0,
-        tags: article.tags ?? [],
-        status: article.status ?? 'draft',
-        featured_image_url: article.featured_image_url ?? '',
-        summary: article.summary ?? '',
-        author: article.author ?? null,
-        meta_title: article.meta_title,
-        meta_description: article.meta_description
-      }))
+      const formattedArticles: Article[] = (data || []).map(article => {
+        // Type assertion for the database article
+        const dbArticle = article as unknown as DatabaseArticle;
+        
+        // Ensure all required fields have values
+        const formatted: Article = {
+          id: dbArticle.id,
+          title: dbArticle.title,
+          content: dbArticle.content,
+          sport: dbArticle.sport,
+          league: dbArticle.league,
+          status: dbArticle.status || 'draft',
+          slug: dbArticle.slug || `article-${dbArticle.id}`,
+          is_featured: dbArticle.is_featured ?? false,
+          view_count: dbArticle.view_count ?? 0,
+          tags: dbArticle.tags || [],
+          summary: dbArticle.summary || '',
+          featured_image_url: dbArticle.featured_image_url || '',
+          author: dbArticle.author || null,
+          meta_title: dbArticle.meta_title || null,
+          meta_description: dbArticle.meta_description || null,
+          created_at: dbArticle.created_at,
+          updated_at: dbArticle.updated_at,
+          published_at: dbArticle.published_at,
+          author_id: dbArticle.author_id,
+          byline: dbArticle.byline,
+          game_id: dbArticle.game_id
+        };
+        
+        return formatted;
+      });
       
-      setArticles(formattedArticles)
+      setArticles(formattedArticles);
     } catch (error) {
       console.error('Error fetching articles:', error)
       setError('Failed to fetch articles')
@@ -108,11 +131,36 @@ export default function TestDatabase() {
         game_id: null
       }
 
-      const { error: insertError } = await supabase
-        .from('articles')
-        .insert([testArticle])
+      // Define the test article data with all required fields
+      const testArticleData = {
+        title: 'Test Article',
+        content: 'This is a test article content.',
+        sport: 'basketball',
+        league: 'nba',
+        status: 'draft' as const,
+        summary: 'A test article summary',
+        author: 'Test Author',
+        tags: ['test', 'basketball'],
+        featured_image_url: null as string | null,
+        slug: `test-article-${Date.now()}`,
+        meta_title: 'Test Article',
+        meta_description: 'A test article for development',
+        is_featured: false,
+        view_count: 0,
+        author_id: null as string | null,
+        byline: 'Test Author',
+        game_id: null as string | null,
+        published_at: null as string | null
+      };
       
-      if (insertError) throw insertError
+      // Insert the test article and get the inserted record
+      const { data: insertedData, error } = await supabase
+        .from('articles')
+        .insert([testArticleData]) // Wrap in array to match expected type
+        .select()
+        .single();
+      
+      if (error) throw error
       
       // Refresh the articles list
       await fetchArticles()

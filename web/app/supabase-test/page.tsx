@@ -51,9 +51,13 @@ export default function SupabaseTestPage() {
         setTestResults([...results]);
 
         const supabase = createClient();
-        const { data, error } = await supabase.rpc('now');
+        // Use a type-safe approach for the RPC call
+        type NowFunction = () => Promise<{ data: string | null, error: any }>;
+        const nowRpc = supabase.rpc as any as { now: NowFunction };
+        const { data, error } = await nowRpc.now();
         
         if (error) throw error;
+        if (!data) throw new Error('No data returned from RPC call');
         
         const updatedConnectionTest: TestResult = {
           ...connectionTest,

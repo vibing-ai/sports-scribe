@@ -20,6 +20,7 @@ const customJestConfig = {
     '^@/hooks/(.*)$': '<rootDir>/hooks/$1',
     '^@/types/(.*)$': '<rootDir>/types/$1',
     '^@/config/(.*)$': '<rootDir>/config/$1',
+    '^@/lib/ai-integration/article-processor$': '<rootDir>/__mocks__/article-processor.ts',
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
     '\\.(jpg|jpeg|png|gif|webp|svg)$': '<rootDir>/__mocks__/fileMock.js',
   },
