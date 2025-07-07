@@ -1,7 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
   images: {
     domains: [],
     unoptimized: true, // Disable image optimization if not using Vercel's image optimization
@@ -23,10 +22,13 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   experimental: {
-    // Enable React 18 concurrent features
-    reactRoot: true,
-    // Enable the new React compiler (if using)
-    reactCompiler: true,
+    // Enable the new React compiler
+    reactCompiler: {
+      compilationMode: 'annotation',
+      reactCompilerOptions: {
+        compilationMode: 'annotation',
+      },
+    },
   },
   webpack: (config, { isServer }) => {
     // Handle SVG imports
