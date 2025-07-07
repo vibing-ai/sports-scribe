@@ -2,13 +2,13 @@
 
 ## Overview
 
-The SportsScribe system uses a multi-agent pipeline to generate high-quality sports articles:
+The SportsScribe system uses a streamlined multi-agent pipeline to generate high-quality sports articles:
 
 ```
-Data Collector → Researcher → Writer → Editor
+Data Collector → Researcher → Writer
 ```
 
-Each agent has specific responsibilities and passes structured data to the next agent in the pipeline.
+Each agent has specific responsibilities and passes structured data to the next agent in the pipeline. The pipeline uses a shared OpenAI client for all AI operations and helper methods for clean separation of concerns.
 
 ## Standardized API Response Structure
 
@@ -47,10 +47,7 @@ All API calls return a standardized structure:
     "paging": {},
     "response": [
         {
-            "fixture": {...},      # Fixture details
-            "events": {...},       # Match events
-            "lineups": {...},      # Team lineups
-            "statistics": {...}    # Match statistics
+            ...
         }
     ]
 }
@@ -85,24 +82,48 @@ All API calls return a standardized structure:
 **Purpose**: Generates engaging articles using AI and storylines
 
 **Key Functions**:
-- `generate_game_recap(game_data: Dict[str, Any], research_data: Dict[str, Any]) → str`
-- `generate_player_spotlight(player_data: Dict[str, Any], performance_data: Dict[str, Any]) → str`
-- `generate_preview_article(matchup_data: Dict[str, Any], predictions: Dict[str, Any]) → str`
+- `generate_game_recap(game_data: Dict[str, Any], research_data: Dict[str, Any], storylines: List[str]) → str`
+- `generate_player_spotlight(player_data: Dict[str, Any], performance_data: Dict[str, Any], storylines: List[str]) → str`
+- `generate_preview_article(matchup_data: Dict[str, Any], predictions: Dict[str, Any], storylines: List[str]) → str`
 
 **Input**: Raw data + Research data + Storylines list
-**Output**: Raw article content (string)
+**Output**: Article content (string)
 
-### 4. Editor Agent (`editor.py`)
+## Pipeline Architecture
 
-**Purpose**: Reviews and refines article quality
+### Main Pipeline Class Structure
 
-**Key Functions**:
-- `review_article(article_content: str, metadata: Dict[str, Any]) → tuple[str, Dict[str, Any]]`
-- `fact_check(article_content: str, source_data: Dict[str, Any]) → Dict[str, Any]`
-- `style_check(article_content: str) → Dict[str, Any]`
-
-**Input**: Raw article from Writer Agent
-**Output**: Final polished article + review feedback
+```python
+class ArticlePipeline:
+    def __init__(self, config):
+        # Initialize shared OpenAI client
+        self.openai_client = AsyncOpenAI(api_key=config["openai_api_key"])
+        
+        # Initialize all agents with shared client
+        self.collector = DataCollectorAgent(config, openai_client=self.openai_client)
+        self.researcher = ResearchAgent(config, openai_client=self.openai_client)
+        self.writer = WritingAgent(config, openai_client=self.openai_client)
+    
+    # Main generation methods
+    async def generate_game_recap(self, game_id: str) -> Dict[str, Any]
+    async def generate_preview_article(self, game_id: str) -> Dict[str, Any]
+    async def generate_player_spotlight(self, player_id: str, game_id: Optional[str] = None) -> Dict[str, Any]
+    
+    # Helper methods for data collection
+    async def _collect_game_data(self, game_id: str) -> Dict[str, Any]
+    async def _collect_team_data(self, game_data: Dict[str, Any]) -> Dict[str, Any]
+    async def _collect_player_data(self, player_id: str) -> Dict[str, Any]
+    
+    # Helper methods for research
+    async def _research_game_context(self, game_data: Dict[str, Any], team_data: Dict[str, Any] = None) -> Dict[str, Any]
+    async def _research_player_performance(self, player_id: str, game_id: Optional[str] = None) -> Dict[str, Any]
+    
+    # Helper methods for storyline generation
+    async def _generate_storylines(self, data_list: List[Dict[str, Any]]) -> List[str]
+    
+    # Helper methods for result formatting
+    def _format_result(self, content: str, metadata: Dict[str, Any]) -> Dict[str, Any]
+```
 
 ## Updated Pipeline Integration
 
@@ -113,56 +134,23 @@ async def generate_game_recap(game_id: str) -> Dict[str, Any]:
     """
     Main pipeline function that orchestrates all agents.
     
-    Args:
-        game_id: ID of the game to write about
-    
-    Returns:
-        Final article with metadata
+    Pipeline: Data Collection → Research → Storyline Generation → Content Writing
     """
-    # 1. Collect raw data (standardized format)
-    game_data = await collector.collect_game_data(game_id)
-    # Returns: {"get": "game_data", "parameters": {...}, "response": [...]}
+    # Step 1: Data Collection
+    game_data = await self._collect_game_data(game_id)
+    team_data = await self._collect_team_data(game_data)
     
-    # 2. Extract team IDs and collect team data
-    fixture = game_data["response"][0]["fixture"]["response"][0]
-    home_team_id = fixture["teams"]["home"]["id"]
-    away_team_id = fixture["teams"]["away"]["id"]
+    # Step 2: Research & Context
+    research_data = await self._research_game_context(game_data, team_data)
     
-    home_team_data = await collector.collect_team_data(str(home_team_id))
-    away_team_data = await collector.collect_team_data(str(away_team_id))
+    # Step 3: Storyline Generation
+    storylines = await self._generate_storylines([game_data, team_data["home_team"], team_data["away_team"]])
     
-    # 3. Research context
-    team_history = await researcher.research_team_history(
-        str(home_team_id), str(away_team_id)
-    )
-    season_trends = await researcher.research_season_trends(
-        str(fixture["league"]["id"]), str(fixture["league"]["season"])
-    )
+    # Step 4: Content Generation
+    article_content = await self.writer.generate_game_recap(game_data, research_data, storylines)
     
-    # 4. Generate storylines from all collected data
-    data_list = [game_data, home_team_data, away_team_data]
-    storylines = await researcher.generate_storylines(data_list)
-    
-    # 5. Generate article with storylines
-    research_data = {
-        "team_history": team_history,
-        "season_trends": season_trends
-    }
-    raw_article = await writer.generate_game_recap(game_data, research_data)
-    
-    # 6. Edit and review
-    metadata = {
-        "game_id": game_id,
-        "article_type": "recap",
-        "storylines": storylines,
-        "source_data": game_data
-    }
-    final_article, feedback = await editor.review_article(raw_article, metadata)
-    
-    return {
-        "content": final_article,
-        "metadata": {**metadata, "feedback": feedback}
-    }
+    # Step 5: Return Results
+    return self._format_result(content=article_content, metadata={...})
 ```
 
 ## Data Flow Summary
@@ -170,23 +158,35 @@ async def generate_game_recap(game_id: str) -> Dict[str, Any]:
 1. **Data Collector** → Standardized API responses (fixtures, teams, players)
 2. **Researcher** → Storylines list + Contextual analysis
 3. **Writer** → AI-generated article content using storylines
-4. **Editor** → Polished content (fact-checked, styled)
 
 ## Function Call Dependencies
 
 ```
 generate_game_recap()
-├── collector.collect_game_data()
-├── collector.collect_team_data() (home)
-├── collector.collect_team_data() (away)
-├── researcher.research_team_history()
-├── researcher.research_season_trends()
-├── researcher.generate_storylines()
+├── _collect_game_data()
+├── _collect_team_data()
+├── _research_game_context()
+├── _generate_storylines()
 ├── writer.generate_game_recap()
-└── editor.review_article()
-    ├── editor.fact_check()
-    └── editor.style_check()
+└── _format_result()
 ```
+
+## Helper Methods Breakdown
+
+### Data Collection Helpers
+- `_collect_game_data()`: Collects and validates game data
+- `_collect_team_data()`: Extracts team IDs and collects team data
+- `_collect_player_data()`: Collects and validates player data
+
+### Research Helpers
+- `_research_game_context()`: Researches team history and season trends
+- `_research_player_performance()`: Researches player performance data
+
+### Storyline Helpers
+- `_generate_storylines()`: Generates prioritized storylines from collected data
+
+### Result Formatting
+- `_format_result()`: Combines content and metadata with pipeline version
 
 ## Storyline Generation Process
 
@@ -194,7 +194,7 @@ generate_game_recap()
 2. **Context Extraction**: Identifies key events, statistics, and trends
 3. **Storyline Creation**: Generates compelling narrative hooks
 4. **Prioritization**: Selects top 10 most relevant storylines
-5. **Integration**: Passes storylines to Writer for article generation
+5. **Integration**: Passes storylines directly to Writer for article generation
 
 ## API Integration Details
 
@@ -222,12 +222,11 @@ Each agent requires configuration for:
 - Model parameters (temperature, max_tokens)
 - Style guidelines and quality thresholds
 
-## Next Steps
+## Key Improvements in New Structure
 
-1. ✅ Implement API integration in Data Collector
-2. ✅ Add storyline generation in Research Agent
-3. ✅ Integrate OpenAI for content generation in Writer Agent
-4. 🔄 Implement quality checks in Editor Agent
-5. 🔄 Add comprehensive error handling and logging
-6. 🔄 Create unit tests for each agent
-7. 🔄 Add monitoring and metrics collection 
+1. **Shared OpenAI Client**: All agents use the same client instance for efficiency
+2. **Helper Methods**: Cleaner separation of concerns and better maintainability
+3. **Standardized Data Flow**: Consistent input/output formats across all agents
+4. **Storyline Integration**: Direct storylines input to writer for better content focus
+5. **Error Handling**: Centralized validation and error management
+6. **Modular Design**: Easy to extend and maintain

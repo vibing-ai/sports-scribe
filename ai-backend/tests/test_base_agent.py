@@ -1,6 +1,6 @@
 # agents/data_collector_agent.py
 import json
-from base_agent import BaseAgent
+from scriber_agents.base_agent import BaseAgent
 from openai import OpenAI
 import os
 from dotenv import load_dotenv
