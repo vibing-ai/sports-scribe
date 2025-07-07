@@ -12,11 +12,7 @@
   "buildCommand": "npm run build",
   "installCommand": "npm install --legacy-peer-deps",
   "framework": "nextjs",
-  "routes": [
-    { "handle": "filesystem" },
-    { "src": "/api/(.*)", "dest": "/api/$1" },
-    { "src": "/(.*)", "dest": "/$1" }
-  ],
+
   "env": {
     "NODE_VERSION": "20",
     "NPM_CONFIG_LEGACY_PEER_DEPS": "true",
