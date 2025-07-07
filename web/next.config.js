@@ -23,6 +23,7 @@ const nextConfig = {
   },
   experimental: {
     // No experimental features enabled for now
+    optimizePackageImports: ['@nextui-org/react'],
   },
   webpack: (config, { isServer }) => {
     // Handle SVG imports
@@ -36,6 +37,14 @@ const nextConfig = {
   },
   // Output standalone for better compatibility with Vercel
   output: 'standalone',
+  // Enable CSS modules
+  sassOptions: {
+    includePaths: ['./src/styles'],
+  },
+  // Configure font optimization
+  optimizeFonts: {
+    display: 'swap',
+  },
 };
 
 // Only require pre-build for non-Vercel environments

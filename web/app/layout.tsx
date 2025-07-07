@@ -31,6 +31,7 @@ const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-inter',
+  preload: true,
   weight: ['300', '400', '500', '600', '700'],
 })
 
@@ -46,7 +47,7 @@ export default function RootLayout({
       className={`${inter.variable} scroll-smooth`}
       style={{ scrollBehavior: 'smooth' }}
     >
-      <body className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 text-gray-900 dark:from-gray-900 dark:via-gray-900 dark:to-gray-950 dark:text-gray-100 transition-colors duration-200">
+      <body className={`${inter.variable} font-sans bg-gradient-to-br from-gray-50 via-white to-gray-100 text-gray-900 dark:from-gray-900 dark:via-gray-900 dark:to-gray-950 dark:text-gray-100 transition-colors duration-200`}>
         <Providers>
           <div className="min-h-screen flex flex-col">
             <MainNav />
