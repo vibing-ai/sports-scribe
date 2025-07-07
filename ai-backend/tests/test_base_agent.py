@@ -2,50 +2,24 @@
 import json
 import sys
 import os
+import asyncio
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from scriber_agents.base_agent import BaseAgent
+from scriber_agents.base import DataCollectorAgent
 from openai import OpenAI
 from dotenv import load_dotenv
 load_dotenv()
 
-class DataCollectorAgent(BaseAgent):
-    def __init__(self, openai_api_key):
-        self.client = OpenAI(api_key=openai_api_key)
-
-    def run(self, user_prompt):
-        messages = [{"role": "user", "content": user_prompt}]
-        tools = self.function_schema()
-
-        response = self.client.chat.completions.create(
-            model="gpt-4o",
-            messages=messages,
-            tools=tools,
-        )
-
-        for tool_call in response.choices[0].message.tool_calls:
-            name = tool_call.function.name
-            args = json.loads(tool_call.function.arguments)
-            if name == "get_fixtures":
-                result = self.get_fixtures(**args)
-                # Feed back to the model
-                messages.append({
-                    "role": "function",
-                    "name": name,
-                    "content": json.dumps(result)
-                })
-                print(messages)
-                # Second call to the model to get final answer
-                response2 = self.client.chat.completions.create(
-                    model="gpt-4o",
-                    messages=messages,
-                    tools=tools,
-                )
-                return response2.choices[0].message.content
-        return response.choices[0].message.content
-
-
 if __name__ == "__main__":
-    agent = DataCollectorAgent(openai_api_key=os.getenv('OPENAI_API_KEY'))
-    # Test with a recent date that likely has matches
-    answer = agent.run("Please query all Premier League (league ID: 39) matches for 2010-08-15")
-    print(answer)
+    agent = DataCollectorAgent()
+    agent.initialize({})
+    task = {
+        "user_prompt": "Please query all Premier League (league ID: 39) matches for 2010-08-14",
+        "prompt": (
+            "You are a football data agent. "
+            "When the user asks for match information, always output the full details of all matches you find, "
+            "including teams, scores, date, and venue. "
+            "Do not summarize or ask the user if they want details—just output the full data directly."
+        )
+    }
+    result = asyncio.run(agent.execute(task))
+    print(result)
