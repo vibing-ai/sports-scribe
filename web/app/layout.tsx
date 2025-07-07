@@ -1,5 +1,5 @@
 import './globals.css'
-import { Inter } from 'next/font/google'
+// Using system fonts temporarily
 import { Providers } from './providers'
 import { MainNav, Footer } from '@/components/main-nav'
 
@@ -27,13 +27,7 @@ export const metadata = {
   },
 }
 
-const inter = Inter({ 
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-inter',
-  preload: true,
-  weight: ['300', '400', '500', '600', '700'],
-})
+const inter = { variable: '--font-inter' }
 
 export default function RootLayout({
   children,

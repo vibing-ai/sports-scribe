@@ -3,6 +3,8 @@ const defaultTheme = require('tailwindcss/defaultTheme');
 const { fontFamily } = defaultTheme;
 
 module.exports = {
+  // Ensure JIT mode is enabled for better performance
+  mode: 'jit',
   content: [
     './app/**/*.{js,ts,jsx,tsx,mdx}',
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
@@ -13,7 +15,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['var(--font-inter)', ...fontFamily.sans],
+        sans: ['var(--font-inter)', 'Inter', 'system-ui', 'sans-serif'],
       },
       colors: {
         primary: {
