@@ -22,13 +22,7 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   experimental: {
-    // Enable the new React compiler
-    reactCompiler: {
-      compilationMode: 'annotation',
-      reactCompilerOptions: {
-        compilationMode: 'annotation',
-      },
-    },
+    // No experimental features enabled for now
   },
   webpack: (config, { isServer }) => {
     // Handle SVG imports
