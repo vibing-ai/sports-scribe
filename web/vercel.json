@@ -6,10 +6,22 @@
       "use": "@vercel/next"
     }
   ],
+  "build": {
+    "env": {
+      "NEXT_TELEMETRY_DISABLED": "1"
+    }
+  },
   "routes": [
     {
       "src": "/(.*)",
       "dest": "/"
     }
-  ]
+  ],
+  "env": {
+    "NODE_VERSION": "20",
+    "NPM_CONFIG_LEGACY_PEER_DEPS": "true"
+  },
+  "buildCommand": "npm run vercel-build",
+  "outputDirectory": ".next",
+  "framework": "nextjs"
 }
