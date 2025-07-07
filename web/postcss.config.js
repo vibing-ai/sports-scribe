@@ -7,12 +7,17 @@ module.exports = {
     'postcss-flexbugs-fixes': {},
     'postcss-preset-env': {
       autoprefixer: {
-        flexbox: 'no-2009'
+        flexbox: 'no-2009',
+        grid: 'autoplace',
       },
       stage: 3,
       features: {
-        'custom-properties': false
-      }
-    }
-  }
-}
+        'custom-properties': false,
+        'nesting-rules': true,
+        'custom-media-queries': true,
+        'media-query-ranges': true,
+        'custom-selectors': true,
+      },
+    },
+  },
+};

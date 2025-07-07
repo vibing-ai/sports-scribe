@@ -10,20 +10,15 @@ const nextConfig = {
     removeConsole: process.env.NODE_ENV === 'production',
   },
   eslint: {
-    // Warning: This allows production builds to successfully complete even if
-    // your project has ESLint errors.
     ignoreDuringBuilds: true,
   },
   typescript: {
-    // !! WARN !!
-    // Dangerously allow production builds to successfully complete even if
-    // your project has type errors.
-    // !! WARN !!
     ignoreBuildErrors: true,
   },
   experimental: {
-    // No experimental features enabled for now
     optimizePackageImports: ['@nextui-org/react'],
+    // Enable server actions
+    serverActions: true,
   },
   webpack: (config, { isServer }) => {
     // Handle SVG imports
@@ -41,12 +36,38 @@ const nextConfig = {
   sassOptions: {
     includePaths: ['./src/styles'],
   },
-  // Font optimization is handled automatically by Next.js
+  // Configure headers
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block',
+          },
+        ],
+      },
+    ];
+  },
+  // Configure redirects
+  async redirects() {
+    return [
+      {
+        source: '/admin',
+        destination: '/admin/dashboard',
+        permanent: true,
+      },
+    ];
+  },
 };
-
-// Only require pre-build for non-Vercel environments
-if (process.env.VERCEL !== '1') {
-  // Any additional build-time configuration can go here
-}
 
 module.exports = nextConfig;
