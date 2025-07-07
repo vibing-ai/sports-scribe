@@ -3,43 +3,15 @@
   "builds": [
     {
       "src": "package.json",
-      "use": "@vercel/next",
-      "config": {
-        "distDir": ".next"
-      }
+      "use": "@vercel/next"
     }
   ],
   "buildCommand": "npm run build",
   "installCommand": "npm install --legacy-peer-deps",
   "framework": "nextjs",
-
   "env": {
     "NODE_VERSION": "20",
     "NPM_CONFIG_LEGACY_PEER_DEPS": "true",
-    "NEXT_TELEMETRY_DISABLED": "1",
-    "NODE_ENV": "production"
-  },
-  "regions": ["iad1"],
-  "public": true,
-  "cleanUrls": true,
-  "trailingSlash": false,
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "X-Frame-Options",
-          "value": "DENY"
-        },
-        {
-          "key": "X-XSS-Protection",
-          "value": "1; mode=block"
-        }
-      ]
-    }
-  ]
+    "NEXT_TELEMETRY_DISABLED": "1"
+  }
 }
