@@ -2,6 +2,10 @@
   "name": "sport-scribe-web",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
   "dependencies": {
     "@nextui-org/react": "^2.6.11",
     "@nextui-org/theme": "^2.4.5",
@@ -11,7 +15,7 @@
     "critters": "^0.0.16",
     "date-fns": "^2.30.0",
     "framer-motion": "^10.18.0",
-    "next": "^14.1.0",
+    "next": "^14.2.30",
     "next-themes": "^0.2.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
