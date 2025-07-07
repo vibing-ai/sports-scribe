@@ -33,6 +33,7 @@ export function AnalyticsPanel({ data }: AnalyticsPanelProps) {
                   value={item.percentage} 
                   color={index === 0 ? 'primary' : index === 1 ? 'secondary' : 'default'}
                   size="sm"
+                  aria-label={`${item.sport} progress: ${item.percentage}%`}
                 />
               </div>
             ))}
@@ -75,6 +76,7 @@ export function AnalyticsPanel({ data }: AnalyticsPanelProps) {
                 color={data.engagement.bounceRate < 40 ? 'success' : data.engagement.bounceRate < 60 ? 'warning' : 'danger'}
                 label={`${data.engagement.bounceRate}%`}
                 showValueLabel={true}
+                aria-label={`Bounce rate: ${data.engagement.bounceRate}%`}
               />
             </div>
           </div>

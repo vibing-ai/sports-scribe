@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "libraries": [
+    {
+      "library": "tailwindcss",
+      "definition": "https://raw.githubusercontent.com/tailwindlabs/tailwindcss/master/stubs/tailwindcss.d.ts"
+    }
+  ]
+}

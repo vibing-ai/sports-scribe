@@ -17,11 +17,32 @@ export function processArticleContent({ excerpt, content }: ArticleContent): str
 
 export function formatArticleDate(date: Date | string): string {
   const dateObj = typeof date === 'string' ? new Date(date) : date;
+
+  // Handle invalid dates
+  if (isNaN(dateObj.getTime())) {
+    throw new Error('Invalid date provided');
+  }
+
   return new Intl.DateTimeFormat('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  }).format(dateObj);
+export function getReadingTime(content: string, wordsPerMinute = 200): number {
+  // Validate inputs
+  if (!content || typeof content !== 'string') {
+    return 0;
+  }
+
+  if (wordsPerMinute <= 0) {
+    throw new Error('Words per minute must be a positive number');
+  }
+
+  // More accurate word counting: handle punctuation and multiple spaces
+  const wordCount = content.trim().split(/\s+/).filter(word => word.length > 0).length;
+
+  if (wordCount === 0) {
+    return 0;
+  }
+
+  return Math.ceil(wordCount / wordsPerMinute);
+}
 }
 
 export function getReadingTime(content: string, wordsPerMinute = 200): number {

@@ -4,9 +4,7 @@ WORKDIR /app
 
 # Copy package files and install dependencies
 COPY package*.json ./
-RUN npm install
-RUN npm install next-themes
-RUN npm install -D typescript @types/react @types/node @types/react-dom
+RUN npm ci --only=production
 
 # Copy source code
 COPY . .
