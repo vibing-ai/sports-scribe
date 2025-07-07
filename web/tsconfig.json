@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -22,23 +18,18 @@
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
+    "jsxImportSource": "react",
     "incremental": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./*"
-      ]
+      "@/*": ["./*"],
+      "@/utils/*": ["./utils/*"]
     },
-    "types": [
-      "node",
-      "react",
-      "react-dom"
-    ],
-    "jsxImportSource": "react",
+    "types": ["node", "react", "react-dom", "next"],
     "plugins": [
       {
         "name": "next"
@@ -47,11 +38,17 @@
   },
   "include": [
     "next-env.d.ts",
+    "types/**/*.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "jest.setup.js"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    ".next",
+    "out"
   ]
 }
