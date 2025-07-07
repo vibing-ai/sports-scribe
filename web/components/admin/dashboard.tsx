@@ -1,4 +1,4 @@
-import { Card, CardHeader, CardBody, Progress, Chip } from '@heroui/react'
+import { Card, CardHeader, CardBody, Progress, Chip } from '@nextui-org/react'
 
 export interface DashboardStats {
   totalArticles: number

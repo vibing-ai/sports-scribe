@@ -1,4 +1,4 @@
-import { Input, InputProps } from '@heroui/react'
+import { Input, InputProps } from '@nextui-org/react'
 
 export interface HeroInputProps extends InputProps {
   // Add any custom props here

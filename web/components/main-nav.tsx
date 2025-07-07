@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Button } from '@heroui/react'
+import { Button } from '@nextui-org/react'
 import { 
   FiMenu, 
   FiX, 

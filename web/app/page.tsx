@@ -7,7 +7,7 @@ import { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'framer-motion';
-import { Button } from '@heroui/react';
+import { Button } from '@nextui-org/react';
 
 // TypeScript types for our components
 

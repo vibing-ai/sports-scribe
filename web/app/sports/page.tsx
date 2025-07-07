@@ -1,4 +1,4 @@
-import { Card, CardBody, CardHeader, Button } from '@heroui/react'
+import { Card, CardBody, CardHeader, Button } from '@nextui-org/react'
 import Link from 'next/link'
 
 const sports = ['football', 'basketball', 'baseball', 'soccer', 'tennis', 'hockey']

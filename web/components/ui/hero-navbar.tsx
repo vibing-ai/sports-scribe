@@ -8,7 +8,7 @@ import {
   NavbarMenuItem,
   Link,
   Button 
-} from '@heroui/react'
+} from '@nextui-org/react'
 import NextLink from 'next/link'
 
 export function HeroNavbar() {

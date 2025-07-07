@@ -1,4 +1,4 @@
-import { Card, CardBody, Chip, Button } from '@heroui/react'
+import { Card, CardBody, Chip, Button } from '@nextui-org/react'
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/server'
 import { notFound } from 'next/navigation'

@@ -1,4 +1,4 @@
-import { Button } from '@heroui/react';
+import { Button } from '@nextui-org/react';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 
 export const AuthSection = () => {

@@ -1,7 +1,7 @@
 'use client'
 import { createClient } from '@/lib/supabase/client'
 import { useEffect, useState } from 'react'
-import { Button } from '@heroui/react'
+import { Button } from '@nextui-org/react'
 
 // Create a typed Supabase client
 const supabase = createClient()

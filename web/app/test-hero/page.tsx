@@ -1,8 +1,8 @@
 'use client';
 
-import { Button } from '@heroui/react';
-import { Card, CardHeader, CardBody, CardFooter } from '@heroui/react';
-import { Input } from '@heroui/react';
+import { Button } from '@nextui-org/react';
+import { Card, CardHeader, CardBody, CardFooter } from '@nextui-org/react';
+import { Input } from '@nextui-org/react';
 import { useState } from 'react';
 
 export default function HeroTestPage() {

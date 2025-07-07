@@ -13,7 +13,7 @@ import {
   useDisclosure,
   Chip,
   Progress
-} from '@heroui/react'
+} from '@nextui-org/react'
 import { useState } from 'react'
 import { useTheme } from 'next-themes'
 

@@ -1,4 +1,4 @@
-import { Card, CardHeader, CardBody, CardFooter, CardProps } from '@heroui/react'
+import { Card, CardHeader, CardBody, CardFooter, CardProps } from '@nextui-org/react'
 
 export interface HeroCardProps extends CardProps {
   header?: React.ReactNode

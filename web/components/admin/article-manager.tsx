@@ -1,4 +1,4 @@
-import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Button, Chip } from '@heroui/react'
+import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Button, Chip } from '@nextui-org/react'
 
 export interface ManagedArticle {
   id: string

@@ -1,4 +1,4 @@
-import { Button, ButtonProps } from '@heroui/react'
+import { Button, ButtonProps } from '@nextui-org/react'
 
 export interface HeroButtonProps extends ButtonProps {
   // Add any custom props here

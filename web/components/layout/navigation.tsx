@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Button } from '@heroui/react'
+import { Button } from '@nextui-org/react'
 
 const navigationItems = [
   { href: '/', label: 'Home' },

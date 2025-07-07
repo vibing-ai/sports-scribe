@@ -1,6 +1,6 @@
 'use client'
 
-import { Button } from '@heroui/react'
+import { Button } from '@nextui-org/react'
 
 export default function ButtonTest() {
   return (
@@ -9,7 +9,7 @@ export default function ButtonTest() {
         <h1 className="text-3xl font-bold">Button Styling Test</h1>
         
         <div className="bg-gray-100 p-6 rounded-lg">
-          <h2 className="text-xl font-semibold mb-4">1. Hero UI Buttons (Using @heroui/react)</h2>
+          <h2 className="text-xl font-semibold mb-4">1. Hero UI Buttons (Using @nextui-org/react)</h2>
           <div className="flex flex-wrap gap-4 p-4 bg-white rounded-lg border">
             <Button color="primary" data-slot="base">Primary</Button>
             <Button color="secondary" data-slot="base">Secondary</Button>

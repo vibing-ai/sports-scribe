@@ -1,4 +1,4 @@
-import { Card, CardBody, CardHeader } from '@heroui/react'
+import { Card, CardBody, CardHeader } from '@nextui-org/react'
 import Link from 'next/link'
 
 export default function AboutPage() {

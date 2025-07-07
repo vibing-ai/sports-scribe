@@ -1,4 +1,4 @@
-import { Card, CardHeader, CardBody, Progress } from '@heroui/react'
+import { Card, CardHeader, CardBody, Progress } from '@nextui-org/react'
 
 export interface AnalyticsData {
   topSports: Array<{ sport: string; percentage: number }>

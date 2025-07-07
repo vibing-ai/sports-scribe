@@ -1,4 +1,4 @@
-import { Card, CardBody, CardHeader, Button } from '@heroui/react'
+import { Card, CardBody, CardHeader, Button } from '@nextui-org/react'
 
 export default function AdminArticlesPage() {
   return (

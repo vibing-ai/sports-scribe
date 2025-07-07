@@ -1,4 +1,4 @@
-import { Card, CardHeader, CardBody, Chip } from '@heroui/react'
+import { Card, CardHeader, CardBody, Chip } from '@nextui-org/react'
 
 export interface ArticleContentProps {
   title: string
