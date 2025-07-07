@@ -78,7 +78,6 @@
     "start": "next start",
     "lint": "next lint",
     "vercel-build": "npm install --legacy-peer-deps && npm run build",
-    "postinstall": "npx next-sitemap",
     "test": "vitest",
     "test:watch": "vitest watch",
     "test:coverage": "vitest run --coverage",
