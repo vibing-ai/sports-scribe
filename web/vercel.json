@@ -6,22 +6,12 @@
       "use": "@vercel/next"
     }
   ],
-  "build": {
-    "env": {
-      "NEXT_TELEMETRY_DISABLED": "1"
-    }
-  },
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/"
-    }
-  ],
+  "buildCommand": "npm run vercel-build",
+  "installCommand": "npm install --legacy-peer-deps",
+  "framework": "nextjs",
   "env": {
     "NODE_VERSION": "20",
-    "NPM_CONFIG_LEGACY_PEER_DEPS": "true"
-  },
-  "buildCommand": "npm run vercel-build",
-  "outputDirectory": ".next",
-  "framework": "nextjs"
+    "NPM_CONFIG_LEGACY_PEER_DEPS": "true",
+    "NEXT_TELEMETRY_DISABLED": "1"
+  }
 }
