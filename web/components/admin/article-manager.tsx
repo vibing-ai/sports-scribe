@@ -25,19 +25,22 @@ export interface ArticleManagerProps {
   onArchive: (id: string) => void
 }
 
-export function ArticleManager({ articles, onEdit, onPublish, onArchive }: ArticleManagerProps) {
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'published':
-        return 'success'
-      case 'draft':
-        return 'warning'
-      case 'archived':
-        return 'default'
-      default:
-        return 'default'
-    }
+const getStatusColor = (
+  status: ManagedArticle['status']
+): 'success' | 'warning' | 'default' => {
+  switch (status) {
+    case 'published':
+      return 'success'
+    case 'draft':
+      return 'warning'
+    case 'archived':
+      return 'default'
+    default:
+      return 'default'
   }
+}
+
+export function ArticleManager({ articles, onEdit, onPublish, onArchive }: ArticleManagerProps) {
 
   return (
     <Table aria-label="Article management table">
@@ -64,7 +67,7 @@ export function ArticleManager({ articles, onEdit, onPublish, onArchive }: Artic
               </Chip>
             </TableCell>
             <TableCell>{article.views.toLocaleString()}</TableCell>
-            <TableCell>{new Date(article.createdAt).toLocaleDateString()}</TableCell>
+            <TableCell>{new Date(article.createdAt).toLocaleDateString('en-CA')}</TableCell>
             <TableCell>
               <div className="flex gap-2">
                 <Button size="sm" variant="light" onPress={() => onEdit(article.id)}>

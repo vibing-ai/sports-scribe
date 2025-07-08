@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { randomUUID } from 'crypto'
 
 // GET /api/articles - List all articles
 export async function GET(request: NextRequest) {
@@ -27,7 +28,7 @@ export async function POST(request: NextRequest) {
 
     // TODO: Validate input and save to Supabase
     const newArticle = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: randomUUID(),
       ...body,
       createdAt: new Date().toISOString(),
     }
