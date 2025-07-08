@@ -117,8 +117,6 @@ class Settings(BaseSettings):
         case_sensitive = True
         # Allow extra fields for forward compatibility
         extra = "ignore"
-        # Allow field aliases
-        populate_by_name = True
 
 
 # Global settings instance
