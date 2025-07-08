@@ -4,8 +4,15 @@ import { useState } from 'react'
 import { Button, Card, CardBody, CardHeader } from '@heroui/react'
 import { testDatabaseConnection } from '@/lib/supabase/test-connection'
 
+interface TestResult {
+  success: boolean;
+  message?: string;
+  data?: any;
+  error?: string;
+}
+
 export default function TestDatabase() {
-  const [result, setResult] = useState<any>(null)
+  const [result, setResult] = useState<TestResult | null>(null)
   const [loading, setLoading] = useState(false)
 
   const runTest = async () => {
