@@ -92,6 +92,7 @@ class ArticlePipeline:
             
             storylines = await self._generate_storylines(data_list)
             logger.info(f"[PIPELINE-RESEARCHER] Generated {len(storylines)} storylines for game {game_id}")
+            logger.info(f"[PIPELINE-RESEARCHER] Storylines for game {game_id}: {storylines}")
             logger.debug(f"[PIPELINE-RESEARCHER] Storylines: {storylines[:3]}...")  # Log first 3 storylines
             
             # Step 4: Content Generation
@@ -148,6 +149,7 @@ class ArticlePipeline:
             logger.info(f"[PIPELINE-RESEARCHER] Step 3: Storyline Generation for preview game {game_id}")
             storylines = await self._generate_storylines([game_data])
             logger.info(f"[PIPELINE-RESEARCHER] Generated {len(storylines)} storylines for preview game {game_id}")
+            logger.info(f"[PIPELINE-RESEARCHER] Preview storylines for game {game_id}: {storylines}")
             logger.debug(f"[PIPELINE-RESEARCHER] Preview storylines: {storylines[:3]}...")  # Log first 3 storylines
             
             # Step 4: Content Generation
@@ -207,6 +209,7 @@ class ArticlePipeline:
             logger.info(f"[PIPELINE-RESEARCHER] Step 3: Storyline Generation for player {player_id}")
             storylines = await self._generate_storylines([player_data])
             logger.info(f"[PIPELINE-RESEARCHER] Generated {len(storylines)} storylines for player {player_id}")
+            logger.info(f"[PIPELINE-RESEARCHER] Player storylines for player {player_id}: {storylines}")
             logger.debug(f"[PIPELINE-RESEARCHER] Player storylines: {storylines[:3]}...")  # Log first 3 storylines
             
             # Step 4: Content Generation
@@ -441,6 +444,7 @@ class ArticlePipeline:
                 logger.warning(f"[HELPER-RESEARCHER] No storylines generated from {len(data_list)} data sources")
                 return []
             
+            logger.info(f"[HELPER-RESEARCHER] Generated {len(storylines)} storylines: {storylines}")
             logger.debug(f"[HELPER-RESEARCHER] Generated {len(storylines)} storylines")
             return storylines
             

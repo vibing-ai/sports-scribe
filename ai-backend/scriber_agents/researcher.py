@@ -5,80 +5,239 @@ It researches historical data, team/player statistics, and relevant context
 to enrich the content generation process.
 """
 
+import os
 import logging
-from typing import Any, List, Dict
+from typing import Any, List, Dict, Optional
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
-load_dotenv()
+from pydantic import BaseModel, Field
 
+from agents import Agent, Runner
 from utils.security import sanitize_log_input, sanitize_multiple_log_inputs
 
+load_dotenv()
 logger = logging.getLogger(__name__)
+
+
+class TeamHistory(BaseModel):
+    """Team historical matchup data."""
+    
+    total_matches: int = Field(description="Total number of matches between teams")
+    team_wins: int = Field(description="Number of wins for primary team")
+    opponent_wins: int = Field(description="Number of wins for opponent team")
+    draws: int = Field(description="Number of draws")
+    recent_results: List[str] = Field(description="Last 5 match results (W/L/D)")
+    team_last_5: List[str] = Field(description="Primary team's last 5 results")
+    opponent_last_5: List[str] = Field(description="Opponent team's last 5 results")
+    storylines: List[str] = Field(description="Key storylines from historical data")
+
+
+class PlayerPerformance(BaseModel):
+    """Player performance analysis data."""
+    
+    season_stats: Dict[str, Any] = Field(description="Season statistics (goals, assists, etc.)")
+    recent_form: Dict[str, Any] = Field(description="Recent form data")
+    key_moments: List[str] = Field(description="Key moments and achievements")
+    storylines: List[str] = Field(description="Player-related storylines")
+
+
+class SeasonTrends(BaseModel):
+    """Season trends and statistics."""
+    
+    league_standings: Dict[str, Any] = Field(description="Current league standings")
+    season_stats: Dict[str, Any] = Field(description="Season statistics")
+    trends: List[str] = Field(description="Current season trends")
+    storylines: List[str] = Field(description="Season-related storylines")
+
+
+class GameAnalysis(BaseModel):
+    """Game analysis and storylines."""
+    
+    fixture_summary: Dict[str, Any] = Field(description="Fixture information")
+    key_events: List[Dict[str, Any]] = Field(description="Key match events")
+    storylines: List[str] = Field(description="Game-specific storylines")
+    match_highlights: List[str] = Field(description="Match highlights")
+
+
+class ResearchData(BaseModel):
+    """Complete research data structure."""
+    
+    team_history: Optional[TeamHistory] = Field(description="Team historical data")
+    player_performance: Optional[PlayerPerformance] = Field(description="Player performance data")
+    season_trends: Optional[SeasonTrends] = Field(description="Season trends data")
+    game_analysis: Optional[GameAnalysis] = Field(description="Game analysis data")
+    top_storylines: List[str] = Field(description="Top 3-5 most important storylines", max_items=5)
+
+
+# Agent prompts
+TEAM_HISTORY_PROMPT = """
+You are a sports research agent specializing in team historical analysis. Your task is to analyze the historical matchup data between two teams and extract key storylines.
+
+Focus on:
+1. Head-to-head record and recent form
+2. Key historical moments between the teams
+3. Current form of both teams
+4. Tactical patterns and playing styles
+5. Most compelling storylines for writers
+
+Guidelines:
+- Keep analysis simple and accessible for junior writers
+- Focus on the most important 3-5 storylines
+- Provide factual, objective analysis
+- Highlight trends and patterns
+- Consider recent form and momentum
+
+Your output should include:
+- Total matches, wins, draws between teams
+- Recent results (last 5 meetings)
+- Current form of both teams
+- Key storylines that would interest readers
+"""
+
+PLAYER_PERFORMANCE_PROMPT = """
+You are a sports research agent specializing in player performance analysis. Your task is to analyze a player's performance data and extract key storylines.
+
+Focus on:
+1. Season statistics and achievements
+2. Recent form and momentum
+3. Key moments and highlights
+4. Player's role and impact on team
+5. Most compelling storylines for writers
+
+Guidelines:
+- Keep analysis simple and accessible for junior writers
+- Focus on the most important 3-5 storylines
+- Provide factual, objective analysis
+- Highlight exceptional performances
+- Consider context and opposition quality
+
+Your output should include:
+- Season statistics (goals, assists, appearances, etc.)
+- Recent form data (last 5 games)
+- Key moments and achievements
+- Player-related storylines
+"""
+
+SEASON_TRENDS_PROMPT = """
+You are a sports research agent specializing in season trends analysis. Your task is to analyze current season data and extract key storylines.
+
+Focus on:
+1. League standings and title race
+2. Season statistics and records
+3. Current trends and patterns
+4. Relegation battles and key races
+5. Most compelling storylines for writers
+
+Guidelines:
+- Keep analysis simple and accessible for junior writers
+- Focus on the most important 3-5 storylines
+- Provide factual, objective analysis
+- Highlight significant trends
+- Consider the broader context
+
+Your output should include:
+- Current league standings
+- Season statistics and records
+- Key trends and patterns
+- Season-related storylines
+"""
+
+GAME_ANALYSIS_PROMPT = """
+You are a sports research agent specializing in game analysis. Your task is to analyze match data and extract key storylines.
+
+Focus on:
+1. Match result and scoreline
+2. Key events and moments
+3. Individual performances
+4. Tactical aspects
+5. Most compelling storylines for writers
+
+Guidelines:
+- Keep analysis simple and accessible for junior writers
+- Focus on the most important 3-5 storylines
+- Provide factual, objective analysis
+- Highlight dramatic moments
+- Consider the match context
+
+Your output should include:
+- Fixture summary and result
+- Key match events
+- Game-specific storylines
+- Match highlights
+"""
+
+STORYLINE_GENERATION_PROMPT = """
+You are a sports research agent specializing in storyline generation. Your task is to analyze multiple data sources and identify the top 3-5 most compelling storylines for sports articles.
+
+Focus on:
+1. Most newsworthy and interesting angles
+2. Stories that would engage readers
+3. Context and background information
+4. Human interest elements
+5. Tactical and statistical insights
+
+Guidelines:
+- Select only the most important 3-5 storylines
+- Keep storylines simple and accessible for junior writers
+- Focus on what makes this match/player/team interesting
+- Consider historical context and current form
+- Avoid overly complex analysis
+
+Your output should be a list of 3-5 compelling storylines that writers can use as the foundation for their articles.
+"""
+
+
+# Agent instances
+team_history_agent = Agent(
+    name="TeamHistoryAgent",
+    instructions=TEAM_HISTORY_PROMPT,
+    output_type=TeamHistory,
+    tools=[],
+    model=os.getenv("OPENAI_MODEL", "gpt-4o"),
+)
+
+player_performance_agent = Agent(
+    name="PlayerPerformanceAgent",
+    instructions=PLAYER_PERFORMANCE_PROMPT,
+    output_type=PlayerPerformance,
+    tools=[],
+    model=os.getenv("OPENAI_MODEL", "gpt-4o"),
+)
+
+season_trends_agent = Agent(
+    name="SeasonTrendsAgent",
+    instructions=SEASON_TRENDS_PROMPT,
+    output_type=SeasonTrends,
+    tools=[],
+    model=os.getenv("OPENAI_MODEL", "gpt-4o"),
+)
+
+game_analysis_agent = Agent(
+    name="GameAnalysisAgent",
+    instructions=GAME_ANALYSIS_PROMPT,
+    output_type=GameAnalysis,
+    tools=[],
+    model=os.getenv("OPENAI_MODEL", "gpt-4o"),
+)
+
+storyline_generation_agent = Agent(
+    name="StorylineGenerationAgent",
+    instructions=STORYLINE_GENERATION_PROMPT,
+    output_type=List[str],
+    tools=[],
+    model=os.getenv("OPENAI_MODEL", "gpt-4o"),
+)
 
 
 class ResearchAgent:
     """Agent responsible for researching contextual information and analysis."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: Dict[str, Any] = None):
         """Initialize the Research Agent with configuration."""
-        self.config = config
+        self.config = config or {}
         logger.info("Research Agent initialized")
 
-    def _extract_fixture_data(self, game_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Extract key fixture information from API response."""
-        try:
-            fixture_response = game_data.get("response", [{}])[0].get("fixture", {}).get("response", [])
-            if fixture_response:
-                fixture = fixture_response[0]
-                return {
-                    "home_team": fixture.get("teams", {}).get("home", {}),
-                    "away_team": fixture.get("teams", {}).get("away", {}),
-                    "goals": fixture.get("goals", {}),
-                    "score": fixture.get("score", {}),
-                    "fixture_date": fixture.get("fixture", {}).get("date"),
-                    "venue": fixture.get("fixture", {}).get("venue", {}),
-                    "league": fixture.get("league", {}),
-                    "status": fixture.get("fixture", {}).get("status", {})
-                }
-            return {}
-        except (IndexError, KeyError) as e:
-            logger.warning(f"Error extracting fixture data: {e}")
-            return {}
-
-    def _extract_events_data(self, game_data: Dict[str, Any]) -> List[Dict[str, Any]]:
-        """Extract key events from API response."""
-        try:
-            events_response = game_data.get("response", [{}])[0].get("events", {}).get("response", [])
-            return [
-                {
-                    "time": event.get("time", {}),
-                    "team": event.get("team", {}),
-                    "player": event.get("player", {}),
-                    "assist": event.get("assist", {}),
-                    "type": event.get("type"),
-                    "detail": event.get("detail"),
-                    "comments": event.get("comments")
-                }
-                for event in events_response
-            ]
-        except (IndexError, KeyError) as e:
-            logger.warning(f"Error extracting events data: {e}")
-            return []
-
-    def _extract_team_stats(self, team_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Extract team statistics from API response."""
-        try:
-            stats_response = team_data.get("response", [{}])[0].get("team_stats", {}).get("response", [])
-            if stats_response:
-                return stats_response[0]
-            return {}
-        except (IndexError, KeyError) as e:
-            logger.warning(f"Error extracting team stats: {e}")
-            return {}
-
-    async def research_team_history(
-        self, team_id: str, opponent_id: str
-    ) -> Dict[str, Any]:
+    async def research_team_history(self, team_id: str, opponent_id: str) -> TeamHistory:
         """Research historical matchups between teams.
 
         Args:
@@ -86,47 +245,41 @@ class ResearchAgent:
             opponent_id: Opponent team identifier
 
         Returns:
-            Dictionary containing historical context and storylines
+            TeamHistory: Historical context and storylines
         """
         team_safe, opponent_safe = sanitize_multiple_log_inputs(team_id, opponent_id)
-        logger.info(
-            "Researching history between teams: %s vs %s", team_safe, opponent_safe
-        )
+        logger.info("Researching history between teams: %s vs %s", team_safe, opponent_safe)
         
-        # TODO: Implement actual historical data collection
-        # For now, return structured storyline data
-        return {
-            "get": "team_history",
-            "parameters": {"team_id": team_id, "opponent_id": opponent_id},
-            "errors": [],
-            "results": 1,
-            "paging": {},
-            "response": [
-                {
-                    "head_to_head": {
-                        "total_matches": 15,
-                        "team_wins": 8,
-                        "opponent_wins": 4,
-                        "draws": 3,
-                        "recent_results": ["W", "L", "D", "W", "W"]
-                    },
-                    "recent_form": {
-                        "team_last_5": ["W", "W", "D", "L", "W"],
-                        "opponent_last_5": ["L", "W", "D", "W", "L"]
-                    },
-                    "storylines": [
-                        "Team has won 3 of last 5 meetings",
-                        "High-scoring encounters average 3.2 goals",
-                        "Last meeting ended in dramatic 2-1 victory",
-                        "Both teams in good form this season"
-                    ]
-                }
-            ]
-        }
+        prompt = f"""
+        Analyze the historical matchup between Team ID {team_id} and Team ID {opponent_id}.
+        
+        Provide historical context including:
+        - Head-to-head record
+        - Recent form of both teams
+        - Key storylines from their meetings
+        - Current form and momentum
+        
+        Focus on the most compelling 3-5 storylines that would interest readers.
+        """
+        
+        try:
+            result = await Runner.run(team_history_agent, prompt)
+            return result.final_output_as(TeamHistory)
+        except Exception as e:
+            logger.error(f"Error researching team history: {e}")
+            # Return default structure if agent fails
+            return TeamHistory(
+                total_matches=0,
+                team_wins=0,
+                opponent_wins=0,
+                draws=0,
+                recent_results=[],
+                team_last_5=[],
+                opponent_last_5=[],
+                storylines=["Teams have limited historical data", "Both teams in good form this season"]
+            )
 
-    async def research_player_performance(
-        self, player_id: str, context: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    async def research_player_performance(self, player_id: str, context: Dict[str, Any]) -> PlayerPerformance:
         """Research player performance trends and statistics.
 
         Args:
@@ -134,45 +287,36 @@ class ResearchAgent:
             context: Game/season context
 
         Returns:
-            Dictionary containing player analysis and storylines
+            PlayerPerformance: Player analysis and storylines
         """
         logger.info("Researching player performance: %s", sanitize_log_input(player_id))
         
-        # TODO: Implement actual player performance analysis
-        return {
-            "get": "player_performance",
-            "parameters": {"player_id": player_id, "context": context},
-            "errors": [],
-            "results": 1,
-            "paging": {},
-            "response": [
-                {
-                    "season_stats": {
-                        "goals": 12,
-                        "assists": 8,
-                        "appearances": 25,
-                        "minutes_played": 2250
-                    },
-                    "recent_form": {
-                        "last_5_games": ["1G", "0G", "2G1A", "0G", "1G"],
-                        "goals_in_last_5": 4,
-                        "assists_in_last_5": 1
-                    },
-                    "key_moments": [
-                        "Hat-trick against rivals in December",
-                        "Match-winning goal in cup final",
-                        "Consistent performer throughout season"
-                    ],
-                    "storylines": [
-                        "Player in excellent form with 4 goals in last 5 games",
-                        "Key player for team's attacking success",
-                        "Potential match-winner in upcoming fixture"
-                    ]
-                }
-            ]
-        }
+        prompt = f"""
+        Analyze the performance of Player ID {player_id} in the context of {context}.
+        
+        Provide performance analysis including:
+        - Season statistics and achievements
+        - Recent form and momentum
+        - Key moments and highlights
+        - Player's role and impact
+        
+        Focus on the most compelling 3-5 storylines that would interest readers.
+        """
+        
+        try:
+            result = await Runner.run(player_performance_agent, prompt)
+            return result.final_output_as(PlayerPerformance)
+        except Exception as e:
+            logger.error(f"Error researching player performance: {e}")
+            # Return default structure if agent fails
+            return PlayerPerformance(
+                season_stats={"goals": 0, "assists": 0, "appearances": 0},
+                recent_form={"last_5_games": [], "goals_in_last_5": 0, "assists_in_last_5": 0},
+                key_moments=["Player has been consistent this season"],
+                storylines=["Player in good form", "Key contributor to team success"]
+            )
 
-    async def research_season_trends(self, league: str, season: str) -> Dict[str, Any]:
+    async def research_season_trends(self, league: str, season: str) -> SeasonTrends:
         """Research current season trends and statistics.
 
         Args:
@@ -180,115 +324,73 @@ class ResearchAgent:
             season: Season identifier
 
         Returns:
-            Dictionary containing season trends and storylines
+            SeasonTrends: Season trends and storylines
         """
         league_safe, season_safe = sanitize_multiple_log_inputs(league, season)
         logger.info("Researching season trends for %s - %s", league_safe, season_safe)
         
-        # TODO: Implement actual season trends analysis
-        return {
-            "get": "season_trends",
-            "parameters": {"league": league, "season": season},
-            "errors": [],
-            "results": 1,
-            "paging": {},
-            "response": [
-                {
-                    "league_standings": {
-                        "top_3": ["Team A", "Team B", "Team C"],
-                        "relegation_zone": ["Team X", "Team Y", "Team Z"],
-                        "title_race": "Close battle between top 3 teams"
-                    },
-                    "season_stats": {
-                        "total_goals": 850,
-                        "avg_goals_per_game": 2.8,
-                        "most_goals_team": "Team A (65)",
-                        "best_defense": "Team B (25 goals conceded)"
-                    },
-                    "trends": [
-                        "High-scoring season with 2.8 goals per game average",
-                        "Title race remains tight with 3 teams in contention",
-                        "Relegation battle intensifying in final weeks"
-                    ],
-                    "storylines": [
-                        "Record-breaking goal-scoring season",
-                        "Unpredictable title race with multiple contenders",
-                        "Dramatic relegation battle unfolding"
-                    ]
-                }
-            ]
-        }
+        prompt = f"""
+        Analyze the current season trends for League {league} in Season {season}.
+        
+        Provide season analysis including:
+        - Current league standings
+        - Season statistics and records
+        - Key trends and patterns
+        - Title race and relegation battles
+        
+        Focus on the most compelling 3-5 storylines that would interest readers.
+        """
+        
+        try:
+            result = await Runner.run(season_trends_agent, prompt)
+            return result.final_output_as(SeasonTrends)
+        except Exception as e:
+            logger.error(f"Error researching season trends: {e}")
+            # Return default structure if agent fails
+            return SeasonTrends(
+                league_standings={"top_3": [], "relegation_zone": [], "title_race": "Competitive season"},
+                season_stats={"total_goals": 0, "avg_goals_per_game": 0},
+                trends=["Competitive season with close title race"],
+                storylines=["Exciting season with multiple contenders", "Close battles throughout the table"]
+            )
 
-    async def analyze_game_data(self, game_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def analyze_game_data(self, game_data: Dict[str, Any]) -> GameAnalysis:
         """Analyze game data and extract key storylines.
 
         Args:
             game_data: Raw game data from Data Collector
 
         Returns:
-            Dictionary containing game analysis and storylines
+            GameAnalysis: Game analysis and storylines
         """
         logger.info("Analyzing game data for storylines")
         
-        fixture_data = self._extract_fixture_data(game_data)
-        events_data = self._extract_events_data(game_data)
+        prompt = f"""
+        Analyze the following game data and extract key storylines:
         
-        # Extract key storylines from the data
-        storylines = []
+        {game_data}
         
-        if fixture_data:
-            home_team = fixture_data.get("home_team", {}).get("name", "Home Team")
-            away_team = fixture_data.get("away_team", {}).get("name", "Away Team")
-            goals = fixture_data.get("goals", {})
-            
-            # Score-based storylines
-            home_goals = goals.get("home", 0)
-            away_goals = goals.get("away", 0)
-            
-            if home_goals > away_goals:
-                storylines.append(f"{home_team} secures victory over {away_team}")
-            elif away_goals > home_goals:
-                storylines.append(f"{away_team} claims away win against {home_team}")
-            else:
-                storylines.append(f"Thrilling draw between {home_team} and {away_team}")
-            
-            # High-scoring game
-            total_goals = home_goals + away_goals
-            if total_goals >= 5:
-                storylines.append("High-scoring thriller with 5+ goals")
-            elif total_goals == 0:
-                storylines.append("Defensive masterclass results in goalless draw")
+        Provide game analysis including:
+        - Match result and scoreline
+        - Key events and moments
+        - Individual performances
+        - Tactical aspects
         
-        # Event-based storylines
-        if events_data:
-            goals_events = [e for e in events_data if e.get("type") == "Goal"]
-            cards_events = [e for e in events_data if e.get("type") in ["Card", "Yellow Card", "Red Card"]]
-            
-            if len(goals_events) > 0:
-                storylines.append(f"Match features {len(goals_events)} goals")
-            
-            if len(cards_events) > 5:
-                storylines.append("Physical encounter with multiple cards shown")
+        Focus on the most compelling 3-5 storylines that would interest readers.
+        """
         
-        return {
-            "get": "game_analysis",
-            "parameters": {"game_id": game_data.get("parameters", {}).get("game_id")},
-            "errors": [],
-            "results": 1,
-            "paging": {},
-            "response": [
-                {
-                    "fixture_summary": fixture_data,
-                    "key_events": events_data[:10],  # Top 10 events
-                    "storylines": storylines,
-                    "match_highlights": [
-                        "Dramatic finish with late goal",
-                        "Controversial referee decisions",
-                        "Outstanding individual performances"
-                    ]
-                }
-            ]
-        }
+        try:
+            result = await Runner.run(game_analysis_agent, prompt)
+            return result.final_output_as(GameAnalysis)
+        except Exception as e:
+            logger.error(f"Error analyzing game data: {e}")
+            # Return default structure if agent fails
+            return GameAnalysis(
+                fixture_summary={},
+                key_events=[],
+                storylines=["Exciting match with plenty of action", "Key players making the difference"],
+                match_highlights=["Dramatic finish", "Outstanding individual performances"]
+            )
 
     async def generate_storylines(self, data_list: List[Dict[str, Any]]) -> List[str]:
         """Generate storylines from collected data.
@@ -297,36 +399,96 @@ class ResearchAgent:
             data_list: List of data dictionaries from Data Collector
 
         Returns:
-            List of storylines for the Writer Agent
+            List[str]: Top 3-5 most important storylines
         """
         logger.info("Generating storylines from %d data sources", len(data_list))
         
-        all_storylines = []
+        prompt = f"""
+        Analyze the following sports data and identify the top 3-5 most compelling storylines:
         
-        for data in data_list:
-            if data.get("get") == "game_data":
-                game_analysis = await self.analyze_game_data(data)
-                storylines = game_analysis.get("response", [{}])[0].get("storylines", [])
-                all_storylines.extend(storylines)
-            
-            elif data.get("get") == "team_data":
-                # Extract team-related storylines
-                team_info = data.get("response", [{}])[0].get("team_info", {})
-                if team_info:
-                    all_storylines.append(f"Team form analysis: {team_info.get('team', {}).get('name', 'Unknown')}")
-            
-            elif data.get("get") == "player_data":
-                # Extract player-related storylines
-                player_info = data.get("response", [{}])[0].get("player_info", {})
-                if player_info:
-                    all_storylines.append(f"Player spotlight: {player_info.get('player', {}).get('name', 'Unknown')}")
+        {data_list}
         
-        # Add some generic storylines if we don't have enough
-        if len(all_storylines) < 3:
-            all_storylines.extend([
+        Focus on:
+        - Most newsworthy and interesting angles
+        - Stories that would engage readers
+        - Context and background information
+        - Human interest elements
+        
+        Return only the top 3-5 most important storylines that writers can use as the foundation for their articles.
+        """
+        
+        try:
+            result = await Runner.run(storyline_generation_agent, prompt)
+            storylines = result.final_output_as(List[str])
+            return storylines[:5]  # Ensure we only return max 5 storylines
+        except Exception as e:
+            logger.error(f"Error generating storylines: {e}")
+            # Return default storylines if agent fails
+            return [
                 "Exciting match with plenty of action",
                 "Key players making the difference",
                 "Tactical battle between managers"
-            ])
+            ]
+
+    async def execute(self, task: Dict[str, Any]) -> ResearchData:
+        """Execute research task and return comprehensive research data.
+
+        Args:
+            task: Task dictionary containing research parameters
+
+        Returns:
+            ResearchData: Complete research data with storylines
+        """
+        logger.info("Executing research task")
         
-        return all_storylines[:10]  # Return top 10 storylines
+        research_data = ResearchData(top_storylines=[])
+        
+        try:
+            # Extract task parameters
+            team_id = task.get("team_id")
+            opponent_id = task.get("opponent_id")
+            player_id = task.get("player_id")
+            league = task.get("league")
+            season = task.get("season")
+            game_data = task.get("game_data")
+            
+            # Perform research based on available data
+            if team_id and opponent_id:
+                research_data.team_history = await self.research_team_history(team_id, opponent_id)
+            
+            if player_id:
+                context = {"league": league, "season": season}
+                research_data.player_performance = await self.research_player_performance(player_id, context)
+            
+            if league and season:
+                research_data.season_trends = await self.research_season_trends(league, season)
+            
+            if game_data:
+                research_data.game_analysis = await self.analyze_game_data(game_data)
+            
+            # Generate top storylines from all collected data
+            data_list = []
+            if research_data.team_history:
+                data_list.append({"type": "team_history", "data": research_data.team_history.dict()})
+            if research_data.player_performance:
+                data_list.append({"type": "player_performance", "data": research_data.player_performance.dict()})
+            if research_data.season_trends:
+                data_list.append({"type": "season_trends", "data": research_data.season_trends.dict()})
+            if research_data.game_analysis:
+                data_list.append({"type": "game_analysis", "data": research_data.game_analysis.dict()})
+            
+            if data_list:
+                research_data.top_storylines = await self.generate_storylines(data_list)
+            
+            logger.info("Research task completed successfully")
+            return research_data
+            
+        except Exception as e:
+            logger.error(f"Error executing research task: {e}")
+            # Return basic structure with default storylines
+            research_data.top_storylines = [
+                "Exciting match with plenty of action",
+                "Key players making the difference",
+                "Tactical battle between managers"
+            ]
+            return research_data
