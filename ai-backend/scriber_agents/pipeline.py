@@ -115,7 +115,14 @@ class AgentPipeline:
             # Step 1.6: Collect enhanced team and player data using data collector
             logger.info(f"[PIPELINE] Step 1.6: Collecting enhanced team and player data")
             enhanced_team_data = await self.collect_enhanced_team_data(team_info)
-            enhanced_player_data = await self.collect_enhanced_player_data(player_info)
+            season = None
+            try:
+                response_list = raw_game_data.get("response", [])
+                if response_list and isinstance(response_list, list):
+                    season = response_list[0].get("league", {}).get("season")
+            except Exception as e:
+                logger.warning(f"[PIPELINE] Failed to extract season: {e}")
+            enhanced_player_data = await self.collect_enhanced_player_data(player_info, season)
             
             # Log enhanced data collection
             logger.info(f"[PIPELINE-DATA] Enhanced team data collected:")
@@ -451,6 +458,7 @@ class AgentPipeline:
                 "home_team": home_team_info,
                 "away_team": away_team_info,
                 "league": league_info,
+                "season": league_info.get("season"),
                 "home_lineup": home_lineup,
                 "away_lineup": away_lineup
             }
@@ -658,7 +666,7 @@ class AgentPipeline:
             logger.error(f"[PIPELINE] Error collecting enhanced team data: {e}")
             return {"error": f"Failed to collect enhanced team data: {str(e)}"}
 
-    async def collect_enhanced_player_data(self, player_info: Dict[str, Any]) -> Dict[str, Any]:
+    async def collect_enhanced_player_data(self, player_info: Dict[str, Any], season: str) -> Dict[str, Any]:
         """Collect enhanced player data using data collector.
         
         Args:
@@ -682,12 +690,16 @@ class AgentPipeline:
             key_players = player_info.get("key_players", [])
             enhanced_key_players = []
             
+            if not season:
+                logger.warning("[PIPELINE] Season not found, cannot collect enhanced player data.")
+                return {"error": "Season not available in raw game data"}
+
             for i, player in enumerate(key_players[:5]):  # Limit to top 5 key players
                 player_id = player.get("id")
                 if player_id:
                     try:
                         logger.info(f"[PIPELINE] Collecting detailed data for key player {player_id} ({player.get('name', 'Unknown')})")
-                        player_detailed = await self.collector.collect_player_data(str(player_id))
+                        player_detailed = await self.collector.collect_player_data(str(player_id), str(season))
                         
                         enhanced_player = player.copy()
                         enhanced_player["detailed_data"] = player_detailed
@@ -715,7 +727,7 @@ class AgentPipeline:
                 if player_id:
                     try:
                         logger.info(f"[PIPELINE] Collecting sample data for home player {player_id}")
-                        player_detailed = await self.collector.collect_player_data(str(player_id))
+                        player_detailed = await self.collector.collect_player_data(str(player_id), str(season))
                         
                         sample_player = player.copy()
                         sample_player["detailed_data"] = player_detailed
@@ -729,7 +741,7 @@ class AgentPipeline:
                 if player_id:
                     try:
                         logger.info(f"[PIPELINE] Collecting sample data for away player {player_id}")
-                        player_detailed = await self.collector.collect_player_data(str(player_id))
+                        player_detailed = await self.collector.collect_player_data(str(player_id), str(season))
                         
                         sample_player = player.copy()
                         sample_player["detailed_data"] = player_detailed

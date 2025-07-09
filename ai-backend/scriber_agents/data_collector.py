@@ -81,9 +81,9 @@ temp_prompt = "" """
         """
 
 @function_tool
-def get_player_data() -> str:
+def get_player_data(player_id: str, season: str = "2023") -> str:
     """Get football/soccer player data from RapidAPI."""
-    print("get_football_data():")
+    print("get_player_data():")
     try:
         api_key = os.getenv("RAPIDAPI_KEY")
         if not api_key:
@@ -96,15 +96,12 @@ def get_player_data() -> str:
             'x-rapidapi-key': api_key,
         }
 
-        conn.request("GET", "/v3/fixtures/players?fixture=169080", headers=headers)
+        conn.request("GET", f"/v3/players?id={player_id}&season={season}", headers=headers)
 
-        response = conn.getresponse() #Returns HTTP response object
+        response = conn.getresponse()
         data = response.read()
-
         decoded_data = data.decode("utf8")
-
         print("Rapid API football player data retrieved successfully")
-
         return decoded_data
     except Exception as e:
         error_msg = f"Error fetching Rapid API football player data: {e}"
@@ -129,16 +126,46 @@ def get_game_data(fixture_id: str) -> str:
 
         conn.request("GET", f"/v3/fixtures?id={fixture_id}", headers=headers)
 
-        response = conn.getresponse() #Returns HTTP response object
+        response = conn.getresponse()
         data = response.read()
 
         decoded_data = data.decode("utf8")
+        logger.info(f"API raw response: {decoded_data}")
 
         print("Rapid API football game data retrieved successfully")
 
         return decoded_data
     except Exception as e:
         error_msg = f"Error fetching Rapid API football game data: {e}"
+        print(error_msg)
+        return error_msg
+
+
+@function_tool
+def get_team_data(team_id: str) -> str:
+    """Get football/soccer team data from RapidAPI."""
+    print("get_team_data():")
+    try:
+        api_key = os.getenv("RAPIDAPI_KEY")
+        if not api_key:
+            raise ValueError("RAPID_API_KEY not found.")
+        
+        conn = http.client.HTTPSConnection("api-football-v1.p.rapidapi.com")
+        
+        headers = {
+            'x-rapidapi-host': "api-football-v1.p.rapidapi.com",
+            'x-rapidapi-key': api_key,
+        }
+
+        conn.request("GET", f"/v3/teams?id={team_id}", headers=headers)
+
+        response = conn.getresponse()
+        data = response.read()
+        decoded_data = data.decode("utf8")
+        print("Rapid API football team data retrieved successfully")
+        return decoded_data
+    except Exception as e:
+        error_msg = f"Error fetching Rapid API football team data: {e}"
         print(error_msg)
         return error_msg
 
@@ -217,7 +244,7 @@ class DataCollectorAgent():
         self.agent= Agent(
             name="SportsDataCollector",
             instructions=temp_prompt,
-            tools=[get_game_data, get_player_data, get_football_data],
+            tools=[get_game_data, get_player_data, get_team_data, get_football_data],
             model=currentModel,
             output_guardrails=[validate_data_quality],
             )
@@ -273,28 +300,23 @@ class DataCollectorAgent():
             logger.error(f"Failed to collect team data for team {team_id}: {e}")
             raise
 
-    async def collect_player_data(self, player_id: str) -> Dict[str, Any]:
-        """Collect player data for a specific player ID."""
+    async def collect_player_data(self, player_id: str, season: str) -> Dict[str, Any]:
+        """Collect player data for a specific player ID and season."""
         try:
-            logger.info(f"Collecting player data for player {player_id}")
-            
+            logger.info(f"Collecting player data for player {player_id} in season {season}")
             # Use the agent to collect player data
-            result = await Runner.run(self.agent, f"Get player data for player {player_id}")
-            
+            result = await Runner.run(self.agent, f"Get player data for player {player_id} in season {season}")
             if not result or not result.final_output:
                 raise ValueError("No player data received from collector")
-            
             # Parse the result
             if isinstance(result.final_output, str):
                 data = json.loads(result.final_output)
             else:
                 data = result.final_output
-            
-            logger.info(f"Successfully collected player data for player {player_id}")
+            logger.info(f"Successfully collected player data for player {player_id} in season {season}")
             return data
-            
         except Exception as e:
-            logger.error(f"Failed to collect player data for player {player_id}: {e}")
+            logger.error(f"Failed to collect player data for player {player_id} in season {season}: {e}")
             raise
 
 
