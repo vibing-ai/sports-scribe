@@ -1,26 +1,45 @@
-import { Card, CardBody, CardHeader } from "@heroui/react";
+import { createClient } from '@/lib/supabase/client'
+import { ArticleContent } from '@/components/articles/article-content'
+import { Button } from '@heroui/react'
+import Link from 'next/link'
+import { notFound } from 'next/navigation'
 
 interface ArticlePageProps {
   params: {
-    id: string;
-  };
+    id: string
+  }
 }
 
-export default function ArticlePage({ params }: ArticlePageProps) {
+export default async function ArticlePage({ params }: ArticlePageProps) {
+  const supabase = createClient()
+
+  const { data: article, error } = await supabase
+    .from('articles')
+    .select('*')
+    .eq('id', params.id)
+    .eq('status', 'published')
+    .single()
+
+  if (error || !article) {
+    notFound()
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
-      <Card>
-        <CardHeader>
-          <h1 className="text-3xl font-bold">Article {params.id}</h1>
-        </CardHeader>
-        <CardBody>
-          <p>This is a placeholder for article content with ID: {params.id}</p>
-          <p className="mt-4 text-gray-600">
-            This page will display the full content of an AI-generated sports
-            article.
-          </p>
-        </CardBody>
-      </Card>
+      {/* Back button */}
+      <Link href="/articles">
+        <Button variant="light" className="mb-6">
+          ← Back to Articles
+        </Button>
+      </Link>
+
+      <ArticleContent
+        title={article.title}
+        content={article.content}
+        sport={article.sport}
+        createdAt={article.created_at}
+        author={article.author_type === 'ai' ? 'AI Sports Writer' : article.author_agent || 'Unknown'}
+      />
     </div>
-  );
+  )
 }

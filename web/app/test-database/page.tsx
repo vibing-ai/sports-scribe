@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Button, Card, CardBody, CardHeader } from '@heroui/react'
-import { testDatabaseConnection } from '@/lib/supabase/test-connection'
+import { createClient } from '@/lib/supabase/client'
 
 interface TestResult {
   success: boolean;
@@ -17,8 +17,50 @@ export default function TestDatabase() {
 
   const runTest = async () => {
     setLoading(true)
-    const testResult = await testDatabaseConnection()
-    setResult(testResult)
+    
+    try {
+      const supabase = createClient()
+      
+      // Fetch all articles
+      const { data: articles, error: articlesError } = await supabase
+        .from('articles')
+        .select('*')
+      
+      if (articlesError) throw articlesError
+      
+      console.log('📄 All articles:', articles)
+      console.log('📄 Article fields:', articles.length > 0 ? Object.keys(articles[0]) : 'No articles')
+      
+      // Try different published queries
+      const { data: publishedStatus, error: statusError } = await supabase
+        .from('articles')
+        .select('*')
+        .eq('status', 'published')
+      
+      const { data: publishedBool, error: boolError } = await supabase
+        .from('articles')
+        .select('*')
+        .eq('published', true)
+      
+      const testResult = {
+        success: true,
+        message: 'Database test completed!',
+        data: {
+          totalArticles: articles.length,
+          publishedStatus: publishedStatus?.length || 0,
+          publishedBool: publishedBool?.length || 0,
+          sampleArticle: articles[0],
+          statusError: statusError?.message,
+          boolError: boolError?.message
+        }
+      }
+      
+      setResult(testResult)
+    } catch (error: any) {
+      console.error('Test failed:', error)
+      setResult({ success: false, error: error.message })
+    }
+    
     setLoading(false)
   }
 
@@ -45,7 +87,7 @@ export default function TestDatabase() {
               <h3 className="font-semibold mb-2">
                 {result.success ? '✅ Success!' : '❌ Error!'}
               </h3>
-              <pre className="text-sm">
+              <pre className="text-sm whitespace-pre-wrap">
                 {JSON.stringify(result, null, 2)}
               </pre>
             </div>
