@@ -1,130 +1,139 @@
-"""Writing Agent.
-
-This agent generates engaging sports articles based on collected data and research.
-It uses AI to create compelling narratives from raw sports data and context.
-"""
-
 import logging
-from typing import Any, List, Dict
-from openai import AsyncOpenAI
-import os
+from typing import Dict, Any
+from dotenv import load_dotenv
 
+from agents import Agent, Runner
+
+load_dotenv()
 logger = logging.getLogger(__name__)
 
+class WriterAgent:
+    """
+    AI agent that generates complete football articles using collected data and research insights.
+    """
+    def __init__(self, config: Dict[str, Any] = None):
+        """Initialize the Writer Agent with configuration."""
+        self.config = config or {}
+        
+        # Initialize the writer agent
+        self.agent = Agent(
+            instructions="""You are a professional sports journalist specializing in writing engaging football game recaps.
+            Your task is to create compelling, well-structured articles that capture the excitement and significance of football matches.
+            
+            Guidelines:
+            - Write in a professional, engaging tone
+            - Use only the provided data - do not invent statistics or quotes
+            - Follow the exact structure provided in the template
+            - Maintain consistency in style and tone
+            - Focus on the most important storylines and moments
+            - Create articles that are 400-600 words in length
+            
+            Always return complete, well-formatted articles ready for publication.""",
+            name="WriterAgent",
+            output_type=str,
+            model=self.config.get("model", "gpt-4o"),
+        )
+        
+        logger.info("Writer Agent initialized successfully")
 
-class WritingAgent:
-    """Agent responsible for generating sports articles and content."""
-
-    def __init__(self, config: Dict[str, Any], openai_client: AsyncOpenAI = None):
-        """Initialize the Writing Agent with configuration."""
-        self.config = config
-        self.api_key = config.get("openai_api_key") or os.getenv("OPENAI_API_KEY")
-        self.model = config.get("model", "gpt-4")
-        self.max_tokens = config.get("max_tokens", 2000)
-        self.temperature = config.get("temperature", 0.7)
-        self.client = openai_client or AsyncOpenAI(api_key=self.api_key)
-        logger.info("Writing Agent initialized")
-
-    def _create_prompt(self, article_type: str, data: Dict[str, Any], research_data: Dict[str, Any], storylines: List[str]) -> str:
-        """Create a prompt for the AI model based on article type, data, and storylines."""
-        base_prompt = f"""You are a professional sports journalist writing for a major sports publication.\nGenerate an engaging {article_type} article based on the following data and storylines.\n\nKey Storylines:\n{chr(10).join(f"- {storyline}" for storyline in storylines)}\n\nRaw Data Summary:\n{self._format_data_summary(data)}\n\nRequirements:\n- Write in an engaging, professional sports journalism style\n- Include specific details from the data provided\n- Incorporate the key storylines naturally\n- Use active voice and dynamic language\n- Include relevant statistics and facts\n- Target length: 800-1200 words\n- Include a compelling headline\n\nArticle:"""
-        return base_prompt
-
-    def _format_data_summary(self, data: Dict[str, Any]) -> str:
-        """Format raw data into a readable summary for the AI prompt."""
-        summary_parts = []
-        if data.get("get") == "game_data":
-            fixture_data = data.get("response", [{}])[0].get("fixture", {})
-            if fixture_data:
-                fixture_response = fixture_data.get("response", [])
-                if fixture_response:
-                    fixture = fixture_response[0]
-                    teams = fixture.get("teams", {})
-                    goals = fixture.get("goals", {})
-                    summary_parts.append(f"Match: {teams.get('home', {}).get('name', 'Home')} vs {teams.get('away', {}).get('name', 'Away')}")
-                    summary_parts.append(f"Score: {goals.get('home', 0)} - {goals.get('away', 0)}")
-                    summary_parts.append(f"Date: {fixture.get('fixture', {}).get('date', 'Unknown')}")
-                    summary_parts.append(f"Venue: {fixture.get('fixture', {}).get('venue', {}).get('name', 'Unknown')}")
-        elif data.get("get") == "team_data":
-            team_info = data.get("response", [{}])[0].get("team_info", {})
-            if team_info:
-                team_response = team_info.get("response", [])
-                if team_response:
-                    team = team_response[0]
-                    summary_parts.append(f"Team: {team.get('team', {}).get('name', 'Unknown')}")
-                    summary_parts.append(f"Country: {team.get('team', {}).get('country', 'Unknown')}")
-                    summary_parts.append(f"Founded: {team.get('team', {}).get('founded', 'Unknown')}")
-        elif data.get("get") == "player_data":
-            player_info = data.get("response", [{}])[0].get("player_info", {})
-            if player_info:
-                player_response = player_info.get("response", [])
-                if player_response:
-                    player = player_response[0]
-                    summary_parts.append(f"Player: {player.get('player', {}).get('name', 'Unknown')}")
-                    summary_parts.append(f"Age: {player.get('player', {}).get('age', 'Unknown')}")
-                    summary_parts.append(f"Position: {player.get('statistics', [{}])[0].get('games', {}).get('position', 'Unknown')}")
-        return "\n".join(summary_parts) if summary_parts else "No detailed data available"
-
-    async def generate_game_recap(self, game_data: Dict[str, Any], research_data: Dict[str, Any], storylines: List[str]) -> str:
-        """Generate a game recap article using storylines."""
+    async def generate_game_recap(self, game_info: Dict[str, Any], research: Dict[str, Any]) -> str:
+        """Generate a complete football game recap article."""
         logger.info("Generating game recap article")
-        prompt = self._create_prompt("game recap", game_data, research_data, storylines)
+        
         try:
-            response = await self.client.chat.completions.create(
-                model=self.model,
-                messages=[
-                    {"role": "system", "content": "You are a professional sports journalist specializing in football."},
-                    {"role": "user", "content": prompt}
-                ],
-                max_tokens=self.max_tokens,
-                temperature=self.temperature
-            )
-            return response.choices[0].message.content.strip()
+            prompt = self._build_prompt(game_info, research)
+            result = await Runner.run(self.agent, prompt)
+            article = result.final_output_as(str).strip()
+            self._validate_article(article)
+            return article
+            
         except Exception as e:
             logger.error(f"Error generating game recap: {e}")
-            return self._generate_fallback_article("game recap", game_data, storylines)
+            raise
 
-    async def generate_player_spotlight(self, player_data: Dict[str, Any], performance_data: Dict[str, Any], storylines: List[str]) -> str:
-        """Generate a player spotlight article using storylines."""
-        logger.info("Generating player spotlight article")
-        prompt = self._create_prompt("player spotlight", player_data, performance_data, storylines)
-        try:
-            response = await self.client.chat.completions.create(
-                model=self.model,
-                messages=[
-                    {"role": "system", "content": "You are a professional sports journalist specializing in player analysis."},
-                    {"role": "user", "content": prompt}
-                ],
-                max_tokens=self.max_tokens,
-                temperature=self.temperature
-            )
-            return response.choices[0].message.content.strip()
-        except Exception as e:
-            logger.error(f"Error generating player spotlight: {e}")
-            return self._generate_fallback_article("player spotlight", player_data, storylines)
+    def _build_prompt(self, game_info, research) -> str:
 
-    async def generate_preview_article(self, matchup_data: Dict[str, Any], predictions: Dict[str, Any], storylines: List[str]) -> str:
-        """Generate a game preview article using storylines."""
-        logger.info("Generating preview article")
-        prompt = self._create_prompt("game preview", matchup_data, predictions, storylines)
-        try:
-            response = await self.client.chat.completions.create(
-                model=self.model,
-                messages=[
-                    {"role": "system", "content": "You are a professional sports journalist specializing in match previews."},
-                    {"role": "user", "content": prompt}
-                ],
-                max_tokens=self.max_tokens,
-                temperature=self.temperature
-            )
-            return response.choices[0].message.content.strip()
-        except Exception as e:
-            logger.error(f"Error generating preview article: {e}")
-            return self._generate_fallback_article("game preview", matchup_data, storylines)
+        logger.info(f"Building prompt for game recap")
+        logger.info(f"Game Info: {game_info}")
+        logger.info(f"Research Insights: {research}")
 
-    def _generate_fallback_article(self, article_type: str, data: Dict[str, Any], storylines: List[str]) -> str:
-        """Generate a fallback article when AI generation fails."""
-        logger.warning(f"Using fallback article generation for {article_type}")
-        data_summary = self._format_data_summary(data)
-        storylines_text = "\n".join(f"- {storyline}" for storyline in storylines)
-        return f"""# {article_type.title()} Article\n\n## Match Summary\n{data_summary}\n\n## Key Storylines\n{storylines_text}\n\n## Article Content\nThis is a fallback article generated when AI services are unavailable. \nThe actual content would be generated using advanced AI models to create \nengaging, professional sports journalism content based on the provided data \nand storylines.\n\nPlease ensure AI services are properly configured for optimal article generation."""
+        prompt = f"""
+            Write a professional football game recap article (400-600 words) with the following structure:
+            - Headline
+            - Introduction (context, teams, stakes)
+            - Body (game storyline, key moments, player performances, relevant statistics, quotes)
+            - Conclusion (summary, implications)
+            Include [Headline, Introduction, Body, Conclusion] in the article to make it easier for the junior writer to understand the structure.
+
+            Template for game recap:
+            {self.get_game_recap_template()}
+
+            CRITICAL: You must clearly distinguish between CURRENT MATCH DATA and HISTORICAL/BACKGROUND DATA.
+
+            CURRENT MATCH DATA (Primary Focus - This is what actually happened in this specific game):
+            - Game Info: {game_info}
+            - This contains the actual events, scores, players, and moments from THIS SPECIFIC MATCH
+            - Use this as your main source for describing what happened in the game
+            - Focus on: goals, cards, substitutions, key moments, final score, venue, date
+
+            HISTORICAL/BACKGROUND DATA (Context Only - Use sparingly for introduction/context):
+            - Research Insights: {research}
+            - This contains background information, historical context, and analysis
+            - Use this ONLY for:
+              * Brief introduction context (team history, league position, etc.)
+              * Background information that helps explain the significance
+              * Historical rivalry or previous meetings (if relevant)
+            - DO NOT confuse this with current match events
+            - DO NOT use historical statistics as if they happened in this game
+
+            Instructions:
+            - Write a complete article following the template structure exactly
+            - PRIORITIZE CURRENT MATCH DATA - focus on what actually happened in this specific game
+            - Use historical/background data ONLY for context and introduction, not as main story
+            - When describing events, clearly indicate they happened in THIS match
+            - Do not mix up historical statistics with current match statistics
+            - Use only the provided data - do not invent statistics or quotes
+            - Use data efficiently and do not miss critical information from the current match data like goals, score, etc.
+            - Maintain a consistent, professional tone, and do not make professional mistakes like using wrong team names, wrong scores, etc.
+            - Ensure the article is between 400-600 words
+            - Include all required sections: Headline, Introduction, Body, Conclusion
+            - The main story should be about THIS GAME, not historical background
+            """
+        return prompt
+    
+    def get_game_recap_template(self):
+        return """
+        Template: Match Report Structure (400-600 words)
+        
+        Headline: [Team A] [Score] [Team B]: [Key moment/player] [action verb] [competition context]
+        - Concise, engaging headline that captures the main story
+        - Include teams, background, score, and key narrative element
+        
+        Introduction: Context, teams, and stakes
+        - Establish result significance with score and competition context
+        - Example: "[Winning team] secured a [score] victory over [losing team] in [competition], with [key factor] proving decisive."
+        - Introduce background of the game and teams
+        - Set up the stakes and importance of the match
+        
+        Body: Game storyline, key moments, player performances, relevant statistics, quotes
+        - Describe key moments in temporal sequence, emphasizing turning points and goals
+        - Focus on game-changing incidents rather than comprehensive play-by-play
+        - Include individual standout performances and tactical decisions
+        - Integrate relevant statistics (possession, shots, etc.) and player quotes
+        - Maintain narrative flow while covering all essential game elements
+        
+        Conclusion: Summary and implications
+        - Summarize the key outcome and its significance
+        - Address competitive implications (league standings, qualification scenarios, season trajectory)
+        - Provide forward-looking perspective on what this result means for both teams
+        """
+
+    def _validate_article(self, article: str):
+        word_count = len(article.split())
+        if word_count < 400 or word_count > 600:
+            raise ValueError(f"Article length out of bounds: {word_count} words.")
+        if not ("Headline" in article or article.split('\n')[0].strip()):
+            raise ValueError("Article missing headline.")
+        if not any(section in article for section in ["Introduction", "Body", "Conclusion"]):
+            raise ValueError("Article missing required sections.")
+        # Add more checks as needed

@@ -12,7 +12,7 @@ import sys
 from datetime import datetime
 
 # Add the project root to the Python path
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from scriber_agents.pipeline import AgentPipeline
 from dotenv import load_dotenv
@@ -87,6 +87,26 @@ async def generate_game_recap_example():
             print(f"  Model used: {metadata.get('model_used')}")
             print(f"  Data sources: {metadata.get('data_sources')}")
             
+            # Save result to file
+            result_dir = os.path.join(os.path.dirname(__file__), "..", "result")
+            os.makedirs(result_dir, exist_ok=True)
+            output_path = os.path.join(result_dir, f"game_recap_{game_id}.txt")
+            with open(output_path, "w", encoding="utf-8") as f:
+                f.write("=" * 50 + "\n")
+                f.write("📰 GENERATED ARTICLE\n")
+                f.write("=" * 50 + "\n")
+                f.write(content + "\n")
+                f.write("=" * 50 + "\n\n")
+                if storylines:
+                    f.write("🎯 KEY STORYLINES:\n")
+                    for i, storyline in enumerate(storylines, 1):
+                        f.write(f"  {i}. {storyline}\n")
+                    f.write("\n")
+                f.write("📊 METADATA:\n")
+                for k, v in metadata.items():
+                    f.write(f"  {k}: {v}\n")
+            print(f"\n✅ Result saved to: {output_path}")
+            
         else:
             logger.error("❌ Failed to generate game recap")
             logger.error(f"Error: {result.get('error', 'Unknown error')}")
@@ -111,21 +131,21 @@ async def test_pipeline_components():
         game_data = await pipeline._collect_game_data("239625")
         logger.info(f"✅ Data collection: {'Success' if game_data else 'Failed'}")
         
-        # Test format manager
-        logger.info("🔄 Testing format manager...")
-        if game_data:
-            formatted_data = await pipeline.format_manager.prepare_data_for_researcher(
-                game_data, "game_analysis"
-            )
-            logger.info(f"✅ Format manager: {'Success' if formatted_data else 'Failed'}")
-        
         # Test researcher
         logger.info("🔍 Testing researcher...")
         if game_data:
-            storylines = await pipeline.researcher.generate_storylines([game_data])
+            storylines = await pipeline.researcher.get_storyline_from_game_data(game_data)
             logger.info(f"✅ Researcher: {'Success' if storylines else 'Failed'}")
             if storylines:
                 logger.info(f"   Generated {len(storylines)} storylines")
+        
+        # Test team and player info extraction
+        logger.info("👥 Testing team and player info extraction...")
+        if game_data:
+            team_info = pipeline.extract_team_info(game_data)
+            player_info = pipeline.extract_player_info(game_data)
+            logger.info(f"✅ Team info extraction: {'Success' if 'error' not in team_info else 'Failed'}")
+            logger.info(f"✅ Player info extraction: {'Success' if 'error' not in player_info else 'Failed'}")
         
         logger.info("✅ All component tests completed")
         

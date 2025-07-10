@@ -1,0 +1,24 @@
+[33m410a561[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{0}: pull origin main: Fast-forward
+[33mcc443fe[m HEAD@{1}: commit: pipeline with collector researcher implemented
+[33mf515bcf[m HEAD@{2}: commit (merge): pipeline with collector researcher implemented
+[33m25e1861[m HEAD@{3}: commit: pipeline for agent
+[33m1b9fd35[m[33m ([m[1;31morigin/feature/agent-pipleline[m[33m)[m HEAD@{4}: merge origin/feature/agent-pipleline: Fast-forward
+[33m807bf41[m[33m ([m[1;31mupstream/main[m[33m)[m HEAD@{5}: checkout: moving from feature/agent-pipleline to main
+[33ma572457[m[33m ([m[1;32mfeature/agent-pipleline[m[33m)[m HEAD@{6}: commit: pipeline for agent
+[33m1b9fd35[m[33m ([m[1;31morigin/feature/agent-pipleline[m[33m)[m HEAD@{7}: commit: researcher agent implementation placeholder
+[33m0cf4afd[m HEAD@{8}: commit: researcher agent implementation placeholder
+[33mc3a0956[m HEAD@{9}: reset: moving to origin/feature/agent-pipleline
+[33mc3a0956[m HEAD@{10}: commit: base agent example
+[33mf9c5073[m HEAD@{11}: commit: base agent example
+[33mfaffe8a[m HEAD@{12}: commit: base agent example
+[33m9eec046[m HEAD@{13}: commit: base agent example
+[33mc03c50c[m HEAD@{14}: commit: base agent example
+[33mb31d357[m HEAD@{15}: commit: feat: improve pipeline logging and raw data output, simplify error handling
+[33ma26f617[m HEAD@{16}: commit: feat: improve pipeline logging and raw data output, simplify error handling
+[33m63ef980[m HEAD@{17}: commit: A basic pipeline implementation for the agents
+[33m807bf41[m[33m ([m[1;31mupstream/main[m[33m)[m HEAD@{18}: checkout: moving from main to feature/agent-pipleline
+[33m807bf41[m[33m ([m[1;31mupstream/main[m[33m)[m HEAD@{19}: merge upstream/main: Fast-forward
+[33madf7477[m HEAD@{20}: checkout: moving from main to main
+[33madf7477[m HEAD@{21}: merge upstream/main: Fast-forward
+[33mabb582e[m HEAD@{22}: checkout: moving from main to main
+[33mabb582e[m HEAD@{23}: clone: from https://github.com/alkalisoda/sports-scribe

@@ -2,7 +2,7 @@
 Streamlined Pipeline Orchestrator.
 
 This module coordinates the flow between different agents in the SportsScribe pipeline:
-Data Collector → Format Manager → Researcher → Format Manager → Writer
+Data Collector → Research → Writer
 """
 
 import logging
@@ -12,8 +12,7 @@ from typing import Any, Dict, Optional, List
 
 from .data_collector import DataCollectorAgent
 from .researcher import ResearchAgent
-from .writer import WritingAgent
-from .format_manager import FormatManager
+from .writer import WriterAgent
 from openai import AsyncOpenAI
 
 from dotenv import load_dotenv
@@ -52,16 +51,15 @@ class AgentPipeline:
         
         # Initialize all agents
         self.collector = DataCollectorAgent(config)
-        self.format_manager = FormatManager(config)
         self.researcher = ResearchAgent(config)
-        self.writer = WritingAgent(config, self.openai_client)
+        self.writer = WriterAgent(config)
         
         logger.info("AgentPipeline initialized successfully")
 
     async def generate_game_recap(self, game_id: str) -> Dict[str, Any]:
         """Generate a complete game recap article.
         
-        Pipeline: Data Collection → Format Manager → Research → Format Manager → Writer
+        Pipeline: Data Collection → Research → Writer
         """
         pipeline_start_time = datetime.now()
         logger.info(f"[PIPELINE] Starting game recap generation for game: {game_id}")
@@ -148,161 +146,64 @@ class AgentPipeline:
             
             logger.info(f"[PIPELINE] Enhanced team and player data collected successfully")
             
-            # Step 2: Format Manager - Convert raw data for researcher
-            logger.info(f"[PIPELINE] Step 2: Format Manager converting data for research")
-            formatted_for_research = await self.format_manager.prepare_data_for_researcher(
-                raw_game_data, "game_analysis"
-            )
+            # Step 2: Research and generate storylines
+            logger.info(f"[PIPELINE] Step 2: Conducting research and generating storylines")
             
-            # Add enhanced team and player information to formatted data
-            if isinstance(formatted_for_research, dict) and "error" not in formatted_for_research:
-                formatted_for_research["team_info"] = enhanced_team_data
-                formatted_for_research["player_info"] = enhanced_player_data
-                logger.info(f"[PIPELINE] Added enhanced team and player info to formatted research data")
-            else:
-                logger.warning(f"[PIPELINE] Could not add enhanced team/player info to formatted data due to error")
-            
-            # Log formatted research data information
-            logger.info(f"[PIPELINE-DATA] Formatted research data:")
-            logger.info(f"[PIPELINE-DATA]   Type: {type(formatted_for_research)}")
-            logger.info(f"[PIPELINE-DATA]   Keys: {list(formatted_for_research.keys()) if isinstance(formatted_for_research, dict) else 'Not a dict'}")
-            if isinstance(formatted_for_research, dict):
-                if "error" in formatted_for_research:
-                    logger.warning(f"[PIPELINE-DATA]   Error in formatted data: {formatted_for_research['error']}")
-                if "game_data" in formatted_for_research:
-                    game_data = formatted_for_research["game_data"]
-                    logger.info(f"[PIPELINE-DATA]   Game data keys: {list(game_data.keys()) if isinstance(game_data, dict) else 'Not a dict'}")
-                    if isinstance(game_data, dict):
-                        logger.info(f"[PIPELINE-DATA]   Home team: {game_data.get('home_team', 'Unknown')}")
-                        logger.info(f"[PIPELINE-DATA]   Away team: {game_data.get('away_team', 'Unknown')}")
-                        logger.info(f"[PIPELINE-DATA]   Score: {game_data.get('home_score', 0)}-{game_data.get('away_score', 0)}")
-                if "team_info" in formatted_for_research:
-                    logger.info(f"[PIPELINE-DATA]   Team info included: {bool(formatted_for_research['team_info'])}")
-                if "player_info" in formatted_for_research:
-                    logger.info(f"[PIPELINE-DATA]   Player info included: {bool(formatted_for_research['player_info'])}")
-            
-            logger.info(f"[PIPELINE] Data formatted for research successfully")
-            
-            # Step 3: Research and generate storylines
-            logger.info(f"[PIPELINE] Step 3: Conducting research and generating storylines")
-            research_data = await self.researcher.analyze_game_data(formatted_for_research)
-            logger.info(f"[PIPELINE-DATA] Researcher game_analysis output:")
-            if isinstance(research_data, list):
-                for i, item in enumerate(research_data):
-                    logger.info(f"[PIPELINE-DATA]   GameAnalysis {i+1}: {item}")
-
-            # Step 3.1: Analyze historical context between teams
-            logger.info(f"[PIPELINE] Step 3.1: Analyzing historical context between teams")
-            historical_context = await self.researcher.get_history_from_team_data(enhanced_team_data)
-            logger.info(f"[PIPELINE-DATA] Researcher historical_context output:")
-            if isinstance(historical_context, list):
-                for i, item in enumerate(historical_context):
-                    logger.info(f"[PIPELINE-DATA]   History {i+1}: {item}")
-
-            # Step 3.2: Analyze individual player performances
-            logger.info(f"[PIPELINE] Step 3.2: Analyzing individual player performances")
-            player_performance_analysis = await self.researcher.get_performance_from_player_game_data(enhanced_player_data, formatted_for_research)
-            logger.info(f"[PIPELINE-DATA] Researcher player_performance output:")
-            if isinstance(player_performance_analysis, list):
-                for i, item in enumerate(player_performance_analysis):
-                    logger.info(f"[PIPELINE-DATA]   Performance {i+1}: {item}")
-
-            # Step 3.3: Generate comprehensive storylines
-            logger.info(f"[PIPELINE] Step 3.3: Generating comprehensive storylines")
-            storylines = await self.researcher.generate_storylines([formatted_for_research])
-            logger.info(f"[PIPELINE-DATA] Researcher storylines output:")
-            if isinstance(storylines, list):
-                for i, item in enumerate(storylines):
-                    logger.info(f"[PIPELINE-DATA]   Storyline {i+1}: {item}")
-            
-            # Combine all research data into a comprehensive structure
-            comprehensive_research_data = {
-                "game_analysis": research_data,
-                "historical_context": historical_context,
-                "player_performance": player_performance_analysis,
-                "storylines": storylines,
+            # Create a combined data structure for research
+            research_input = {
+                "game_data": raw_game_data,
                 "team_info": enhanced_team_data,
                 "player_info": enhanced_player_data
             }
             
+            # Step 2.1: Analyze game data for storylines
+            logger.info(f"[PIPELINE] Step 2.1: Analyzing game data for storylines")
+            game_analysis = await self.researcher.get_storyline_from_game_data(raw_game_data)
+            logger.info(f"[PIPELINE-DATA] Game analysis storylines: {len(game_analysis) if isinstance(game_analysis, list) else 'Not a list'}")
+
+            # Step 2.2: Analyze historical context between teams
+            logger.info(f"[PIPELINE] Step 2.2: Analyzing historical context between teams")
+            historical_context = await self.researcher.get_history_from_team_data(enhanced_team_data)
+            logger.info(f"[PIPELINE-DATA] Historical context storylines: {len(historical_context) if isinstance(historical_context, list) else 'Not a list'}")
+
+            # Step 2.3: Analyze individual player performances
+            logger.info(f"[PIPELINE] Step 2.3: Analyzing individual player performances")
+            player_performance_analysis = await self.researcher.get_performance_from_player_game_data(enhanced_player_data, raw_game_data)
+            logger.info(f"[PIPELINE-DATA] Player performance storylines: {len(player_performance_analysis) if isinstance(player_performance_analysis, list) else 'Not a list'}")
+            
+            # Combine all research data into a comprehensive structure
+            comprehensive_research_data = {
+                "game_analysis": game_analysis,
+                "historical_context": historical_context,
+                "player_performance": player_performance_analysis,
+                "storylines": game_analysis + historical_context + player_performance_analysis,
+            }
+            
             # Log research data information
-            logger.info(f"[PIPELINE-DATA] Research data:")
-            logger.info(f"[PIPELINE-DATA]   Type: {type(research_data)}")
-            if hasattr(research_data, 'model_dump'):
-                research_dict = research_data.model_dump()
-                logger.info(f"[PIPELINE-DATA]   Research keys: {list(research_dict.keys())}")
-                logger.info(f"[PIPELINE-DATA]   Storylines count: {len(research_dict.get('storylines', []))}")
-                logger.info(f"[PIPELINE-DATA]   Key events count: {len(research_dict.get('key_events', []))}")
-            elif isinstance(research_data, dict):
-                logger.info(f"[PIPELINE-DATA]   Research keys: {list(research_data.keys())}")
-                logger.info(f"[PIPELINE-DATA]   Storylines count: {len(research_data.get('storylines', []))}")
-            
-            # Log historical context information
-            logger.info(f"[PIPELINE-DATA] Historical context:")
-            logger.info(f"[PIPELINE-DATA]   Type: {type(historical_context)}")
-            if isinstance(historical_context, dict):
-                logger.info(f"[PIPELINE-DATA]   Historical keys: {list(historical_context.keys())}")
-                logger.info(f"[PIPELINE-DATA]   Historical storylines: {len(historical_context.get('storylines', []))}")
-                logger.info(f"[PIPELINE-DATA]   Total matches: {historical_context.get('total_matches', 0)}")
-            
-            # Log player performance analysis information
-            logger.info(f"[PIPELINE-DATA] Player performance analysis:")
-            logger.info(f"[PIPELINE-DATA]   Type: {type(player_performance_analysis)}")
-            if isinstance(player_performance_analysis, dict):
-                logger.info(f"[PIPELINE-DATA]   Performance keys: {list(player_performance_analysis.keys())}")
-                logger.info(f"[PIPELINE-DATA]   Player storylines: {len(player_performance_analysis.get('storylines', []))}")
-            
-            # Log comprehensive research data
             logger.info(f"[PIPELINE-DATA] Comprehensive research data:")
             logger.info(f"[PIPELINE-DATA]   Type: {type(comprehensive_research_data)}")
             logger.info(f"[PIPELINE-DATA]   Keys: {list(comprehensive_research_data.keys())}")
+            logger.info(f"[PIPELINE-DATA]   Total storylines: {len(comprehensive_research_data.get('storylines', []))}")
             
-            # Log storylines information
-            logger.info(f"[PIPELINE-DATA] Generated storylines:")
-            logger.info(f"[PIPELINE-DATA]   Type: {type(storylines)}")
-            logger.info(f"[PIPELINE-DATA]   Count: {len(storylines) if isinstance(storylines, list) else 'Not a list'}")
-            if isinstance(storylines, list):
-                for i, storyline in enumerate(storylines[:3]):  # Log first 3 storylines
-                    logger.info(f"[PIPELINE-DATA]   Storyline {i+1}: {storyline[:100]}...")
+            logger.info(f"[PIPELINE] Research completed, generated {len(comprehensive_research_data.get('storylines', []))} storylines")
             
-            logger.info(f"[PIPELINE] Research completed, generated {len(storylines)} storylines with historical context and player analysis")
+            # Step 3: Generate article content
+            logger.info(f"[PIPELINE] Step 3: Generating article content")
             
-            # Step 4: Format Manager - Convert data for writer
-            logger.info(f"[PIPELINE] Step 4: Format Manager converting data for writing")
-            formatted_for_writer = await self.format_manager.prepare_data_for_writer(
-                raw_game_data, comprehensive_research_data, "game_recap"
-            )
+            # Prepare data for writer
+            game_info = raw_game_data
+            team_info_for_writer = enhanced_team_data
+            player_info_for_writer = enhanced_player_data
+            research_for_writer = comprehensive_research_data
             
-            # Add enhanced team and player information to writer data
-            if isinstance(formatted_for_writer, dict) and "error" not in formatted_for_writer:
-                formatted_for_writer["team_info"] = enhanced_team_data
-                formatted_for_writer["player_info"] = enhanced_player_data
-                logger.info(f"[PIPELINE] Added enhanced team and player info to formatted writer data")
+            # Log the data being passed to writer for debugging
+            logger.info(f"[PIPELINE-DEBUG] Data passed to writer:")
+            logger.info(f"[PIPELINE-DEBUG]   game_info type: {type(game_info)}, keys: {list(game_info.keys()) if isinstance(game_info, dict) else 'Not a dict'}")
+            logger.info(f"[PIPELINE-DEBUG]   research type: {type(research_for_writer)}, keys: {list(research_for_writer.keys()) if isinstance(research_for_writer, dict) else 'Not a dict'}")
             
-            # Log formatted writer data information
-            logger.info(f"[PIPELINE-DATA] Formatted writer data:")
-            logger.info(f"[PIPELINE-DATA]   Type: {type(formatted_for_writer)}")
-            logger.info(f"[PIPELINE-DATA]   Keys: {list(formatted_for_writer.keys()) if isinstance(formatted_for_writer, dict) else 'Not a dict'}")
-            if isinstance(formatted_for_writer, dict):
-                if "error" in formatted_for_writer:
-                    logger.warning(f"[PIPELINE-DATA]   Error in writer data: {formatted_for_writer['error']}")
-                if "data" in formatted_for_writer:
-                    logger.info(f"[PIPELINE-DATA]   Data keys: {list(formatted_for_writer['data'].keys()) if isinstance(formatted_for_writer['data'], dict) else 'Not a dict'}")
-                if "research" in formatted_for_writer:
-                    logger.info(f"[PIPELINE-DATA]   Research keys: {list(formatted_for_writer['research'].keys()) if isinstance(formatted_for_writer['research'], dict) else 'Not a dict'}")
-                if "storylines" in formatted_for_writer:
-                    logger.info(f"[PIPELINE-DATA]   Writer storylines count: {len(formatted_for_writer['storylines'])}")
-                if "team_info" in formatted_for_writer:
-                    logger.info(f"[PIPELINE-DATA]   Team info included in writer data: {bool(formatted_for_writer['team_info'])}")
-                if "player_info" in formatted_for_writer:
-                    logger.info(f"[PIPELINE-DATA]   Player info included in writer data: {bool(formatted_for_writer['player_info'])}")
-            
-            logger.info(f"[PIPELINE] Data formatted for writing successfully")
-            
-            # Step 5: Generate article content
-            logger.info(f"[PIPELINE] Step 5: Generating article content")
+            # Generate article using the writer agent
             article_content = await self.writer.generate_game_recap(
-                formatted_for_writer, comprehensive_research_data, storylines
+                game_info, research_for_writer
             )
             
             # Log article content information
@@ -314,7 +215,7 @@ class AgentPipeline:
             
             logger.info(f"[PIPELINE] Article content generated successfully")
             
-            # Step 6: Return results
+            # Step 4: Return results
             pipeline_duration = (datetime.now() - pipeline_start_time).total_seconds()
             logger.info(f"[PIPELINE] Game recap generation completed in {pipeline_duration:.2f} seconds")
             
@@ -323,7 +224,7 @@ class AgentPipeline:
                 "game_id": game_id,
                 "article_type": "game_recap",
                 "content": article_content,
-                "storylines": storylines,
+                "storylines": comprehensive_research_data.get("storylines", []),
                 "team_info": enhanced_team_data,
                 "player_info": enhanced_player_data,
                 "research_data": comprehensive_research_data,
@@ -334,14 +235,14 @@ class AgentPipeline:
                     "pipeline_duration": pipeline_duration,
                     "data_sources": ["rapidapi_football"],
                     "model_used": self.model,
-                    "format_manager_used": True,
+                    "format_manager_used": False,
                     "team_info_extracted": "error" not in team_info,
                     "player_info_extracted": "error" not in player_info,
                     "enhanced_team_data_collected": "error" not in enhanced_team_data,
                     "enhanced_player_data_collected": "error" not in enhanced_player_data,
                     "historical_context_analyzed": "error" not in historical_context,
                     "player_performance_analyzed": "error" not in player_performance_analysis,
-                    "comprehensive_storylines_generated": len(storylines) > 0
+                    "comprehensive_storylines_generated": len(comprehensive_research_data.get("storylines", [])) > 0
                 }
             }
             
@@ -764,7 +665,6 @@ class AgentPipeline:
             "pipeline_status": "operational",
             "agents": {
                 "data_collector": "initialized",
-                "format_manager": "initialized", 
                 "researcher": "initialized",
                 "writer": "initialized"
             },
@@ -773,7 +673,7 @@ class AgentPipeline:
                 "temperature": self.temperature,
                 "max_tokens": self.max_tokens
             },
-            "data_flow": "Data Collector → Format Manager → Researcher → Format Manager → Writer",
+            "data_flow": "Data Collector → Research → Writer",
             "timestamp": datetime.now().isoformat()
         }
 

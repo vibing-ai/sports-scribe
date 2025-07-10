@@ -10,14 +10,12 @@ This package contains the various AI agents that make up the Sport Scribe conten
 
 from .data_collector import DataCollectorAgent
 from .researcher import ResearchAgent
-from .writer import WritingAgent
-from .editor import EditorAgent
+from .writer import WriterAgent
 from .pipeline import ArticlePipeline
 
 __all__ = [
     "DataCollectorAgent",
     "ResearchAgent", 
-    "WritingAgent",
-    "EditorAgent",
+    "WriterAgent",
     "ArticlePipeline"
 ]

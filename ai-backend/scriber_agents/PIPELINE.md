@@ -82,11 +82,9 @@ All API calls return a standardized structure:
 **Purpose**: Generates engaging articles using AI and storylines
 
 **Key Functions**:
-- `generate_game_recap(game_data: Dict[str, Any], research_data: Dict[str, Any], storylines: List[str]) → str`
-- `generate_player_spotlight(player_data: Dict[str, Any], performance_data: Dict[str, Any], storylines: List[str]) → str`
-- `generate_preview_article(matchup_data: Dict[str, Any], predictions: Dict[str, Any], storylines: List[str]) → str`
+- `generate_article(game_info: Dict[str, Any], team_info: Dict[str, Any], player_info: Dict[str, Any], research: Dict[str, Any]) → str`
 
-**Input**: Raw data + Research data + Storylines list
+**Input**: Game info + Team info + Player info + Research data
 **Output**: Article content (string)
 
 ## Pipeline Architecture
@@ -102,7 +100,7 @@ class ArticlePipeline:
         # Initialize all agents with shared client
         self.collector = DataCollectorAgent(config, openai_client=self.openai_client)
         self.researcher = ResearchAgent(config, openai_client=self.openai_client)
-        self.writer = WritingAgent(config, openai_client=self.openai_client)
+        self.writer = WriterAgent(config)
     
     # Main generation methods
     async def generate_game_recap(self, game_id: str) -> Dict[str, Any]
@@ -147,7 +145,7 @@ async def generate_game_recap(game_id: str) -> Dict[str, Any]:
     storylines = await self._generate_storylines([game_data, team_data["home_team"], team_data["away_team"]])
     
     # Step 4: Content Generation
-    article_content = await self.writer.generate_game_recap(game_data, research_data, storylines)
+    article_content = await self.writer.generate_article(game_data, team_data, player_data, research_data)
     
     # Step 5: Return Results
     return self._format_result(content=article_content, metadata={...})
@@ -167,7 +165,7 @@ generate_game_recap()
 ├── _collect_team_data()
 ├── _research_game_context()
 ├── _generate_storylines()
-├── writer.generate_game_recap()
+├── writer.generate_article()
 └── _format_result()
 ```
 
