@@ -52,10 +52,14 @@ class WriterAgent:
             raise
 
     def _build_prompt(self, game_info, research) -> str:
-
         logger.info(f"Building prompt for game recap")
         logger.info(f"Game Info: {game_info}")
         logger.info(f"Research Insights: {research}")
+
+        # Extract different types of research data
+        storylines = research.get("game_analysis", [])  # Current match events only
+        historical_context = research.get("historical_context", [])  # Background information only
+        player_performance = research.get("player_performance", [])  # Current match player events only
 
         prompt = f"""
             Write a professional football game recap article (400-600 words) with the following structure:
@@ -72,12 +76,14 @@ class WriterAgent:
 
             CURRENT MATCH DATA (Primary Focus - This is what actually happened in this specific game):
             - Game Info: {game_info}
+            - Storylines (Current Match Events): {storylines}
+            - Player Performance (Current Match Events): {player_performance}
             - This contains the actual events, scores, players, and moments from THIS SPECIFIC MATCH
             - Use this as your main source for describing what happened in the game
             - Focus on: goals, cards, substitutions, key moments, final score, venue, date
 
             HISTORICAL/BACKGROUND DATA (Context Only - Use sparingly for introduction/context):
-            - Research Insights: {research}
+            - Historical Context: {historical_context}
             - This contains background information, historical context, and analysis
             - Use this ONLY for:
               * Brief introduction context (team history, league position, etc.)
@@ -85,6 +91,14 @@ class WriterAgent:
               * Historical rivalry or previous meetings (if relevant)
             - DO NOT confuse this with current match events
             - DO NOT use historical statistics as if they happened in this game
+
+            CRITICAL MATCHING RULES:
+            - When mentioning players, teams, or events, use EXACTLY the names and details from the provided data
+            - Do not mix up player names, team names, or event times
+            - If a player name is unclear or incomplete in the data, do not guess or complete it
+            - Verify that each player mentioned actually participated in the specific event described
+            - Only mention players who have clear, verifiable actions in the match events
+            - Double-check all player names, team names, and event details against the provided data
 
             Instructions:
             - Write a complete article following the template structure exactly
@@ -98,6 +112,7 @@ class WriterAgent:
             - Ensure the article is between 400-600 words
             - Include all required sections: Headline, Introduction, Body, Conclusion
             - The main story should be about THIS GAME, not historical background
+            - Be extremely careful with player names, team names, and event details - use only what is explicitly stated in the data
             """
         return prompt
     
@@ -136,4 +151,4 @@ class WriterAgent:
             raise ValueError("Article missing headline.")
         if not any(section in article for section in ["Introduction", "Body", "Conclusion"]):
             raise ValueError("Article missing required sections.")
-        # Add more checks as needed
+        

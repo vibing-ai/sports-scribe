@@ -59,49 +59,65 @@ class ResearchAgent:
         logger.info("Research Agent initialized successfully")
 
     async def get_storyline_from_game_data(self, game_data: dict) -> list[str]:
-        """Get storylines from game data.
+        """Get storylines from game data ONLY (current match events).
         
         Args:
-            game_data: Game data from Data Collector
+            game_data: Game data from Data Collector (ONLY current match events)
             
         Returns:
-            list[str]: List of storylines
+            list[str]: List of storylines based ONLY on current match events
         """
-        logger.info("Generating storylines from game data")
+        logger.info("Generating storylines from game data (current match events only)")
         
         try:
             prompt = f"""
-            Analyze the game data and extract key storylines from THIS SPECIFIC MATCH.
-            
-            GAME DATA (CURRENT MATCH ONLY):
-            {game_data}
-            
-            CRITICAL: Focus ONLY on events that occurred in THIS SPECIFIC MATCH. Do not confuse with historical data or previous matches.
-            
-            Provide game analysis focusing on (based ONLY on THIS match data):
-            1. Key moments and turning points from THIS match
-            2. Goals, cards, and substitutions from THIS match
-            3. Tactical decisions and formations used in THIS match
-            4. Player performances and contributions in THIS match
-            5. Match outcome and significance of THIS specific result
-            
-            Focus on what makes THIS match special and newsworthy based on the actual data provided.
-            Keep the analysis simple and accessible for junior writers.
-            If data is insufficient for certain aspects, focus on what is available.
-            
-            Based on the following data, output ONLY a JSON array (Python list) of 3-5 concise, newsworthy storylines/insights. 
-            Each element should be a single string. Do NOT include any introduction, explanation, or summary—just the JSON array.
+            You are analyzing game data for THIS SPECIFIC MATCH ONLY. Your task is to extract factual storylines that actually happened in this game.
 
-            DATA (CURRENT MATCH ONLY):
+            GAME DATA (CURRENT MATCH EVENTS ONLY):
             {game_data}
+
+            CRITICAL MATCHING RULES:
+            1. ONLY use information that explicitly appears in the game data above
+            2. ONLY describe events that actually occurred in THIS match
+            3. DO NOT make assumptions, inferences, or interpretations
+            4. DO NOT include any historical context or background information
+            5. DO NOT mention player or team statistics unless they appear in the match events
+            6. If information is not clearly present in the data, DO NOT include it
+            7. Focus ONLY on: goals, cards, substitutions, final score, venue, date, teams
+            8. CRITICAL: When mentioning players, teams, or events, use EXACTLY the names and details from the data
+            9. CRITICAL: Do not mix up player names, team names, or event times
+            10. CRITICAL: If a player name is unclear or incomplete in the data, do not guess or complete it
+            11. CRITICAL: Verify that each player mentioned actually participated in the specific event described
+
+            REQUIRED FORMAT:
+            Output ONLY a JSON array of 3-5 factual statements about THIS match.
+            Each statement must be directly supported by the game data.
+            Example format: ["Fact 1 about this match", "Fact 2 about this match", "Fact 3 about this match"]
+
+            VALID TOPICS (only if data supports them):
+            - Goals scored in this match (player, time, team)
+            - Cards shown in this match (player, time, type)
+            - Substitutions made in this match (player, time)
+            - Final score of this match
+            - Teams that played in this match
+            - Venue where this match was played
+            - Date when this match was played
+
+            INVALID TOPICS (do not include):
+            - Player historical statistics
+            - Team historical performance
+            - Previous meetings between teams
+            - Season-long statistics
+            - Background information not in the match data
+            - Any player or team information not explicitly in the match events
 
             Instructions:
-            - Output only a JSON array (Python list) of strings, e.g. ["storyline1", "storyline2", "storyline3"]
-            - No extra text, no explanations, no markdown, no numbering, no headings
-            - Base all storylines strictly on the provided data from THIS MATCH
-            - Only generate storylines based strictly on events that occurred during THIS SPECIFIC match
-            - Do not include information inferred from team or player history unless explicitly present in THIS match data
-            - Do not confuse current match statistics with historical statistics
+            - Output only a JSON array of strings
+            - No explanations, no markdown, no extra text
+            - Each statement must be a fact from THIS match only
+            - If you cannot find clear facts, output fewer statements
+            - Be extremely conservative - only include what is clearly stated in the data
+            - Double-check all player names, team names, and event details against the provided data
             """
             
             result = await Runner.run(self.agent, prompt)
@@ -119,48 +135,58 @@ class ResearchAgent:
             return ["Match analysis based on available game data", "Key moments and player performances from the data"]
 
     async def get_history_from_team_data(self, team_data: dict) -> list[str]:
-        """Get historical context from team data.
+        """Get historical context from team data ONLY (background information).
         
         Args:
-            team_data: Team information including enhanced data
+            team_data: Team information including enhanced data (background/historical only)
             
         Returns:
-            str: Historical context and analysis
+            list[str]: Historical context and background information
         """
-        logger.info("Analyzing historical context from team data")
+        logger.info("Analyzing historical context from team data (background information only)")
         
         try:
             prompt = f"""
-            Analyze the historical context and background information between these teams.
-            
-            TEAM DATA (HISTORICAL/BACKGROUND INFORMATION):
-            {team_data}
-            
-            CRITICAL: This is HISTORICAL/BACKGROUND data, NOT current match data. Use this only for context and introduction.
-            
-            Provide historical context focusing on (based ONLY on provided data):
-            1. Head-to-head record and significance (from historical data)
-            2. Recent form and momentum (from historical data)
-            3. Key historical moments between these teams (from historical data)
-            4. Current season context (from historical data)
-            5. Most compelling historical storylines (from historical data)
-            
-            Keep the analysis simple and accessible for junior writers.
-            Focus on the 3-5 most important historical angles based on available data.
-            If certain historical information is missing, focus on what is provided.
-            
-            Based on the following data, output ONLY a JSON array (Python list) of 3-5 concise, newsworthy storylines/insights. 
-            Each element should be a single string. Do NOT include any introduction, explanation, or summary—just the JSON array.
+            You are analyzing BACKGROUND and HISTORICAL information about teams. This is NOT about the current match.
 
-            DATA (HISTORICAL/BACKGROUND ONLY):
+            TEAM DATA (BACKGROUND/HISTORICAL INFORMATION ONLY):
             {team_data}
+
+            STRICT RULES:
+            1. This data is for BACKGROUND CONTEXT only, not current match events
+            2. ONLY use information that explicitly appears in the team data above
+            3. DO NOT mention any events from the current match
+            4. DO NOT make assumptions about current match performance
+            5. Focus on historical facts, team information, and background context
+            6. If information is not clearly present in the data, DO NOT include it
+
+            REQUIRED FORMAT:
+            Output ONLY a JSON array of 3-5 background context statements.
+            Each statement must be directly supported by the team data.
+            Example format: ["Background fact 1", "Background fact 2", "Background fact 3"]
+
+            VALID TOPICS (only if data supports them):
+            - Team founding dates and history
+            - Stadium information and capacity
+            - League and competition information
+            - Team codes and country information
+            - Historical team achievements (if mentioned in data)
+            - Background information about teams
+
+            INVALID TOPICS (do not include):
+            - Current match events
+            - Current match scores
+            - Current match players
+            - Current match statistics
+            - Any information not in the provided team data
 
             Instructions:
-            - Output only a JSON array (Python list) of strings, e.g. ["history1", "history2", "history3"]
-            - No extra text, no explanations, no markdown, no numbering, no headings
-            - Base all historical context strictly on the provided data
-            - This is BACKGROUND information, not current match events
-            - Use this data for context and introduction, not as the main story
+            - Output only a JSON array of strings
+            - No explanations, no markdown, no extra text
+            - Each statement must be background information only
+            - If you cannot find clear background facts, output fewer statements
+            - Be extremely conservative - only include what is clearly stated in the data
+            - Remember: This is BACKGROUND context, not current match information
             """
             
             result = await Runner.run(self.agent, prompt)
@@ -176,53 +202,69 @@ class ResearchAgent:
             return ["Historical context based on available team data", "Team performance analysis from provided data"]
 
     async def get_performance_from_player_game_data(self, player_data: dict, game_data: dict) -> list[str]:
-        """Analyze individual player performance from game data.
+        """Analyze individual player performance from game data ONLY (current match events).
         
         Args:
             player_data: Player information including enhanced data
-            game_data: Game data for context
+            game_data: Game data for context (current match events only)
             
         Returns:
-            str: Player performance analysis
+            list[str]: Player performance analysis based ONLY on current match events
         """
-        logger.info("Analyzing individual player performance from game data")
+        logger.info("Analyzing individual player performance from game data (current match events only)")
         
         try:
             prompt = f"""
-            Analyze the individual player performances from THIS SPECIFIC MATCH.
-            
-            GAME CONTEXT (CURRENT MATCH):
-            {game_data}
-            
-            PLAYER DATA (CURRENT MATCH PERFORMANCE + HISTORICAL BACKGROUND):
-            {player_data}
-            
-            CRITICAL: Distinguish between CURRENT MATCH performance and HISTORICAL player data.
-            
-            Provide individual performance analysis focusing on (based ONLY on provided data):
-            1. Standout performers and their impact in THIS match (from current match data)
-            2. Key moments and achievements in THIS match (from current match data)
-            3. Tactical contributions in THIS match (from current match data)
-            4. Historical form and background context (from historical data - use sparingly)
-            5. Most compelling player storylines from THIS match (from current match data)
-            
-            Focus on the 3-5 most important player performances based on available data.
-            Keep analysis simple and accessible for junior writers.
-            Highlight what makes each player's performance special in THIS match based on the provided data.
-            Consider impact on THIS match result using only the current match data.
-            
-            Based on the following data, output ONLY a JSON array (Python list) of 3-5 concise, newsworthy storylines/insights. 
-            Each element should be a single string. Do NOT include any introduction, explanation, or summary—just the JSON array.
+            You are analyzing player performance from THIS SPECIFIC MATCH. Focus on what players actually did in this game.
 
-            DATA:
+            GAME CONTEXT (CURRENT MATCH EVENTS ONLY):
+            {game_data}
+
+            PLAYER DATA (CURRENT MATCH + HISTORICAL BACKGROUND):
             {player_data}
+
+            CRITICAL MATCHING RULES:
+            1. ONLY describe what players did in THIS match (goals, cards, substitutions, etc.)
+            2. ONLY use information that explicitly appears in the game data above
+            3. DO NOT make assumptions about player performance
+            4. DO NOT confuse historical statistics with current match events
+            5. If a player did nothing notable in this match, DO NOT mention them
+            6. Historical data is for background context only, not current performance
+            7. CRITICAL: When mentioning players, use EXACTLY the names from the match events data
+            8. CRITICAL: Do not mix up player names, event times, or team affiliations
+            9. CRITICAL: If a player name is unclear or incomplete in the data, do not guess or complete it
+            10. CRITICAL: Verify that each player mentioned actually participated in the specific event described
+            11. CRITICAL: Only mention players who have clear, verifiable actions in the match events
+
+            REQUIRED FORMAT:
+            Output ONLY a JSON array of 3-5 factual statements about player performance in THIS match.
+            Each statement must be directly supported by the game data.
+            Example format: ["Player X scored in this match", "Player Y received a card in this match"]
+
+            VALID TOPICS (only if data supports them):
+            - Goals scored by players in this match
+            - Cards received by players in this match
+            - Substitutions made by players in this match
+            - Players who started the match
+            - Players who were on the bench
+            - Specific match events involving players
+
+            INVALID TOPICS (do not include):
+            - Player historical statistics
+            - Player season-long performance
+            - Player background information not relevant to this match
+            - Assumptions about player performance
+            - Any information not clearly stated in the match data
+            - Any player not explicitly mentioned in the match events
 
             Instructions:
-            - Output only a JSON array (Python list) of strings, e.g. ["performance1", "performance2", "performance3"]
-            - No extra text, no explanations, no markdown, no numbering, no headings
-            - Base all player analysis strictly on the provided data
-            - Focus on THIS match performance, use historical data only for context
-            - Do not confuse current match statistics with historical statistics
+            - Output only a JSON array of strings
+            - No explanations, no markdown, no extra text
+            - Each statement must be about THIS match only
+            - If you cannot find clear player facts from this match, output fewer statements
+            - Be extremely conservative - only include what is clearly stated in the match data
+            - Focus on actual events, not interpretations or background
+            - Double-check all player names and event details against the provided match data
             """
             
             result = await Runner.run(self.agent, prompt)

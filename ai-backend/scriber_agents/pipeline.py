@@ -172,20 +172,23 @@ class AgentPipeline:
             logger.info(f"[PIPELINE-DATA] Player performance storylines: {len(player_performance_analysis) if isinstance(player_performance_analysis, list) else 'Not a list'}")
             
             # Combine all research data into a comprehensive structure
+            # NOTE: Keep storylines separate from historical context to avoid confusion
             comprehensive_research_data = {
-                "game_analysis": game_analysis,
-                "historical_context": historical_context,
-                "player_performance": player_performance_analysis,
-                "storylines": game_analysis + historical_context + player_performance_analysis,
+                "game_analysis": game_analysis,  # Current match events only
+                "historical_context": historical_context,  # Background information only
+                "player_performance": player_performance_analysis,  # Current match player events only
+                # Do not combine all storylines together to avoid mixing current events with historical context
             }
             
             # Log research data information
             logger.info(f"[PIPELINE-DATA] Comprehensive research data:")
             logger.info(f"[PIPELINE-DATA]   Type: {type(comprehensive_research_data)}")
             logger.info(f"[PIPELINE-DATA]   Keys: {list(comprehensive_research_data.keys())}")
-            logger.info(f"[PIPELINE-DATA]   Total storylines: {len(comprehensive_research_data.get('storylines', []))}")
+            logger.info(f"[PIPELINE-DATA]   Game analysis storylines: {len(game_analysis)}")
+            logger.info(f"[PIPELINE-DATA]   Historical context: {len(historical_context)}")
+            logger.info(f"[PIPELINE-DATA]   Player performance: {len(player_performance_analysis)}")
             
-            logger.info(f"[PIPELINE] Research completed, generated {len(comprehensive_research_data.get('storylines', []))} storylines")
+            logger.info(f"[PIPELINE] Research completed, generated {len(game_analysis)} game storylines, {len(historical_context)} historical context items, {len(player_performance_analysis)} player performance items")
             
             # Step 3: Generate article content
             logger.info(f"[PIPELINE] Step 3: Generating article content")
@@ -224,7 +227,7 @@ class AgentPipeline:
                 "game_id": game_id,
                 "article_type": "game_recap",
                 "content": article_content,
-                "storylines": comprehensive_research_data.get("storylines", []),
+                "storylines": game_analysis,  # Only current match events for storylines
                 "team_info": enhanced_team_data,
                 "player_info": enhanced_player_data,
                 "research_data": comprehensive_research_data,
@@ -242,7 +245,7 @@ class AgentPipeline:
                     "enhanced_player_data_collected": "error" not in enhanced_player_data,
                     "historical_context_analyzed": "error" not in historical_context,
                     "player_performance_analyzed": "error" not in player_performance_analysis,
-                    "comprehensive_storylines_generated": len(comprehensive_research_data.get("storylines", [])) > 0
+                    "comprehensive_storylines_generated": len(game_analysis) > 0
                 }
             }
             
