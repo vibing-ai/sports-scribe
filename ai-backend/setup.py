@@ -50,7 +50,7 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "sport-scribe=main:app",
+            "sport-scribe=ai_backend.main:app",
         ],
     },
     include_package_data=True,
