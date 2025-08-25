@@ -54,7 +54,7 @@ jobs:
                  tests/
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@e28ff129e5465c2c0dcc6f003fc735cb6ae0c673
+        uses: codecov/codecov-action@fdcc8476540edceab3de004e990f80d881c6cc00
         with:
           file: ai-backend/coverage.xml
           flags: ai-backend
