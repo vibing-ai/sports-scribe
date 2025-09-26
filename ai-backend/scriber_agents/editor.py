@@ -13,6 +13,37 @@ load_dotenv()
 logger = logging.getLogger(__name__)
 
 class Editor:
+    def _json_safe(self, obj: Any) -> Any:
+        """Recursively convert objects to JSON-serializable structures.
+
+        - Pydantic v1: .dict()
+        - Pydantic v2: .model_dump()
+        - Dataclasses: dataclasses.asdict
+        - Dict / List / Tuple: recurse
+        - Fallback: return as-is (json.dumps will then try str())
+        """
+        try:
+            # Pydantic v2
+            if hasattr(obj, "model_dump") and callable(getattr(obj, "model_dump")):
+                return self._json_safe(obj.model_dump())
+            # Pydantic v1
+            if hasattr(obj, "dict") and callable(getattr(obj, "dict")):
+                return self._json_safe(obj.dict())
+        except Exception:
+            pass
+
+        try:
+            import dataclasses as _dc
+            if _dc.is_dataclass(obj):
+                return self._json_safe(_dc.asdict(obj))
+        except Exception:
+            pass
+
+        if isinstance(obj, dict):
+            return {self._json_safe(k): self._json_safe(v) for k, v in obj.items()}
+        if isinstance(obj, (list, tuple, set)):
+            return [self._json_safe(v) for v in obj]
+        return obj
     async def _safe_chain_call(self, chain, input_data: dict, operation_name: str, timeout: float = 45.0):
         """Make a safe LangChain call with timeout."""
         try:
@@ -704,6 +735,13 @@ class Editor:
 
             
             # Prepare the final editor prompt with all validation results
+            # Convert possibly non-serializable structures (Pydantic, dataclasses) recursively
+            safe_research_insights = (
+                self._json_safe(research_insights) if research_insights is not None else {}
+            )
+            safe_game_info = self._json_safe(game_info)
+            safe_validation_results = self._json_safe(validation_results)
+
             prompt = f"""
             {self.get_final_editor_prompt()}
             
@@ -711,13 +749,13 @@ class Editor:
             {text}
             
             GAME DATA:
-            {json.dumps(game_info, indent=2, ensure_ascii=False)}
+            {json.dumps(safe_game_info, indent=2, ensure_ascii=False)}
             
             RESEARCH INSIGHTS:
-            {json.dumps(research_insights, indent=2, ensure_ascii=False) if research_insights else "{}"}
+            {json.dumps(safe_research_insights, indent=2, ensure_ascii=False) if safe_research_insights else "{}"}
             
             VALIDATION RESULTS:
-            {json.dumps(validation_results, indent=2, ensure_ascii=False)}
+            {json.dumps(safe_validation_results, indent=2, ensure_ascii=False)}
             
             Please apply all the corrections identified in the validation results and return the final corrected article.
             """
@@ -906,12 +944,13 @@ class Editor:
     async def _validate_score_process(self, text: str, game_data: Dict[str, Any]) -> Dict[str, Any]:
         """Validate score and match process."""
         try:
+            safe_game_data = self._json_safe(game_data)
             input_text = f"""
             ARTICLE TO VALIDATE:
             {text}
             
             GAME DATA:
-            {json.dumps(game_data, indent=2, ensure_ascii=False)}
+            {json.dumps(safe_game_data, indent=2, ensure_ascii=False)}
             
             Please validate the article for score and match process errors.
             """
@@ -929,12 +968,13 @@ class Editor:
     async def _validate_player_performance(self, text: str, game_data: Dict[str, Any]) -> Dict[str, Any]:
         """Validate player performance."""
         try:
+            safe_game_data = self._json_safe(game_data)
             input_text = f"""
             ARTICLE TO VALIDATE:
             {text}
             
             GAME DATA:
-            {json.dumps(game_data, indent=2, ensure_ascii=False)}
+            {json.dumps(safe_game_data, indent=2, ensure_ascii=False)}
             
             Please validate the article for player performance errors.
             """
@@ -952,12 +992,13 @@ class Editor:
     async def _validate_substitutions(self, text: str, game_data: Dict[str, Any]) -> Dict[str, Any]:
         """Validate substitutions and player status."""
         try:
+            safe_game_data = self._json_safe(game_data)
             input_text = f"""
             ARTICLE TO VALIDATE:
             {text}
             
             GAME DATA:
-            {json.dumps(game_data, indent=2, ensure_ascii=False)}
+            {json.dumps(safe_game_data, indent=2, ensure_ascii=False)}
             
             Please validate the article for substitution and player status errors.
             """
@@ -975,12 +1016,13 @@ class Editor:
     async def _validate_statistics(self, text: str, game_data: Dict[str, Any]) -> Dict[str, Any]:
         """Validate match statistics."""
         try:
+            safe_game_data = self._json_safe(game_data)
             input_text = f"""
             ARTICLE TO VALIDATE:
             {text}
             
             GAME DATA:
-            {json.dumps(game_data, indent=2, ensure_ascii=False)}
+            {json.dumps(safe_game_data, indent=2, ensure_ascii=False)}
             
             Please validate the article for statistics errors.
             """
@@ -998,12 +1040,13 @@ class Editor:
     async def _validate_disciplinary(self, text: str, game_data: Dict[str, Any]) -> Dict[str, Any]:
         """Validate disciplinary events."""
         try:
+            safe_game_data = self._json_safe(game_data)
             input_text = f"""
             ARTICLE TO VALIDATE:
             {text}
             
             GAME DATA:
-            {json.dumps(game_data, indent=2, ensure_ascii=False)}
+            {json.dumps(safe_game_data, indent=2, ensure_ascii=False)}
             
             Please validate the article for disciplinary event errors.
             """
@@ -1021,12 +1064,13 @@ class Editor:
     async def _validate_background_info(self, text: str, game_data: Dict[str, Any]) -> Dict[str, Any]:
         """Validate background information."""
         try:
+            safe_game_data = self._json_safe(game_data)
             input_text = f"""
             ARTICLE TO VALIDATE:
             {text}
             
             GAME DATA:
-            {json.dumps(game_data, indent=2, ensure_ascii=False)}
+            {json.dumps(safe_game_data, indent=2, ensure_ascii=False)}
             
             Please validate the article for background information errors.
             """
@@ -1044,12 +1088,13 @@ class Editor:
     async def _validate_terminology(self, text: str, game_data: Dict[str, Any]) -> Dict[str, Any]:
         """Validate terminology usage."""
         try:
+            safe_game_data = self._json_safe(game_data)
             input_text = f"""
             ARTICLE TO VALIDATE:
             {text}
             
             GAME DATA:
-            {json.dumps(game_data, indent=2, ensure_ascii=False)}
+            {json.dumps(safe_game_data, indent=2, ensure_ascii=False)}
             
             Please validate the article for terminology errors.
             """

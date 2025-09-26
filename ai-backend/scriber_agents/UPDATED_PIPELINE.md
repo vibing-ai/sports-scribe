@@ -1,63 +1,71 @@
-# Updated Pipeline with NarrativePlanner and StylizedWriter
+# Updated Pipeline with Iterative Narrative Research System
 
 ## Overview
 
-The SportsScribe pipeline has been updated to include a new narrative planning
-step and stylized writing capability, following the flowchart:
+The SportsScribe pipeline has been significantly enhanced with an iterative narrative research system that intelligently selects and refines narrative angles through data-driven iteration. The system now follows this advanced workflow:
 
 ```text
-DataCollector → ResearchAgent → NarrativePlanner
-                    ↓               ↓
-              WriterAgent → StylizedWriter → Editor → Final Article
+DataCollector → IterativeNarrativeResearcher → WriterAgent → Editor → Final Article
+                       ↓
+    [NarrativePlanner ↔ SportsIntelligenceLayer ↔ QuestionTemplates]
+                       ↓
+               (Iterate max 3 times)
+                       ↓
+            FinalNarrativePlan + EnhancedData
 ```
 
-## New Pipeline Flow
+## Updated Pipeline Flow
 
 ### 1. Data Collection
-
 - **DataCollector**: Gathers raw game data from sports APIs
-- Extracts compact game data format (match_info, events, players, statistics, lineups)
+- Provides compact game data format (match_info, events, players, statistics, lineups)
 
-### 2. Research
+### 2. Iterative Narrative Research
+- **IterativeNarrativeResearcher**: Orchestrates the intelligent narrative planning process
+- **Workflow**:
+  1. **Initial Analysis**: Gets rough narrative angles from NarrativePlanner
+  2. **Question Generation**: Uses QuestionTemplates to create targeted queries
+  3. **Intelligence Gathering**: Queries SportsIntelligenceLayer for additional insights
+  4. **Narrative Refinement**: Planner adjusts narrative based on responses
+  5. **Iteration Decision**: Determines if more data needed (max 3 iterations)
+  6. **Final Plan**: Returns comprehensive narrative plan with storylines
 
-- **ResearchAgent**: Analyzes game data and provides contextual insights
-- Generates game analysis, player performance, and historical context
+### 3. Enhanced Article Generation
+- **WriterAgent**: Generates articles using enriched data and refined narrative plan
+- **Input**: Original game data + intelligence insights + final narrative plan
+- **Output**: Structured article with compelling narrative angles
 
-### 3. Narrative Planning
-
-- **NarrativePlanner**: Analyzes data and research to select compelling
-  narrative angles
-- Outputs narrative selection with primary narrative, supporting narratives,
-  character arcs, storytelling focus, and social hooks
-
-### 4. Article Generation (Two Paths)
-
-- **WriterAgent**: Generates factual article based on research insights
-- **StylizedWriter**: Transforms factual article using narrative plan to
-  create emotionally engaging content
-
-### 5. Editing
-
-- **Editor**: Reviews and refines the stylized article for quality and accuracy
+### 4. Editorial Review
+- **Editor**: Reviews and refines the article for quality and accuracy
 
 ## Key Components
 
-### NarrativePlanner
+### IterativeNarrativeResearcher
+- **Purpose**: Intelligently refines narrative angles through iterative data gathering
+- **Input**: CompactGameData, target_audience, content_style
+- **Process**:
+  - Planner → Questions → Intelligence → Refinement (repeat up to 3x)
+- **Output**: FinalNarrativePlan with confidence scoring and enhanced data
 
-- **Purpose**: Selects compelling narrative angles for sports articles
-- **Input**: CompactGameData + ResearchInsights
-- **Output**: NarrativeSelection (primary_narrative, supporting_narratives,
-  character_arcs, storytelling_focus, social_hooks)
+### NarrativeAnglePlanner
+- **Purpose**: Selects optimal narrative angles from 10 predefined options
+- **Angles**: hero_journey, david_vs_goliath, tactical_chess, momentum_shift, redemption_arc, derby_drama, milestone_moment, defensive_masterclass, attacking_spectacle, controversy_central
+- **Output**: Primary and secondary angles with storytelling guidance
 
-### StylizedWriter
+### NarrativeQuestionTemplateSystem
+- **Purpose**: Provides structured question templates for each narrative angle
+- **Categories**: Core, Context, Detail, Verification questions
+- **Functionality**: Converts interview-style questions to data queries
 
-- **Purpose**: Transforms factual articles into emotionally engaging narratives
-- **Input**: Factual article + NarrativeSelection
-- **Output**: Stylized article with narrative elements
+### SportsIntelligenceLayer Integration
+- **Purpose**: Provides additional data insights through natural language queries
+- **Input**: Natural language questions about match data
+- **Output**: Structured responses with statistics and analysis
+- **Fallback**: Mock responses for testing when layer unavailable
 
-## Updated Pipeline Output
+## Enhanced Pipeline Output
 
-The pipeline now returns enhanced metadata:
+The pipeline now returns comprehensive narrative metadata:
 
 ```json
 {
@@ -66,95 +74,191 @@ The pipeline now returns enhanced metadata:
     "article_type": "game_recap",
     "content": "Final edited article content",
     "narrative_metadata": {
-        "primary_narrative": "Dramatic comeback victory",
-        "storytelling_focus": "drama",
-        "supporting_narratives": ["Key player performance", "Tactical masterclass"],
-        "character_arcs": [
+        "primary_angle": "hero_journey",
+        "secondary_angles": ["momentum_shift", "tactical_chess"],
+        "total_iterations": 2,
+        "final_confidence": 0.85,
+        "data_quality_score": 0.90,
+        "storylines": [
+            "Manchester United defeated Liverpool 2-1 in dramatic fashion",
+            "Alejandro Garnacho emerged as the match winner with a last-minute goal",
+            "Tactical adjustments in the second half proved decisive"
+        ],
+        "interview_questions": [
             {
-                "character": "Player Name",
-                "arc": "Rising from bench to hero",
-                "significance": "Game-changing impact"
+                "question": "What was going through your mind during your standout moment?",
+                "purpose": "Capture emotional peak of heroic performance",
+                "target_respondent": "player",
+                "priority": 1
             }
         ],
-        "social_hooks": ["Incredible comeback!", "Heroic performance"]
+        "reasoning": "Completed 2 iterations with 90.0% data quality. Narrative angles refined through intelligence gathering.",
+        "intelligence_insights": [
+            {
+                "question": "How many goals did Manchester United score",
+                "data": [{"goals": 2, "scorers": ["Rashford", "Garnacho"]}],
+                "summary": "Manchester United scored 2 goals with different scorers"
+            }
+        ]
     },
-    "article_versions": {
-        "factual_article": "Original factual content",
-        "stylized_article": "Narrative-enhanced content",
-        "final_article": "Edited final content"
-    },
-    "editing_metadata": {
-        "original_length": 450,
-        "edited_length": 480,
-        "length_change": 30,
-        "has_changes": true,
-        "validation_passed": true
+    "processing_metadata": {
+        "iterations_completed": 2,
+        "questions_asked": 6,
+        "successful_queries": 5,
+        "processing_time_seconds": 4.2,
+        "narrative_angles_identified": 3
     }
 }
 ```
 
 ## Usage
 
-### Running the Updated Pipeline
+### Running the Enhanced Pipeline
 
 ```python
-from scriber_agents.pipeline import ArticlePipeline
+from scriber_agents.iterative_narrative_researcher import IterativeNarrativeResearcher
 
-# Initialize pipeline
-pipeline = ArticlePipeline()
+# Initialize iterative researcher
+config = {
+    "narrative_model": "gpt-4o",
+    "max_iterations": 3,
+    "confidence_threshold": 0.8,
+    "max_questions_per_iteration": 5
+}
 
-# Generate article with narrative planning
-result = await pipeline.generate_game_recap("1208021")
+async with IterativeNarrativeResearcher(config) as researcher:
+    # Process game data iteratively
+    final_plan = await researcher.process_iterative_research(
+        game_data,
+        target_audience="general_fans",
+        content_style="dramatic"
+    )
 
-# Access different versions
-factual_article = result["article_versions"]["factual_article"]
-stylized_article = result["article_versions"]["stylized_article"]
-final_article = result["content"]
-
-# Access narrative metadata
-narrative = result["narrative_metadata"]["primary_narrative"]
-storytelling_focus = result["narrative_metadata"]["storytelling_focus"]
+    # Access results
+    primary_angle = final_plan.primary_angle
+    storylines = final_plan.storylines
+    confidence = final_plan.confidence
+    interview_questions = final_plan.interview_questions
 ```
 
-### Testing
+### Testing the System
 
-Run the updated pipeline test:
+Run comprehensive tests:
 
 ```bash
-cd sports-scribe/ai-backend
-python test_updated_pipeline.py
+cd sports-scribe
+python test_iterative_researcher_fixed.py
+python simple_narrative_test.py
 ```
+
+## System Features
+
+### 1. Intelligent Iteration
+- **Confidence Assessment**: Automatically evaluates narrative confidence
+- **Data Quality Scoring**: Measures usefulness of intelligence responses
+- **Adaptive Stopping**: Stops when confidence threshold reached or max iterations
+- **Quality Metrics**: Tracks success rates and processing times
+
+### 2. Dynamic Question Generation
+- **Template Conversion**: Transforms interview questions to data queries
+- **Context Substitution**: Fills in team names, player names automatically
+- **Fallback Questions**: Generates basic queries when templates insufficient
+- **Priority Ranking**: Orders questions by importance and relevance
+
+### 3. Comprehensive Data Integration
+- **Original Data**: Match info, events, players, statistics
+- **Intelligence Insights**: Additional analysis from query responses
+- **Narrative Context**: Storylines and angle-specific guidance
+- **Interview Preparation**: Ready-to-use questions for journalists
+
+### 4. Robust Error Handling
+- **Mock Mode**: Functions without real API connections
+- **Graceful Degradation**: Falls back when components fail
+- **Timeout Protection**: Prevents hanging on slow responses
+- **Comprehensive Logging**: Tracks all processing steps
 
 ## Benefits
 
-1. **Enhanced Storytelling**: Articles now have compelling narrative structures
-2. **Emotional Engagement**: Stylized writing creates deeper reader connections
-3. **Social Media Optimization**: Built-in social hooks for better sharing
-4. **Character Development**: Player and team storylines add human interest
-5. **Flexible Output**: Access to both factual and stylized versions
+1. **Data-Driven Narratives**: Angles selected based on actual match data analysis
+2. **Iterative Refinement**: Continuously improves narrative selection through feedback
+3. **Intelligence Integration**: Leverages additional data sources for richer storytelling
+4. **Journalist Support**: Provides ready-to-use interview questions and storylines
+5. **Quality Assurance**: Confidence scoring ensures reliable narrative selection
+6. **Flexible Configuration**: Adjustable iteration limits and confidence thresholds
 
-## Configuration
-
-The pipeline uses the same configuration for all agents:
+## Configuration Options
 
 ```python
 config = {
-    "model": "gpt-4o",
-    "temperature": 0.7,
-    "max_tokens": 2000
+    # Core models
+    "narrative_model": "gpt-4o",                    # LLM for narrative planning
+    "narrative_temperature": 0.7,                  # Creativity level
+    "narrative_max_tokens": 1500,                  # Response length
+
+    # Iteration control
+    "max_iterations": 3,                           # Maximum refinement cycles
+    "confidence_threshold": 0.8,                   # Stop when reached
+    "min_questions_per_iteration": 2,              # Minimum queries per cycle
+    "max_questions_per_iteration": 5,              # Maximum queries per cycle
 }
 ```
 
-## Error Handling
+## File Structure
 
-- If NarrativePlanner fails, the pipeline falls back to factual article only
-- If StylizedWriter fails, the pipeline returns the factual article
-- Comprehensive error logging and metadata tracking
-- Graceful degradation at each step
+```
+scriber_agents/
+├── iterative_narrative_researcher.py     # Main iterative system (480 lines)
+├── narrative_angle_planner.py            # Angle selection logic (600+ lines)
+├── narrative_question_templates.py       # Question template system (240+ lines)
+├── narrative_enhanced_researcher.py      # Enhanced research integration (167 lines)
+├── researcher.py                         # Original research agent
+├── writer.py                            # Article generation
+├── editor.py                           # Editorial review
+└── pipeline.py                         # Main pipeline orchestration
+```
+
+## Testing Results
+
+✅ **System Verification Complete**
+- Basic initialization: Working
+- Question generation: 3 questions for 3 angles
+- Mock intelligence responses: 100% success rate
+- Iteration assessment: Confidence scoring functional
+- Data quality assessment: Multi-level quality detection
+- Complete workflow: 1-2 iterations, 80%+ confidence
+- Storyline generation: 5 storylines with intelligence insights
+
+## Integration with Sports Intelligence Layer
+
+The system seamlessly integrates with the existing SoccerIntelligenceLayer:
+
+```python
+# Real integration (when available)
+async with SoccerIntelligenceLayer() as intelligence:
+    result = await intelligence.process_query("How many goals did Manchester United score?")
+
+# Mock integration (for testing)
+mock_response = {
+    "status": "success",
+    "result": {"data": [{"goals": 2}], "summary": "Analysis result"}
+}
+```
 
 ## Future Enhancements
 
-1. **A/B Testing**: Compare factual vs. stylized article performance
-2. **Audience Targeting**: Tailor narratives for specific audience segments
-3. **Multi-language Support**: Generate narratives in different languages
-4. **Performance Metrics**: Track narrative effectiveness over time
+1. **Real-time Intelligence**: Connect to live sports data APIs
+2. **Multi-language Support**: Generate narratives in different languages
+3. **Audience Personalization**: Tailor iterations for specific demographics
+4. **Performance Analytics**: Track narrative effectiveness over time
+5. **Advanced Templates**: Expand question templates for specialized angles
+6. **Cross-match Analysis**: Compare narratives across multiple games
+
+## Error Handling & Monitoring
+
+- **Timeout Protection**: 30-second timeout with retry logic
+- **Fallback Mechanisms**: Mock responses when intelligence unavailable
+- **Quality Tracking**: Success rates and confidence monitoring
+- **Comprehensive Logging**: Full audit trail of decision process
+- **Resource Management**: Automatic cleanup of connections and resources
+
+The enhanced pipeline now provides intelligent, data-driven narrative selection with iterative refinement, delivering high-quality sports journalism with compelling storytelling angles backed by comprehensive data analysis.

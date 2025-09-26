@@ -16,6 +16,7 @@ from .data_collector import DataCollectorAgent
 from .editor import Editor
 from .researcher import ResearchAgent
 from .writer import WriterAgent
+from .narrative_planner import NarrativePlanner
 
 load_dotenv()
 
@@ -53,6 +54,7 @@ class AgentPipeline:
         # Initialize all agents
         self.collector = DataCollectorAgent(config)
         self.researcher = ResearchAgent(config)
+        self.narrative_planner = NarrativePlanner(config)
         self.writer = WriterAgent(config)
         self.editor = Editor(config)
 
@@ -283,6 +285,53 @@ class AgentPipeline:
                 f"[PIPELINE] Research completed, generated {len(game_analysis)} game storylines, {len(historical_context)} historical context items, {len(player_performance_analysis)} player performance items"
             )
 
+            # Step 2.5: Narrative Planning - Process research insights through narrative planner
+            logger.info("[PIPELINE] Step 2.5: Processing research insights through narrative planner")
+
+            # Prepare research output for narrative planner
+            research_output_for_planner = {
+                "analysis": {
+                    "storylines": game_analysis,  # Research insights/storylines
+                    "confidence": 0.85,
+                    "analysis_type": "comprehensive_game_analysis"
+                },
+                "historical_context": historical_context,
+                "player_performance": player_performance_analysis,
+                "metadata": {
+                    "match_info": compact_game_data.get("match_info", {}),
+                    "teams": compact_game_data.get("match_info", {}).get("teams", {}),
+                    "events_count": len(compact_game_data.get("events", []))
+                }
+            }
+
+            # Initialize and run narrative planner
+            logger.info("[PIPELINE] Initializing narrative planner")
+            await self.narrative_planner.initialize()
+
+            try:
+                logger.info("[PIPELINE] Creating narrative plan from research insights")
+                narrative_recommendation = await self.narrative_planner.create_narrative_plan(research_output_for_planner)
+                logger.info(f"[PIPELINE] Narrative plan created with confidence: {narrative_recommendation.confidence_score:.2f}")
+                logger.info(f"[PIPELINE] Generated {len(narrative_recommendation.intelligence_queries)} intelligence queries")
+                logger.info(f"[PIPELINE] Generated {len(narrative_recommendation.researcher_tasks)} research tasks")
+
+                # Add narrative recommendation to comprehensive research data
+                comprehensive_research_data["narrative_recommendation"] = narrative_recommendation
+
+            except Exception as e:
+                logger.error(f"[PIPELINE] Error in narrative planning: {e}")
+                # Continue without narrative planning if it fails
+                comprehensive_research_data["narrative_recommendation"] = None
+
+            finally:
+                # Clean up narrative planner
+                try:
+                    await self.narrative_planner.close()
+                except Exception as e:
+                    logger.warning(f"[PIPELINE] Error closing narrative planner: {e}")
+
+            logger.info("[PIPELINE] Narrative planning completed")
+
             # Step 3: Generate article content
             logger.info("[PIPELINE] Step 3: Generating article content")
 
@@ -344,7 +393,19 @@ class AgentPipeline:
 
             logger.info("[PIPELINE] Article editing completed successfully")
 
-            # Step 5: Return results
+            # Step 5: Save comprehensive output for inspection
+            try:
+                comprehensive_output = self._create_comprehensive_output(
+                    game_id, raw_game_data, compact_game_data, comprehensive_research_data,
+                    final_article_content, pipeline_start_time
+                )
+                output_file = await self._save_comprehensive_output(comprehensive_output, game_id)
+                logger.info(f"[PIPELINE] Comprehensive output saved to: {output_file}")
+            except Exception as save_error:
+                logger.warning(f"[PIPELINE] Failed to save comprehensive output: {save_error}")
+                output_file = f"Error saving file: {save_error}"
+
+            # Step 6: Return results
             pipeline_duration = (datetime.now() - pipeline_start_time).total_seconds()
             logger.info(
                 f"[PIPELINE] Game recap generation completed in {pipeline_duration:.2f} seconds"
@@ -355,6 +416,7 @@ class AgentPipeline:
                 "game_id": game_id,
                 "article_type": "game_recap",
                 "content": final_article_content,
+                "output_file": output_file,
                 "editing_metadata": {
                     "original_length": validation_result.get("original_length", 0),
                     "edited_length": validation_result.get("edited_length", 0),
@@ -393,6 +455,42 @@ class AgentPipeline:
                         ),
                     },
                 },
+                "metadata": {
+                    "generated_at": datetime.now().isoformat(),
+                    "pipeline_duration": pipeline_duration,
+                    "data_sources": ["rapidapi_football"],
+                    "model_used": self.model,
+                    "temperature": self.temperature,
+                    "max_tokens": self.max_tokens,
+                    "error_occurred": False,
+                    "workflow_stages": [
+                        "data_collection",
+                        "research_analysis",
+                        "narrative_planning",
+                        "content_generation",
+                        "fact_checking",
+                        "terminology_editing"
+                    ],
+                    "storylines_generated": {
+                        "game_analysis": len(comprehensive_research_data.get("game_analysis", [])),
+                        "historical_context": len(comprehensive_research_data.get("historical_context", [])),
+                        "player_performance": len(comprehensive_research_data.get("player_performance", []))
+                    },
+                    "narrative_plan_info": {
+                        "primary_angle": (
+                            comprehensive_research_data.get("narrative_recommendation").writing_guidance.primary_angle.value
+                            if comprehensive_research_data.get("narrative_recommendation") else "unknown"
+                        ),
+                        "writing_style": (
+                            comprehensive_research_data.get("narrative_recommendation").writing_guidance.writing_style.value
+                            if comprehensive_research_data.get("narrative_recommendation") else "unknown"
+                        ),
+                        "confidence": (
+                            comprehensive_research_data.get("narrative_recommendation").confidence_score
+                            if comprehensive_research_data.get("narrative_recommendation") else 0.0
+                        )
+                    }
+                },
             }
 
         except Exception as e:
@@ -400,18 +498,25 @@ class AgentPipeline:
             logger.error(
                 f"[PIPELINE] Error generating game recap for {game_id} after {pipeline_duration:.2f} seconds: {e!s}"
             )
+
+            # Try to save whatever data we have for debugging
+            try:
+                error_output = {
+                    "error": str(e),
+                    "pipeline_duration": pipeline_duration,
+                    "timestamp": datetime.now().isoformat(),
+                    "game_id": game_id
+                }
+                error_file = await self._save_error_output(error_output, game_id)
+                logger.info(f"[PIPELINE] Error details saved to: {error_file}")
+            except:
+                pass
+
             return {
                 "success": False,
                 "game_id": game_id,
                 "error": str(e),
-                "research_data": {
-                    "game_analysis": None,
-                    "historical_context": None,
-                    "player_performance": None,
-                    "storylines": [],
-                    "team_info": None,
-                    "player_info": None,
-                },
+                "comprehensive_output": None,
                 "metadata": {
                     "generated_at": datetime.now().isoformat(),
                     "pipeline_duration": pipeline_duration,
@@ -896,6 +1001,7 @@ class AgentPipeline:
             "agents": {
                 "data_collector": "initialized",
                 "researcher": "initialized",
+                "narrative_planner": "initialized",
                 "writer": "initialized",
                 "editor": "initialized",
             },
@@ -904,7 +1010,25 @@ class AgentPipeline:
                 "temperature": self.temperature,
                 "max_tokens": self.max_tokens,
             },
-            "data_flow": "Data Collector → Research → Writer → Editor",
+            "data_flow": "Data Collector → Research → Narrative Planning → Writer → Editor",
+            "workflow_description": {
+                "step_1": "Data Collector gathers game data from APIs",
+                "step_2": "Researcher analyzes data and generates insights/storylines",
+                "step_2_5": "Narrative Planner processes insights to create narrative guidance",
+                "step_3": "Writer generates article using insights + narrative guidance",
+                "step_4": "Editor fact-checks and polishes the article"
+            },
+            "narrative_integration": {
+                "enabled": True,
+                "description": "Research insights flow through narrative planner to generate writing guidance",
+                "features": [
+                    "Intelligent narrative angle selection",
+                    "Writing style recommendations",
+                    "Content prioritization",
+                    "Story arc structuring",
+                    "Audience targeting"
+                ]
+            },
             "timestamp": datetime.now().isoformat(),
         }
 
@@ -1252,6 +1376,154 @@ class AgentPipeline:
         except Exception as e:
             logger.error(f"[PIPELINE] Error extracting lineups: {e}")
             return []
+
+    def _create_comprehensive_output(self, game_id: str, raw_game_data: dict,
+                                   compact_game_data: dict, research_data: dict,
+                                   final_article: str, start_time: datetime) -> dict:
+        """Create comprehensive output combining all pipeline stages."""
+        try:
+            # Extract basic match information
+            teams_info = "Unknown vs Unknown"
+            league_info = "Unknown League"
+            score_info = "Unknown Score"
+
+            try:
+                if isinstance(compact_game_data, dict) and "match_info" in compact_game_data:
+                    match_info = compact_game_data["match_info"]
+                    home_team = match_info.get("teams", {}).get("home", {}).get("name", "Unknown")
+                    away_team = match_info.get("teams", {}).get("away", {}).get("name", "Unknown")
+                    teams_info = f"{home_team} vs {away_team}"
+
+                    league_info = match_info.get("league", {}).get("name", "Unknown League")
+                    season = match_info.get("league", {}).get("season", "Unknown")
+                    league_info += f" ({season})"
+
+                    score = match_info.get("score", {}).get("fulltime", {})
+                    home_score = score.get("home", "?")
+                    away_score = score.get("away", "?")
+                    score_info = f"{home_score}-{away_score}"
+            except:
+                pass
+
+            # Extract narrative plan info
+            narrative_info = {}
+            try:
+                narrative_rec = research_data.get("narrative_recommendation")
+                if narrative_rec:
+                    writing_guidance = narrative_rec.writing_guidance
+                    narrative_info = {
+                        "primary_angle": writing_guidance.primary_angle.value,
+                        "secondary_angle": writing_guidance.secondary_angle.value if writing_guidance.secondary_angle else None,
+                        "writing_style": writing_guidance.writing_style.value,
+                        "target_audience": writing_guidance.target_audience.value,
+                        "confidence": narrative_rec.confidence_score,
+                        "intelligence_queries": [q.query_text for q in narrative_rec.intelligence_queries],
+                        "intelligence_results": []
+                    }
+
+                    # Add intelligence results if available
+                    if hasattr(narrative_rec, '__dict__') and 'intelligence_results' in narrative_rec.__dict__:
+                        intelligence_results = narrative_rec.__dict__['intelligence_results']
+                        narrative_info["intelligence_results"] = [
+                            {
+                                "query": result.query_text,
+                                "success": result.success,
+                                "summary": result.data.get("summary", "No summary") if isinstance(result.data, dict) and result.success else "Failed"
+                            }
+                            for result in intelligence_results
+                        ]
+            except Exception as e:
+                logger.warning(f"Error extracting narrative info: {e}")
+
+            return {
+                "metadata": {
+                    "game_id": game_id,
+                    "teams": teams_info,
+                    "league": league_info,
+                    "score": score_info,
+                    "generated_at": datetime.now().isoformat(),
+                    "pipeline_duration": (datetime.now() - start_time).total_seconds()
+                },
+                "data_collector_output": {
+                    "compact_game_data": compact_game_data,
+                    "events_count": len(compact_game_data.get("events", [])) if isinstance(compact_game_data, dict) else 0,
+                    "key_players_count": len(compact_game_data.get("players", [])) if isinstance(compact_game_data, dict) else 0,
+                    "statistics_teams": len(compact_game_data.get("statistics", [])) if isinstance(compact_game_data, dict) else 0
+                },
+                "research_insights": {
+                    "game_analysis_storylines": research_data.get("game_analysis", []),
+                    "historical_context": research_data.get("historical_context", []),
+                    "player_performance": research_data.get("player_performance", []),
+                    "storylines_count": {
+                        "game_analysis": len(research_data.get("game_analysis", [])),
+                        "historical_context": len(research_data.get("historical_context", [])),
+                        "player_performance": len(research_data.get("player_performance", []))
+                    }
+                },
+                "narrative_plan": narrative_info,
+                "final_article": {
+                    "content": final_article,
+                    "word_count": len(final_article.split()) if isinstance(final_article, str) else 0,
+                    "character_count": len(final_article) if isinstance(final_article, str) else 0
+                }
+            }
+        except Exception as e:
+            logger.error(f"Error creating comprehensive output: {e}")
+            return {
+                "error": str(e),
+                "timestamp": datetime.now().isoformat(),
+                "game_id": game_id
+            }
+
+    async def _save_comprehensive_output(self, comprehensive_output: dict, game_id: str) -> str:
+        """Save comprehensive output to a JSON file."""
+        import json
+
+        try:
+            # Create result directory if it doesn't exist
+            result_dir = os.path.join(os.path.dirname(__file__), "..", "result")
+            os.makedirs(result_dir, exist_ok=True)
+
+            # Generate filename with timestamp
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"game_pipeline_{game_id}_{timestamp}.json"
+            filepath = os.path.join(result_dir, filename)
+
+            # Save to file
+            with open(filepath, 'w', encoding='utf-8') as f:
+                json.dump(comprehensive_output, f, indent=2, ensure_ascii=False)
+
+            logger.info(f"[PIPELINE] Comprehensive output saved to: {filepath}")
+            return filepath
+
+        except Exception as e:
+            logger.error(f"Error saving comprehensive output: {e}")
+            return f"Error: {e}"
+
+    async def _save_error_output(self, error_output: dict, game_id: str) -> str:
+        """Save error output to a JSON file."""
+        import json
+
+        try:
+            # Create result directory if it doesn't exist
+            result_dir = os.path.join(os.path.dirname(__file__), "..", "result")
+            os.makedirs(result_dir, exist_ok=True)
+
+            # Generate filename with timestamp
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"game_pipeline_error_{game_id}_{timestamp}.json"
+            filepath = os.path.join(result_dir, filename)
+
+            # Save to file
+            with open(filepath, 'w', encoding='utf-8') as f:
+                json.dump(error_output, f, indent=2, ensure_ascii=False)
+
+            logger.info(f"[PIPELINE] Error details saved to: {filepath}")
+            return filepath
+
+        except Exception as e:
+            logger.error(f"Error saving error output: {e}")
+            return f"Error: {e}"
 
 
 # Legacy ArticlePipeline class for backward compatibility

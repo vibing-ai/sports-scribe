@@ -52,7 +52,7 @@ class WriterAgent:
         
         # Create the prompt template
         self.prompt_template = PromptTemplate(
-            input_variables=["system_instructions", "game_info", "storylines", "historical_context", "player_performance", "template"],
+            input_variables=["system_instructions", "game_info", "storylines", "historical_context", "player_performance", "narrative_guidance", "template"],
             template="""You are a professional sports journalist specializing in writing engaging football game recaps.
         Your task is to create compelling, well-structured articles that capture the excitement and significance of football matches.
 
@@ -63,23 +63,27 @@ class WriterAgent:
         - Maintain consistency in style and tone
         - Focus on the most important storylines and moments
         - Create articles that are 400-600 words in length
+        - Use the narrative guidance to shape your writing approach and focus
 
         Always return complete, well-formatted articles ready for publication.
 
         {system_instructions}
+
+        NARRATIVE GUIDANCE (How to approach this article):
+        {narrative_guidance}
 
         Template for game recap:
         {template}
 
         CURRENT MATCH DATA (Primary Focus):
         - Game Info: {game_info}
-        - Storylines (Current Match Events): {storylines}
+        - Research Insights (Current Match Events): {storylines}
         - Player Performance (Current Match Events): {player_performance}
 
         HISTORICAL/BACKGROUND DATA (Context Only):
         - Historical Context: {historical_context}
 
-        Please write a complete article following the template structure exactly."""
+        Please write a complete article following the template structure exactly, incorporating the narrative guidance to create the most engaging and appropriate article for the intended audience."""
         )
         
         # Create the LLM chain
@@ -93,15 +97,21 @@ class WriterAgent:
         logger.info("Writer Agent initialized successfully with LangChain")
 
     async def generate_game_recap(self, game_info: Dict[str, Any], research: Dict[str, Any]) -> str:
-        """Generate a complete football game recap article using LangChain."""
-        logger.info("Generating game recap article")
-        
+        """Generate a complete football game recap article using LangChain with narrative guidance."""
+        logger.info("Generating game recap article with narrative guidance")
+
         try:
             # Extract research data
             storylines = research.get("game_analysis", [])
             historical_context = research.get("historical_context", [])
             player_performance = research.get("player_performance", [])
-            
+            narrative_recommendation = research.get("narrative_recommendation")
+
+            # Generate narrative guidance text from narrative recommendation
+            narrative_guidance = self._format_narrative_guidance(narrative_recommendation)
+
+            logger.info(f"Using narrative guidance: {narrative_guidance[:200]}..." if len(narrative_guidance) > 200 else f"Using narrative guidance: {narrative_guidance}")
+
             # Prepare prompt inputs
             prompt_inputs = {
                 "system_instructions": self._get_detailed_instructions(),
@@ -109,9 +119,10 @@ class WriterAgent:
                 "storylines": storylines,
                 "historical_context": historical_context,
                 "player_performance": player_performance,
+                "narrative_guidance": narrative_guidance,
                 "template": self.get_game_recap_template()
             }
-            
+
             # Use LangChain to generate article
             result = await self.chain.ainvoke(prompt_inputs)
             # Extract text from LangChain result
@@ -119,11 +130,12 @@ class WriterAgent:
                 article = result.get('text', str(result)).strip()
             else:
                 article = str(result).strip()
-            
+
             # Validate the article
             self._validate_article(article)
+            logger.info("Game recap article generated successfully with narrative guidance")
             return article
-            
+
         except Exception as e:
             logger.error(f"Error generating game recap: {e}")
             raise
@@ -240,4 +252,67 @@ class WriterAgent:
             logger.warning("Article missing headline.")
         if not any(section in article for section in ["Introduction", "Body", "Conclusion"]):
             logger.warning("Article missing required sections.")
+
+    def _format_narrative_guidance(self, narrative_recommendation) -> str:
+        """Format narrative recommendation into guidance text for the writer."""
+        if not narrative_recommendation:
+            return "Write a balanced, informative article focusing on key match events and player performances."
+
+        try:
+            # Extract key guidance components
+            writing_guidance = narrative_recommendation.writing_guidance
+            prioritized_content = narrative_recommendation.prioritized_content
+            story_arc = narrative_recommendation.story_arc
+            key_themes = narrative_recommendation.key_themes
+            emotional_elements = narrative_recommendation.emotional_elements
+
+            # Build guidance text
+            guidance_parts = []
+
+            # Writing style and audience
+            guidance_parts.append(f"WRITING APPROACH: Use a {writing_guidance.writing_style.value} writing style targeting {writing_guidance.target_audience.value}.")
+
+            # Primary narrative angle
+            guidance_parts.append(f"NARRATIVE FOCUS: Emphasize {writing_guidance.primary_angle.value} elements throughout the article.")
+
+            # Tone keywords
+            if writing_guidance.tone_keywords:
+                guidance_parts.append(f"TONE: Incorporate these tones: {', '.join(writing_guidance.tone_keywords)}")
+
+            # Focus areas
+            if writing_guidance.focus_areas:
+                guidance_parts.append(f"KEY FOCUS AREAS: {', '.join(writing_guidance.focus_areas)}")
+
+            # Story structure
+            if story_arc:
+                structure_text = []
+                for section, approach in story_arc.items():
+                    structure_text.append(f"{section.title()}: {approach}")
+                guidance_parts.append(f"STORY STRUCTURE: {' | '.join(structure_text)}")
+
+            # Key themes to develop
+            if key_themes:
+                guidance_parts.append(f"THEMES TO DEVELOP: {', '.join(key_themes)}")
+
+            # Emotional elements to include
+            if emotional_elements:
+                guidance_parts.append(f"EMOTIONAL ELEMENTS: Incorporate {', '.join(emotional_elements)} where appropriate")
+
+            # Content priorities
+            if prioritized_content:
+                top_priorities = [content.content for content in prioritized_content[:3]]  # Top 3 priorities
+                guidance_parts.append(f"CONTENT PRIORITIES: Focus on: 1) {top_priorities[0] if len(top_priorities) > 0 else 'N/A'} 2) {top_priorities[1] if len(top_priorities) > 1 else 'N/A'} 3) {top_priorities[2] if len(top_priorities) > 2 else 'N/A'}")
+
+            # Content structure guidance
+            if hasattr(writing_guidance, 'content_structure') and writing_guidance.content_structure:
+                structure_guidance = []
+                for section, guidance_text in writing_guidance.content_structure.items():
+                    structure_guidance.append(f"{section.title()}: {guidance_text}")
+                guidance_parts.append(f"SECTION GUIDANCE: {' | '.join(structure_guidance)}")
+
+            return "\n\n".join(guidance_parts)
+
+        except Exception as e:
+            logger.error(f"Error formatting narrative guidance: {e}")
+            return "Write a balanced, informative article focusing on key match events and player performances."
         
