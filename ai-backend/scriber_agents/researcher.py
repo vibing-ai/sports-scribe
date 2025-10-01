@@ -244,39 +244,65 @@ class ResearchAgent:
             statistics = game_data.get("statistics", [])
             lineups = game_data.get("lineups", [])
             
-            # Use Chain of Thought reasoning for comprehensive analysis
+            # Use enhanced Chain of Thought reasoning with statistical validation
             cot_prompt = f"""
-            Using Chain of Thought reasoning, analyze the following game data comprehensively:
+            Using Chain of Thought reasoning, analyze the following CURRENT MATCH DATA with strict statistical validation:
 
-            STEP 1 - DATA INVENTORY:
-            Let me first identify what data is available:
+            CRITICAL DATA SOURCE VALIDATION:
+            - This is CURRENT MATCH DATA ONLY - do not reference historical statistics
+            - All statistics must be verifiable in the provided data
+            - Each number mentioned must have a clear source in the current match data
+            
+            CRITICAL: NO UNVERIFIABLE CLAIMS ALLOWED:
+            - DO NOT claim this is a player's "debut goal", "first goal", or "maiden goal"
+            - DO NOT make milestone claims ("first time", "career-first", "breakthrough")
+            - DO NOT assume historical significance without explicit data
+            - Only describe what happened in THIS MATCH, not its historical context
+            - If you don't have historical data, don't make historical claims
+
+            STEP 1 - DATA INVENTORY AND VALIDATION:
+            Let me first identify what current match data is available:
             - Match Info: {bool(match_info)}
             - Events: {len(events)} events available
             - Players: {len(players)} players available  
             - Statistics: {len(statistics)} team stats available
             - Lineups: {len(lineups)} lineup records available
 
-            STEP 2 - ANALYSIS PLANNING:
-            Based on available data, I will analyze each component separately to ensure accuracy:
+            STEP 2 - STATISTICAL VERIFICATION:
+            Before analysis, I will verify key statistics from the provided data:
+            - Extract actual shot counts per player from statistics
+            - Verify goal events match player statistics
+            - Cross-check dribble attempts and success rates
+            - Validate save counts for goalkeepers
 
-            GAME DATA TO ANALYZE:
+            STEP 3 - ANALYSIS PLANNING:
+            Based on VERIFIED current match data only:
+
+            CURRENT MATCH DATA TO ANALYZE:
             Match Info: {match_info}
             Events: {events}
             Players: {players}
             Statistics: {statistics}
             Lineups: {lineups}
 
-            STEP 3 - COMPONENT ANALYSIS:
-            Now I will analyze each component following the strict validation rules:
+            STEP 4 - COMPONENT ANALYSIS WITH VALIDATION:
+            Now I will analyze each component with strict validation rules:
+            - Only use statistics that appear in the current match data
+            - Cross-reference events with player statistics
+            - Verify all numbers against the provided data
+            - Flag any inconsistencies
 
-            STEP 4 - STORYLINE GENERATION:
-            Generate storylines in JSON format as a list of strings. Each storyline should be factual and based only on the provided data.
+            STEP 5 - STORYLINE GENERATION WITH SOURCE VERIFICATION:
+            Generate storylines based ONLY on verified current match data.
+            Each storyline must reference specific, verifiable statistics from this match.
 
             Return the result as a JSON object with this structure:
             {{
                 "storylines": ["storyline1", "storyline2", ...],
                 "confidence": 0.9,
-                "analysis_type": "comprehensive_game_analysis"
+                "analysis_type": "current_match_analysis_verified",
+                "data_source": "current_match_only",
+                "validation_status": "statistics_verified"
             }}
             """
             
@@ -295,8 +321,11 @@ class ResearchAgent:
                     match_info, events, players, statistics, lineups
                 )
             
-            logger.info(f"Generated {len(storylines)} storylines using Chain of Thought reasoning")
-            return storylines
+            # Validate storylines for current match data separation
+            validated_storylines = self._validate_storylines_for_data_separation(storylines, "current_match")
+            
+            logger.info(f"Generated {len(validated_storylines)} validated storylines using Chain of Thought reasoning")
+            return validated_storylines
             
         except Exception as e:
             logger.error(f"Error generating comprehensive storylines: {e}")
@@ -742,16 +771,25 @@ class ResearchAgent:
             - League position or standings
 
             STEP 3 - VALIDATION RULES:
-            Applying validation rules:
+            Applying strict validation rules for BACKGROUND DATA ONLY:
             - Use only background/historical information
-            - Do NOT mention current match events
-            - Only include facts explicitly in the data
-            - No assumptions or inferences
+            - Do NOT mention current match events, scores, or statistics
+            - Do NOT reference current match player performances
+            - Only include facts explicitly in the historical data
+            - No assumptions or inferences about current match
+            - Label all content as "background context only"
 
-            STEP 4 - STORYLINE GENERATION:
-            Generate 3-5 background statements based on validated data.
+            STEP 4 - BACKGROUND STORYLINE GENERATION:
+            Generate 3-5 background statements based ONLY on validated historical data.
+            Each statement must be clearly marked as background context.
 
-            OUTPUT: JSON array of background statements.
+            OUTPUT: JSON array with this structure:
+            {{
+                "background_statements": ["background1", "background2", ...],
+                "data_source": "historical_background_only",
+                "usage_note": "Use ONLY for introduction context - NOT for match events",
+                "validation_status": "background_verified"
+            }}
             """
             
             # Use safe LLM call with timeout and retry
@@ -762,7 +800,10 @@ class ResearchAgent:
                 if not storylines:
                     return ["Historical context based on available team data", "Team performance analysis from provided data"]
                 
-                return storylines[:5]  # Limit to 5 background statements
+                # Validate storylines for historical background data separation
+                validated_storylines = self._validate_storylines_for_data_separation(storylines, "historical_background")
+                
+                return validated_storylines[:5]  # Limit to 5 background statements
                 
             except Exception as e:
                 logger.error(f"Safe LLM call failed for historical context: {e}")
@@ -771,6 +812,119 @@ class ResearchAgent:
         except Exception as e:
             logger.error(f"Error analyzing historical context with CoT: {e}")
             return ["Historical context based on available team data", "Team performance analysis from provided data"]
+
+    def _validate_current_match_statistics(self, game_data: dict) -> dict:
+        """
+        Validate and cross-check statistics within current match data to prevent errors.
+        
+        Args:
+            game_data: Current match data containing events, players, statistics
+            
+        Returns:
+            dict: Validation results with verified statistics
+        """
+        logger.info("Validating current match statistics for consistency")
+        
+        validation_results = {
+            "validated_players": {},
+            "validation_errors": [],
+            "cross_check_results": {}
+        }
+        
+        try:
+            events = game_data.get("events", [])
+            players = game_data.get("players", [])
+            
+            # Extract goal events and cross-check with player statistics
+            goal_events = [e for e in events if e.get("type") == "Goal"]
+            
+            # Build player statistics map from current match data
+            for team_players in players:
+                if "players" in team_players:
+                    for player_info in team_players["players"]:
+                        player_name = player_info.get("player", {}).get("name")
+                        if player_name and "statistics" in player_info:
+                            stats = player_info["statistics"][0] if player_info["statistics"] else {}
+                            
+                            # Validate goals
+                            goals_in_stats = stats.get("goals", {}).get("total") or 0
+                            goals_in_events = len([e for e in goal_events 
+                                                 if e.get("player", {}).get("name") == player_name])
+                            
+                            validation_results["validated_players"][player_name] = {
+                                "goals": {
+                                    "from_statistics": goals_in_stats,
+                                    "from_events": goals_in_events,
+                                    "validated": goals_in_stats == goals_in_events
+                                },
+                                "shots": stats.get("shots", {}).get("total"),
+                                "dribbles": stats.get("dribbles", {}).get("attempts"),
+                                "saves": stats.get("goals", {}).get("saves")
+                            }
+                            
+                            # Flag inconsistencies
+                            if goals_in_stats != goals_in_events:
+                                validation_results["validation_errors"].append(
+                                    f"Goal count mismatch for {player_name}: "
+                                    f"stats={goals_in_stats}, events={goals_in_events}"
+                                )
+            
+            return validation_results
+            
+        except Exception as e:
+            logger.error(f"Error validating statistics: {e}")
+            validation_results["validation_errors"].append(f"Validation error: {str(e)}")
+            return validation_results
+
+    def _validate_storylines_for_data_separation(self, storylines: list[str], data_source: str) -> list[str]:
+        """
+        Validate storylines to ensure they respect data source boundaries.
+        
+        Args:
+            storylines: List of generated storylines
+            data_source: Source type ('current_match' or 'historical_background')
+            
+        Returns:
+            list[str]: Validated and filtered storylines
+        """
+        validated_storylines = []
+        
+        # Keywords that indicate mixing of data sources
+        current_match_keywords = ["this match", "this game", "today", "scored", "assisted", "minutes played"]
+        historical_keywords = ["season", "career", "historically", "previously", "last season"]
+        
+        # Keywords that indicate unverifiable claims (debut, first, milestone claims)
+        unverifiable_claims = ["debut", "first goal", "maiden", "opening goal of the season", 
+                              "first time", "inaugural", "milestone", "career-first", 
+                              "first ever", "breakthrough goal", "first strike"]
+        
+        for storyline in storylines:
+            storyline_lower = storyline.lower()
+            
+            # Check for unverifiable claims in any data source
+            has_unverifiable_claims = any(keyword in storyline_lower for keyword in unverifiable_claims)
+            if has_unverifiable_claims:
+                logger.warning(f"Filtered storyline with unverifiable claim (debut/first/milestone): {storyline[:100]}...")
+                continue
+            
+            if data_source == "current_match":
+                # For current match storylines, avoid historical references
+                has_historical_refs = any(keyword in storyline_lower for keyword in historical_keywords)
+                if not has_historical_refs:
+                    validated_storylines.append(storyline)
+                else:
+                    logger.warning(f"Filtered current match storyline with historical reference: {storyline[:100]}...")
+                    
+            elif data_source == "historical_background":
+                # For background storylines, avoid current match references
+                has_current_refs = any(keyword in storyline_lower for keyword in current_match_keywords)
+                if not has_current_refs:
+                    validated_storylines.append(storyline)
+                else:
+                    logger.warning(f"Filtered background storyline with current match reference: {storyline[:100]}...")
+        
+        logger.info(f"Validated {len(validated_storylines)}/{len(storylines)} storylines for {data_source}")
+        return validated_storylines
 
     async def get_performance_from_player_game_data(self, player_data: dict, game_data: dict) -> list[str]:
         """Analyze individual player performance using Chain of Thought reasoning.
@@ -785,40 +939,74 @@ class ResearchAgent:
         logger.info("Analyzing individual player performance using Chain of Thought reasoning")
         
         try:
+            # First, validate current match statistics for consistency
+            validation_results = self._validate_current_match_statistics(game_data)
+            
+            # Log validation results
+            if validation_results["validation_errors"]:
+                logger.warning(f"Statistics validation errors: {validation_results['validation_errors']}")
+            
+            logger.info(f"Validated statistics for {len(validation_results['validated_players'])} players")
             cot_prompt = f"""
-            CHAIN OF THOUGHT ANALYSIS - INDIVIDUAL PLAYER PERFORMANCE:
+            CHAIN OF THOUGHT ANALYSIS - INDIVIDUAL PLAYER PERFORMANCE (CURRENT MATCH ONLY):
 
-            STEP 1 - DATA EXAMINATION:
-            Let me examine the player and game data:
+            CRITICAL VALIDATION RULES:
+            - ONLY use statistics from THIS SPECIFIC MATCH
+            - Cross-validate all numbers against multiple data sources
+            - Never reference historical or season statistics
+            - Each statistic must be traceable to the current match data
+
+            STEP 1 - DATA EXAMINATION AND VALIDATION:
+            Let me examine the current match data for players:
             Player Data: {player_data}
             Game Data Events: {game_data.get("events", [])}
             Game Data Players: {game_data.get("players", [])}
+            
+            VALIDATION RESULTS FROM CROSS-CHECK:
+            {validation_results}
 
-            STEP 2 - PERFORMANCE COMPONENT IDENTIFICATION:
-            I need to identify performance components:
+            STEP 2 - STATISTICAL CROSS-VALIDATION:
+            Before generating any storylines, I will cross-validate statistics:
+            - Match events data vs player statistics data
+            - Goal events vs player goal totals
+            - Assist events vs player assist totals
+            - Shot events vs player shot statistics
+            - Verify dribble attempts and success rates match
+            - Confirm save counts for goalkeepers
+
+            STEP 3 - PERFORMANCE COMPONENT IDENTIFICATION:
+            I need to identify performance components from CURRENT MATCH ONLY:
             - Player events: Goals, assists, cards, substitutions
-            - Player statistics: Passes, tackles, duels, ratings
-            - Match involvement: Minutes played, key actions
+            - Player statistics: Passes, tackles, duels, ratings (current match)
+            - Match involvement: Minutes played, key actions (current match)
 
-            STEP 3 - VALIDATION RULES APPLICATION:
-            Applying validation rules:
+            STEP 4 - VALIDATION RULES APPLICATION:
+            Applying strict validation rules:
             - Only use current match events and statistics
             - Each event must contain its own player and time data
             - Do not mix events or assume connections
-            - Verify exact numbers and statistics
+            - Verify exact numbers against provided match data
+            - Flag any statistics that cannot be verified
 
-            STEP 4 - CONTRIBUTION ASSESSMENT:
-            Assess meaningful contributions:
-            - Goals and assists
-            - High pass accuracy with significant volume
-            - Defensive actions (tackles, interceptions)
-            - Duel success rate
-            - Overall match impact
+            STEP 5 - CONTRIBUTION ASSESSMENT WITH VERIFICATION:
+            Assess meaningful contributions based on VERIFIED current match data:
+            - Goals and assists (cross-checked with events)
+            - Pass accuracy with actual match volume
+            - Defensive actions (tackles, interceptions from match)
+            - Duel success rate (from current match only)
+            - Overall match impact (based on verified statistics)
 
-            STEP 5 - STORYLINE GENERATION:
-            Generate player performance storylines based on current match data only.
+            STEP 6 - STORYLINE GENERATION WITH SOURCE VERIFICATION:
+            Generate player performance storylines based ONLY on verified current match data.
+            Each storyline must include the specific statistic and its source verification.
 
-            OUTPUT: JSON array of player performance statements.
+            OUTPUT: JSON array with this structure:
+            {{
+                "player_performances": ["performance1", "performance2", ...],
+                "data_source": "current_match_verified",
+                "validation_notes": ["verification1", "verification2", ...],
+                "statistics_used": {{"player_name": {{"stat": "value", "verified": true}}}}
+            }}
             """
             
             result = await self.llm.ainvoke([HumanMessage(content=cot_prompt)])

@@ -982,7 +982,19 @@ class Editor:
             GAME DATA:
             {json.dumps(game_data, indent=2, ensure_ascii=False)}
             
-            Please validate the article for statistics errors.
+            Please validate the article for statistics errors and unverifiable claims.
+            
+            CRITICAL VALIDATION CHECKS:
+            1. Statistics Accuracy: All numbers must match the game data provided
+            2. Unverifiable Claims: Check for "debut goal", "first goal", "maiden goal", "milestone" claims
+            3. Historical Claims: Ensure no historical significance is claimed without data
+            4. Data Source Mixing: Ensure current match data isn't mixed with historical claims
+            
+            SPECIFIC ERRORS TO FLAG:
+            - Any claim about "debut", "first", "maiden", "breakthrough", "career-first"
+            - Any milestone or achievement claims not in the data
+            - Any historical significance without explicit historical data
+            - Statistics that don't match the provided game data
             """
             
             result = await self._safe_chain_call(
