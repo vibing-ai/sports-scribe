@@ -50,9 +50,9 @@ class WriterAgent:
         # Initialize custom output parser
         self.output_parser = ArticleOutputParser()
         
-        # Create the prompt template
+        # Create the prompt template with enhanced data separation
         self.prompt_template = PromptTemplate(
-            input_variables=["system_instructions", "game_info", "storylines", "historical_context", "player_performance", "narrative_guidance", "template"],
+            input_variables=["system_instructions", "current_match_data", "background_data", "narrative_guidance", "template"],
             template="""You are a professional sports journalist specializing in writing engaging football game recaps.
         Your task is to create compelling, well-structured articles that capture the excitement and significance of football matches.
 
@@ -64,6 +64,7 @@ class WriterAgent:
         - Focus on the most important storylines and moments
         - Create articles that are 400-600 words in length
         - Use the narrative guidance to shape your writing approach and focus
+        - CRITICAL: Distinguish clearly between current match data and background data
 
         Always return complete, well-formatted articles ready for publication.
 
@@ -75,15 +76,23 @@ class WriterAgent:
         Template for game recap:
         {template}
 
-        CURRENT MATCH DATA (Primary Focus):
-        - Game Info: {game_info}
-        - Research Insights (Current Match Events): {storylines}
-        - Player Performance (Current Match Events): {player_performance}
+        === CURRENT MATCH DATA (PRIMARY SOURCE - Use for main article content) ===
+        {current_match_data}
 
-        HISTORICAL/BACKGROUND DATA (Context Only):
-        - Historical Context: {historical_context}
+        === BACKGROUND DATA (CONTEXT ONLY - Use sparingly for introduction) ===
+        {background_data}
 
-        Please write a complete article following the template structure exactly, incorporating the narrative guidance to create the most engaging and appropriate article for the intended audience."""
+        CRITICAL DATA USAGE RULES:
+        1. ALL statistics, player actions, and game events MUST come from CURRENT MATCH DATA only
+        2. Use BACKGROUND DATA only for brief introduction context about teams or significance
+        3. NEVER mix historical statistics with current match statistics
+        4. If a statistic is not in CURRENT MATCH DATA, do not mention it
+        5. Double-check all numbers against the current match data provided
+        6. NEVER claim "debut goal", "first goal", "maiden goal", or milestone achievements
+        7. DO NOT make historical significance claims without explicit historical data
+        8. Only describe what happened in THIS MATCH - avoid unverifiable historical context
+
+        Please write a complete article following the template structure exactly, incorporating the narrative guidance to create the most engaging and appropriate article for the intended audience, while respecting the data separation rules."""
         )
         
         # Create the LLM chain
@@ -101,10 +110,19 @@ class WriterAgent:
         logger.info("Generating game recap article with narrative guidance")
 
         try:
-            # Extract research data
-            storylines = research.get("game_analysis", [])
-            historical_context = research.get("historical_context", [])
-            player_performance = research.get("player_performance", [])
+            # Extract research data with clear separation
+            current_match = research.get("current_match", {})
+            background = research.get("background", {})
+            instructions = research.get("instructions", {})
+
+            # Extract current match data (primary focus)
+            storylines = current_match.get("game_analysis", [])
+            player_performance = current_match.get("player_performance", [])
+
+            # Extract background data (context only)
+            historical_context = background.get("historical_context", [])
+
+            # Extract narrative recommendation if available
             narrative_recommendation = research.get("narrative_recommendation")
 
             # Generate narrative guidance text from narrative recommendation
@@ -112,13 +130,19 @@ class WriterAgent:
 
             logger.info(f"Using narrative guidance: {narrative_guidance[:200]}..." if len(narrative_guidance) > 200 else f"Using narrative guidance: {narrative_guidance}")
 
-            # Prepare prompt inputs
+            # Prepare prompt inputs with explicit data separation
             prompt_inputs = {
-                "system_instructions": self._get_detailed_instructions(),
-                "game_info": game_info,
-                "storylines": storylines,
-                "historical_context": historical_context,
-                "player_performance": player_performance,
+                "system_instructions": self._get_enhanced_instructions(instructions),
+                "current_match_data": {
+                    "game_info": game_info,
+                    "storylines": storylines,
+                    "player_performance": player_performance,
+                    "source_note": "THIS IS CURRENT MATCH DATA - Use for main article content"
+                },
+                "background_data": {
+                    "historical_context": historical_context,
+                    "source_note": "THIS IS BACKGROUND DATA - Use ONLY for introduction context"
+                },
                 "narrative_guidance": narrative_guidance,
                 "template": self.get_game_recap_template()
             }
@@ -139,6 +163,27 @@ class WriterAgent:
         except Exception as e:
             logger.error(f"Error generating game recap: {e}")
             raise
+
+    def _get_enhanced_instructions(self, pipeline_instructions: Dict[str, str] = None) -> str:
+        """Get enhanced instructions with explicit data separation guidance."""
+        base_instructions = self._get_detailed_instructions()
+        
+        if pipeline_instructions:
+            data_separation_note = f"""
+            
+            CRITICAL DATA SEPARATION RULES (Pipeline Instructions):
+            - {pipeline_instructions.get('primary_focus', 'Focus on current match data')}
+            - {pipeline_instructions.get('background_usage', 'Use background data only for context')}
+            - {pipeline_instructions.get('validation_rule', 'Never mix data sources')}
+            
+            DATA STRUCTURE EXPLANATION:
+            - current_match_data: Contains THIS GAME'S events, statistics, and analysis
+            - background_data: Contains historical context and background information only
+            
+            """
+            return base_instructions + data_separation_note
+        
+        return base_instructions
 
     def _get_detailed_instructions(self) -> str:
         """Get detailed instructions for article generation"""
@@ -180,6 +225,14 @@ class WriterAgent:
             - Verify that each player mentioned actually participated in the specific event described
             - Only mention players who have clear, verifiable actions in the match events
             - Double-check all player names, team names, and event details against the provided data
+            
+            CRITICAL: NO UNVERIFIABLE HISTORICAL CLAIMS:
+            - DO NOT claim this is a player's "debut goal", "first goal", "maiden goal", or "opening goal"
+            - DO NOT make milestone claims ("first time", "career-first", "breakthrough goal")
+            - DO NOT assume historical significance without explicit historical data
+            - DO NOT claim records or achievements unless explicitly provided in the data
+            - Only describe what happened in THIS MATCH - avoid historical context claims
+            - If historical significance is not in the data, do not mention it
             - The goal can not be assigned to the assist player:
             - EXAMPLE: If Player A scores one goal assisted by Player B, and Player B scores one goal assisted by Player A, DO NOT write that either player "scored a double" or "netted twice".
                 - For example, in the match where Arsenal beat Wolves 2-0, Saka scored once (assisted by Havertz) and Havertz scored once (assisted by Saka). Neither scored twice — this must NOT be described as a "brace" or "double".

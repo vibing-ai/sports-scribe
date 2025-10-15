@@ -257,28 +257,37 @@ class AgentPipeline:
                 f"[PIPELINE-DATA] Player performance storylines: {len(player_performance_analysis) if isinstance(player_performance_analysis, list) else 'Not a list'}"
             )
 
-            # Combine all research data into a comprehensive structure
-            # NOTE: Keep storylines separate from historical context to avoid confusion
-            comprehensive_research_data = {
-                "game_analysis": game_analysis,  # Current match events only
-                "historical_context": historical_context,  # Background information only
+            # Separate current match research from historical background data
+            # This prevents the writer from mixing current stats with historical data
+            current_match_research = {
+                "game_analysis": game_analysis,  # Current match events and storylines
                 "player_performance": player_performance_analysis,  # Current match player events only
+                "data_source": "current_match",
+                "validation_note": "Use ONLY for describing what happened in THIS specific game"
+            }
+            
+            historical_background_data = {
+                "historical_context": historical_context,  # Background information only
+                "data_source": "historical_background", 
+                "validation_note": "Use ONLY for introduction context and background - NOT for match events"
             }
 
             # Log research data information
-            logger.info("[PIPELINE-DATA] Comprehensive research data:")
-            logger.info(f"[PIPELINE-DATA]   Type: {type(comprehensive_research_data)}")
+            logger.info("[PIPELINE-DATA] Current match research data:")
+            logger.info(f"[PIPELINE-DATA]   Type: {type(current_match_research)}")
             logger.info(
-                f"[PIPELINE-DATA]   Keys: {list(comprehensive_research_data.keys())}"
+                f"[PIPELINE-DATA]   Keys: {list(current_match_research.keys())}"
             )
             logger.info(
                 f"[PIPELINE-DATA]   Game analysis storylines: {len(game_analysis)}"
             )
             logger.info(
-                f"[PIPELINE-DATA]   Historical context: {len(historical_context)}"
-            )
-            logger.info(
                 f"[PIPELINE-DATA]   Player performance: {len(player_performance_analysis)}"
+            )
+            logger.info("[PIPELINE-DATA] Historical background data:")
+            logger.info(f"[PIPELINE-DATA]   Type: {type(historical_background_data)}")
+            logger.info(
+                f"[PIPELINE-DATA]   Historical context: {len(historical_context)}"
             )
 
             logger.info(
@@ -335,9 +344,19 @@ class AgentPipeline:
             # Step 3: Generate article content
             logger.info("[PIPELINE] Step 3: Generating article content")
 
-            # Prepare data for writer (using compact data format)
+            # Prepare data for writer with clear separation between current and historical data
             game_info = compact_game_data
-            research_for_writer = comprehensive_research_data
+            
+            # Pass both current match research and historical background as separate objects
+            research_for_writer = {
+                "current_match": current_match_research,
+                "background": historical_background_data,
+                "instructions": {
+                    "primary_focus": "Use 'current_match' data for the main article content",
+                    "background_usage": "Use 'background' data ONLY for introduction context",
+                    "validation_rule": "Never mix historical statistics with current match events"
+                }
+            }
 
             # Log the data being passed to writer for debugging
             logger.info("[PIPELINE-DEBUG] Data passed to writer:")
@@ -373,7 +392,7 @@ class AgentPipeline:
                 "[PIPELINE] Step 4.1: Fact-checking article with research insights"
             )
             fact_checked_article = await self.editor.edit_with_facts(
-                article_content, compact_game_data, comprehensive_research_data
+                article_content, compact_game_data, current_match_research
             )
 
             # Step 4.2: Terminology checking
