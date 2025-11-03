@@ -5,11 +5,10 @@ Basic test structure for football journalism agents.
 """
 
 import pytest
-
-from agents.data_collector import DataCollectorAgent
-from agents.editor import EditorAgent
-from agents.researcher import ResearchAgent
-from agents.writer import WritingAgent
+from scriber_agents.data_collector import DataCollectorAgent
+from scriber_agents.editor import Editor
+from scriber_agents.researcher import ResearchAgent
+from scriber_agents.writer import WriterAgent
 
 
 class TestDataCollectorAgent:
@@ -65,23 +64,23 @@ class TestWriterAgent:
 
     @pytest.fixture
     def agent(self):
-        return WritingAgent({})
+        return WriterAgent({})
 
     @pytest.mark.asyncio
     async def test_generate_match_report(self, agent):
         """Test generating match report article."""
-        pytest.skip("WritingAgent.generate_match_report not yet implemented")
+        pytest.skip("WriterAgent.generate_match_report not yet implemented")
 
     @pytest.mark.asyncio
     async def test_generate_preview_article(self, agent):
         """Test generating match preview article."""
-        pytest.skip("WritingAgent.generate_preview_article not yet implemented")
+        pytest.skip("WriterAgent.generate_preview_article not yet implemented")
 
     def test_agent_initialization(self):
-        """Test that WritingAgent can be initialized with empty config."""
-        agent = WritingAgent({})
+        """Test that WriterAgent can be initialized with empty config."""
+        agent = WriterAgent({})
         assert agent is not None
-        assert hasattr(agent, "generate_game_recap")
+        assert hasattr(agent, "generate_article")
 
 
 class TestEditorAgent:
@@ -89,20 +88,20 @@ class TestEditorAgent:
 
     @pytest.fixture
     def agent(self):
-        return EditorAgent({})
+        return Editor({})
 
     @pytest.mark.asyncio
     async def test_review_article_quality(self, agent):
         """Test reviewing article quality."""
-        pytest.skip("EditorAgent.review_article_quality not yet implemented")
+        pytest.skip("Editor.review_article_quality not yet implemented")
 
     @pytest.mark.asyncio
     async def test_fact_check_article(self, agent):
         """Test fact-checking article content."""
-        pytest.skip("EditorAgent.fact_check_article not yet implemented")
+        pytest.skip("Editor.fact_check_article not yet implemented")
 
     def test_agent_initialization(self):
-        """Test that EditorAgent can be initialized with empty config."""
-        agent = EditorAgent({})
+        """Test that Editor can be initialized with empty config."""
+        agent = Editor({})
         assert agent is not None
         assert hasattr(agent, "review_article")

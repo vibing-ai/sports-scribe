@@ -1,0 +1,378 @@
+import logging
+import os
+from typing import Dict, Any
+from dotenv import load_dotenv
+
+# LangChain imports
+from langchain_openai import ChatOpenAI
+from langchain.prompts import PromptTemplate
+from langchain.chains import LLMChain
+from langchain.schema import BaseOutputParser
+from langchain.schema.output_parser import OutputParserException
+
+load_dotenv()
+logger = logging.getLogger(__name__)
+
+
+class ArticleOutputParser(BaseOutputParser):
+    """Custom output parser for parsing and validating article output"""
+    
+    def parse(self, text: str) -> str:
+        """Parse LLM output and return cleaned article text"""
+        # Remove potential markdown formatting
+        text = text.strip()
+        if text.startswith("```") and text.endswith("```"):
+            text = text[3:-3].strip()
+        
+        return text
+    
+    @property
+    def _type(self) -> str:
+        return "article_output_parser"
+
+class WriterAgent:
+    """
+    AI agent that generates complete football articles using collected data and research insights.
+    Uses LangChain for LLM orchestration and prompt management.
+    """
+    def __init__(self, config: Dict[str, Any] = None):
+        """Initialize the Writer Agent with LangChain configuration."""
+        self.config = config or {}
+        
+        # Initialize LangChain components
+        self.llm = ChatOpenAI(
+            api_key=os.getenv("OPENAI_API_KEY"),
+            model=self.config.get("model", "gpt-4o"),
+            temperature=self.config.get("temperature", 0.7),
+            max_tokens=self.config.get("max_tokens", 2000)
+        )
+        
+        # Initialize custom output parser
+        self.output_parser = ArticleOutputParser()
+        
+        # Create the prompt template with enhanced data separation
+        self.prompt_template = PromptTemplate(
+            input_variables=["system_instructions", "current_match_data", "background_data", "narrative_guidance", "template"],
+            template="""You are a professional sports journalist specializing in writing engaging football game recaps.
+        Your task is to create compelling, well-structured articles that capture the excitement and significance of football matches.
+
+        Guidelines:
+        - Write in a professional, engaging tone
+        - Use only the provided data - do not invent statistics or quotes
+        - Follow the exact structure provided in the template
+        - Maintain consistency in style and tone
+        - Focus on the most important storylines and moments
+        - Create articles that are 400-600 words in length
+        - Use the narrative guidance to shape your writing approach and focus
+        - CRITICAL: Distinguish clearly between current match data and background data
+
+        Always return complete, well-formatted articles ready for publication.
+
+        {system_instructions}
+
+        NARRATIVE GUIDANCE (How to approach this article):
+        {narrative_guidance}
+
+        Template for game recap:
+        {template}
+
+        === CURRENT MATCH DATA (PRIMARY SOURCE - Use for main article content) ===
+        {current_match_data}
+
+        === BACKGROUND DATA (CONTEXT ONLY - Use sparingly for introduction) ===
+        {background_data}
+
+        CRITICAL DATA USAGE RULES:
+        1. ALL statistics, player actions, and game events MUST come from CURRENT MATCH DATA only
+        2. Use BACKGROUND DATA only for brief introduction context about teams or significance
+        3. NEVER mix historical statistics with current match statistics
+        4. If a statistic is not in CURRENT MATCH DATA, do not mention it
+        5. Double-check all numbers against the current match data provided
+        6. NEVER claim "debut goal", "first goal", "maiden goal", or milestone achievements
+        7. DO NOT make historical significance claims without explicit historical data
+        8. Only describe what happened in THIS MATCH - avoid unverifiable historical context
+        9. GOALKEEPER SAVES (STRICT): When mentioning saves, use ONLY the team statistics entry where
+           type == "Goalkeeper Saves" to determine the count. Attribute it to the starting
+           goalkeeper from the lineups for that team. If this statistic is absent, do NOT
+           mention saves.
+
+        Please write a complete article following the template structure exactly, incorporating the narrative guidance to create the most engaging and appropriate article for the intended audience, while respecting the data separation rules."""
+        )
+        
+        # Create the LLM chain
+        self.chain = LLMChain(
+            llm=self.llm,
+            prompt=self.prompt_template,
+            output_parser=self.output_parser,
+            verbose=False
+        )
+        
+        logger.info("Writer Agent initialized successfully with LangChain")
+
+    async def generate_game_recap(self, game_info: Dict[str, Any], research: Dict[str, Any]) -> str:
+        """Generate a complete football game recap article using LangChain with narrative guidance."""
+        logger.info("Generating game recap article with narrative guidance")
+
+        try:
+            # Extract research data with clear separation
+            current_match = research.get("current_match", {})
+            background = research.get("background", {})
+            instructions = research.get("instructions", {})
+
+            # Extract current match data (primary focus)
+            storylines = current_match.get("game_analysis", [])
+            player_performance = current_match.get("player_performance", [])
+
+            # Extract background data (context only)
+            historical_context = background.get("historical_context", [])
+
+            # Extract narrative recommendation if available
+            narrative_recommendation = research.get("narrative_recommendation")
+
+            # Generate narrative guidance text from narrative recommendation
+            narrative_guidance = self._format_narrative_guidance(narrative_recommendation)
+
+            logger.info(f"Using narrative guidance: {narrative_guidance[:200]}..." if len(narrative_guidance) > 200 else f"Using narrative guidance: {narrative_guidance}")
+
+            # Prepare prompt inputs with explicit data separation
+            prompt_inputs = {
+                "system_instructions": self._get_enhanced_instructions(instructions),
+                "current_match_data": {
+                    "game_info": game_info,
+                    "storylines": storylines,
+                    "player_performance": player_performance,
+                    "source_note": "THIS IS CURRENT MATCH DATA - Use for main article content"
+                },
+                "background_data": {
+                    "historical_context": historical_context,
+                    "source_note": "THIS IS BACKGROUND DATA - Use ONLY for introduction context"
+                },
+                "narrative_guidance": narrative_guidance,
+                "template": self.get_game_recap_template()
+            }
+
+            # Use LangChain to generate article
+            result = await self.chain.ainvoke(prompt_inputs)
+            # Extract text from LangChain result
+            if isinstance(result, dict):
+                article = result.get('text', str(result)).strip()
+            else:
+                article = str(result).strip()
+
+            # Validate the article
+            self._validate_article(article)
+            logger.info("Game recap article generated successfully with narrative guidance")
+            return article
+
+        except Exception as e:
+            logger.error(f"Error generating game recap: {e}")
+            raise
+
+    def _get_enhanced_instructions(self, pipeline_instructions: Dict[str, str] = None) -> str:
+        """Get enhanced instructions with explicit data separation guidance."""
+        base_instructions = self._get_detailed_instructions()
+        
+        if pipeline_instructions:
+            data_separation_note = f"""
+            
+            CRITICAL DATA SEPARATION RULES (Pipeline Instructions):
+            - {pipeline_instructions.get('primary_focus', 'Focus on current match data')}
+            - {pipeline_instructions.get('background_usage', 'Use background data only for context')}
+            - {pipeline_instructions.get('validation_rule', 'Never mix data sources')}
+            
+            DATA STRUCTURE EXPLANATION:
+            - current_match_data: Contains THIS GAME'S events, statistics, and analysis
+            - background_data: Contains historical context and background information only
+            
+            """
+            return base_instructions + data_separation_note
+        
+        return base_instructions
+
+    def _get_detailed_instructions(self) -> str:
+        """Get detailed instructions for article generation"""
+        return """
+            Write a professional football game recap article (400-600 words) with the following structure:
+            - Headline
+            - Introduction (context, teams, stakes)
+            - Body (game storyline, key moments, player performances, relevant statistics, quotes)
+            - Conclusion (summary, implications)
+            Include [Headline, Introduction, Body, Conclusion] in the article to make it easier for the junior writer to understand the structure.
+
+            CRITICAL: You must clearly distinguish between CURRENT MATCH DATA and HISTORICAL/BACKGROUND DATA.
+
+            CURRENT MATCH DATA (Primary Focus - This is what actually happened in this specific game):
+            - This contains the actual events, scores, players, and moments from THIS SPECIFIC MATCH
+            - Use this as your main source for describing what happened in the game
+            - Focus on: goals, cards, substitutions, key moments, final score, venue, date
+
+            SUBSTITUTION DATA STRUCTURE:
+            - Substitution events have: "player" (who went OFF), "assist" (who came ON), "time", "detail"
+            - If "assist" is null/missing, the substitution data is incomplete
+            - Lineup data shows: "startXI" (starters), "substitutes" (bench players)
+            - Only mention substitutions when both "player" and "assist" fields are present
+            - Note that "assist" could both mean substitution and goal assist, make sure to check the "type" field to determine if it is a substitution or a goal assist
+
+            HISTORICAL/BACKGROUND DATA (Context Only - Use sparingly for introduction/context):
+            - This contains background information, historical context, and analysis
+            - Use this ONLY for:
+              * Brief introduction context (team history, league position, etc.)
+              * Background information that helps explain the significance
+              * Historical rivalry or previous meetings (if relevant)
+            - DO NOT confuse this with current match events
+            - DO NOT use historical statistics as if they happened in this game
+
+            CRITICAL MATCHING RULES:
+            - When mentioning players, teams, or events, use EXACTLY the names and details from the provided data
+            - Do not mix up player names, team names, or event times
+            - If a player name is unclear or incomplete in the data, do not guess or complete it
+            - Verify that each player mentioned actually participated in the specific event described
+            - Only mention players who have clear, verifiable actions in the match events
+            - Double-check all player names, team names, and event details against the provided data
+            - GOALKEEPER SAVES (STRICT): The saves count MUST come from team statistics where
+              type == "Goalkeeper Saves" and be attributed to the starting goalkeeper. If not present,
+              omit saves entirely.
+            
+            CRITICAL: NO UNVERIFIABLE HISTORICAL CLAIMS:
+            - DO NOT claim this is a player's "debut goal", "first goal", "maiden goal", or "opening goal"
+            - DO NOT make milestone claims ("first time", "career-first", "breakthrough goal")
+            - DO NOT assume historical significance without explicit historical data
+            - DO NOT claim records or achievements unless explicitly provided in the data
+            - Only describe what happened in THIS MATCH - avoid historical context claims
+            - If historical significance is not in the data, do not mention it
+            - The goal can not be assigned to the assist player:
+            - EXAMPLE: If Player A scores one goal assisted by Player B, and Player B scores one goal assisted by Player A, DO NOT write that either player "scored a double" or "netted twice".
+                - For example, in the match where Arsenal beat Wolves 2-0, Saka scored once (assisted by Havertz) and Havertz scored once (assisted by Saka). Neither scored twice — this must NOT be described as a "brace" or "double".
+            - When counting goals per player, treat only explicit scoring events in the CURRENT MATCH DATA as valid.
+            - A player who scored one goal and provided one assist MUST NOT be described as scoring twice.
+            - For clarity: DO NOT use phrases like "brace", "double", "netted twice", "second tally", or similar variations unless the player is explicitly recorded as scoring two distinct goals.
+            - KEY FACTUAL RULE:
+                - Goal count per player must match the number of goal events where the player is listed as "scorer".
+                - Assist does NOT count as a goal.
+                
+            CRITICAL SUBSTITUTION RULES:
+            - ONLY mention substitutions when you have COMPLETE information about who went OFF and who came ON
+            - In substitution events: "player" field = who went OFF, "assist" field = who came ON
+            - DO NOT guess or assume who came on as a substitute
+            - DO NOT mention partial substitution information (e.g., "Player X was substituted off" without knowing who replaced them)
+            - Cross-reference with lineup data: "startXI" = starters, "substitutes" = bench players
+            - Only describe substitutions that are strategically important and have complete information
+            - When in doubt about substitution details, exclude rather than include
+
+            Instructions:
+            - Write a complete article following the template structure exactly
+            - PRIORITIZE CURRENT MATCH DATA - focus on what actually happened in this specific game
+            - Use historical/background data ONLY for context and introduction, not as main story
+            - When describing events, clearly indicate they happened in THIS match
+            - Do not mix up historical statistics with current match statistics
+            - Use only the provided data - do not invent statistics or quotes
+            - When describing goals, DO NOT specify the shot type (e.g., header, volley, long-range)
+            - Use data efficiently and do not miss critical information from the current match data like goals, score, etc.
+            - Maintain a consistent, professional tone, and do not make professional mistakes like using wrong team names, wrong scores, etc.
+            - Ensure the article is between 400-600 words
+            - Include all required sections: Headline, Introduction, Body, Conclusion
+            - The main story should be about THIS GAME, not historical background
+            - Be extremely careful with player names, team names, and event details - use only what is explicitly stated in the data
+            - CRITICAL: For substitutions, only mention them when you have complete information (both who went off AND who came on)
+            - CRITICAL: If substitution data is incomplete (missing "assist" field), do not mention the substitution at all
+            """
+    
+    def get_game_recap_template(self):
+        return """
+        Template: Match Report Structure (400-600 words)
+        
+        Headline: [Team A] [Score] [Team B]: [Key moment/player] [action verb] [competition context]
+        - Concise, engaging headline that captures the main story
+        - Include teams, background, score, and key narrative element
+        
+        Introduction: Context, teams, and stakes
+        - Establish result significance with score and competition context
+        - Example: "[Winning team] secured a [score] victory over [losing team] in [competition], with [key factor] proving decisive."
+        - Introduce background of the game and teams
+        - Set up the stakes and importance of the match
+        
+        Body: Game storyline, key moments, player performances, relevant statistics, quotes
+        - Describe key moments in temporal sequence, emphasizing turning points and goals
+        - Focus on game-changing incidents rather than comprehensive play-by-play
+        - Include individual standout performances and tactical decisions
+        - Integrate relevant statistics (possession, shots, etc.) and player quotes
+        - Maintain narrative flow while covering all essential game elements
+        
+        Conclusion: Summary and implications
+        - Summarize the key outcome and its significance
+        - Address competitive implications (league standings, qualification scenarios, season trajectory)
+        - Provide forward-looking perspective on what this result means for both teams
+        """
+
+    def _validate_article(self, article: str):
+        word_count = len(article.split())
+        if word_count < 400 or word_count > 600:
+            logger.warning(f"Article length out of bounds: {word_count} words.")
+        if not ("Headline" in article or article.split('\n')[0].strip()):
+            logger.warning("Article missing headline.")
+        if not any(section in article for section in ["Introduction", "Body", "Conclusion"]):
+            logger.warning("Article missing required sections.")
+
+    def _format_narrative_guidance(self, narrative_recommendation) -> str:
+        """Format narrative recommendation into guidance text for the writer."""
+        if not narrative_recommendation:
+            return "Write a balanced, informative article focusing on key match events and player performances."
+
+        try:
+            # Extract key guidance components
+            writing_guidance = narrative_recommendation.writing_guidance
+            prioritized_content = narrative_recommendation.prioritized_content
+            story_arc = narrative_recommendation.story_arc
+            key_themes = narrative_recommendation.key_themes
+            emotional_elements = narrative_recommendation.emotional_elements
+
+            # Build guidance text
+            guidance_parts = []
+
+            # Writing style and audience
+            guidance_parts.append(f"WRITING APPROACH: Use a {writing_guidance.writing_style.value} writing style targeting {writing_guidance.target_audience.value}.")
+
+            # Primary narrative angle
+            guidance_parts.append(f"NARRATIVE FOCUS: Emphasize {writing_guidance.primary_angle.value} elements throughout the article.")
+
+            # Tone keywords
+            if writing_guidance.tone_keywords:
+                guidance_parts.append(f"TONE: Incorporate these tones: {', '.join(writing_guidance.tone_keywords)}")
+
+            # Focus areas
+            if writing_guidance.focus_areas:
+                guidance_parts.append(f"KEY FOCUS AREAS: {', '.join(writing_guidance.focus_areas)}")
+
+            # Story structure
+            if story_arc:
+                structure_text = []
+                for section, approach in story_arc.items():
+                    structure_text.append(f"{section.title()}: {approach}")
+                guidance_parts.append(f"STORY STRUCTURE: {' | '.join(structure_text)}")
+
+            # Key themes to develop
+            if key_themes:
+                guidance_parts.append(f"THEMES TO DEVELOP: {', '.join(key_themes)}")
+
+            # Emotional elements to include
+            if emotional_elements:
+                guidance_parts.append(f"EMOTIONAL ELEMENTS: Incorporate {', '.join(emotional_elements)} where appropriate")
+
+            # Content priorities
+            if prioritized_content:
+                top_priorities = [content.content for content in prioritized_content[:3]]  # Top 3 priorities
+                guidance_parts.append(f"CONTENT PRIORITIES: Focus on: 1) {top_priorities[0] if len(top_priorities) > 0 else 'N/A'} 2) {top_priorities[1] if len(top_priorities) > 1 else 'N/A'} 3) {top_priorities[2] if len(top_priorities) > 2 else 'N/A'}")
+
+            # Content structure guidance
+            if hasattr(writing_guidance, 'content_structure') and writing_guidance.content_structure:
+                structure_guidance = []
+                for section, guidance_text in writing_guidance.content_structure.items():
+                    structure_guidance.append(f"{section.title()}: {guidance_text}")
+                guidance_parts.append(f"SECTION GUIDANCE: {' | '.join(structure_guidance)}")
+
+            return "\n\n".join(guidance_parts)
+
+        except Exception as e:
+            logger.error(f"Error formatting narrative guidance: {e}")
+            return "Write a balanced, informative article focusing on key match events and player performances."
+        
