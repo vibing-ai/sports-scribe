@@ -222,6 +222,10 @@ class ResearchAgent:
             - Use "elapsed" + "extra" format for times (e.g., 90+1 for elapsed:90, extra:1)
             - Verify every detail against the original data
             - If goalkeeper data is not explicitly provided, DO NOT mention saves
+            - GOALKEEPER SAVES (STRICT): Use ONLY team statistics where type == "Goalkeeper Saves".
+              Attribute the count to the starting goalkeeper found in the lineups for that team.
+              Do NOT infer saves from player stat blocks, events, or narrative; if the statistic
+              is absent, omit saves entirely.
 
             EVENT TYPE ISOLATION RULES:
             - Each event type has its own specific data - DO NOT mix them
@@ -312,7 +316,8 @@ class ResearchAgent:
             - Extract actual shot counts per player from statistics
             - Verify goal events match player statistics
             - Cross-check dribble attempts and success rates
-            - Validate save counts for goalkeepers
+            - Validate save counts for goalkeepers strictly from team statistics where
+              type == "Goalkeeper Saves", and map to the starting goalkeeper via lineups
 
             STEP 3 - ANALYSIS PLANNING:
             Based on VERIFIED current match data only:

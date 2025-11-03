@@ -297,6 +297,13 @@ class AgentPipeline:
             # Step 2.5: Narrative Planning - Process research insights through narrative planner
             logger.info("[PIPELINE] Step 2.5: Processing research insights through narrative planner")
 
+            # Combine research components for comprehensive reporting and narrative planning metadata
+            comprehensive_research_data = {
+                "game_analysis": game_analysis,
+                "historical_context": historical_context,
+                "player_performance": player_performance_analysis,
+            }
+
             # Prepare research output for narrative planner
             research_output_for_planner = {
                 "analysis": {

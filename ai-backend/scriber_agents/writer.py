@@ -91,6 +91,10 @@ class WriterAgent:
         6. NEVER claim "debut goal", "first goal", "maiden goal", or milestone achievements
         7. DO NOT make historical significance claims without explicit historical data
         8. Only describe what happened in THIS MATCH - avoid unverifiable historical context
+        9. GOALKEEPER SAVES (STRICT): When mentioning saves, use ONLY the team statistics entry where
+           type == "Goalkeeper Saves" to determine the count. Attribute it to the starting
+           goalkeeper from the lineups for that team. If this statistic is absent, do NOT
+           mention saves.
 
         Please write a complete article following the template structure exactly, incorporating the narrative guidance to create the most engaging and appropriate article for the intended audience, while respecting the data separation rules."""
         )
@@ -225,6 +229,9 @@ class WriterAgent:
             - Verify that each player mentioned actually participated in the specific event described
             - Only mention players who have clear, verifiable actions in the match events
             - Double-check all player names, team names, and event details against the provided data
+            - GOALKEEPER SAVES (STRICT): The saves count MUST come from team statistics where
+              type == "Goalkeeper Saves" and be attributed to the starting goalkeeper. If not present,
+              omit saves entirely.
             
             CRITICAL: NO UNVERIFIABLE HISTORICAL CLAIMS:
             - DO NOT claim this is a player's "debut goal", "first goal", "maiden goal", or "opening goal"
